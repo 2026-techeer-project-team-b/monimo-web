@@ -1,0 +1,63 @@
+# 바뀐 파일 위치 -> area 라벨 규칙 (.github/workflows/pr-labeler.yml 이 사용)
+
+area/server-map:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/server-map/**'
+
+area/scatter:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/scatter/**'
+
+area/call-tree:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/call-tree/**'
+
+area/inspector:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/inspector/**'
+
+area/alert-rules:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/alert-rules/**'
+
+area/settings:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/settings/**'
+
+area/api:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/api/**'
+
+area/components:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/components/**'
+
+area/build:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'vite.config.*'
+      - 'tsconfig*.json'
+      - 'Dockerfile'
+      - 'nginx.conf'
+
+area/ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+
+area/docs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**'
+      - '**/*.md'
