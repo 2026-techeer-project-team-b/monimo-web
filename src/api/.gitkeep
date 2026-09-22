@@ -1,0 +1,1 @@
+# API 호출만 모은다: client(응답 봉투 · 에러 코드 · cursor 페이징) + 가짜 응답(mock)

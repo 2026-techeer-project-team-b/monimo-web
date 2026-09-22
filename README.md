@@ -2,18 +2,46 @@
 
 모니모니터링 화면 (서버맵 · 스캐터 · 콜트리 · 인스펙터 · 규칙/설정)
 
-- 기술: React · TypeScript · Vite
-- 상태: 뼈대만 있음 (개발환경 세팅 중)
+- 기술: React 19 · TypeScript · Vite · oxlint
+- 나중에 넣을 것: Zustand (여러 화면이 같이 쓰는 값) · TanStack Query (서버 데이터). 쓰는 화면이 생길 때 설치한다
+- 상태: 뼈대만 있음 (디자인 토큰까지)
 
 ## 폴더 구성
 
-| 폴더 | 하는 일 |
+**디자인 시스템에서 부품을 만들고, 화면(features)에서 조립한다.**
+
+```
+src/
+├── design-system/   공통 부품 공장 (화면을 모른다)
+│   ├── tokens/      색 · 글자 · 간격 값 (Figma 「디자인 시스템」 변수와 1:1)
+│   ├── components/  Button · Badge · Input · Card ... (부품 하나 = 폴더 하나)
+│   └── index.ts     입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
+├── features/        화면 하나 = 폴더 하나 (server-map · scatter · call-tree ...)
+├── api/             API 호출 + 가짜 응답
+├── stores/          여러 화면이 같이 쓰는 값 (Zustand)
+├── app/             앱 뼈대 (라우터 · TanStack Query 연결 자리)
+└── main.tsx
+```
+
+| 규칙 | 지키는 방법 |
 |---|---|
-| `src/` | 화면 소스 (features · api · components) |
+| `design-system` 은 `features` · `api` · `stores` · `app` 을 가져다 쓰지 않는다 | `npm run lint` 가 막는다 (`.oxlintrc.json`) |
+| 색 · 간격은 hex · px 를 직접 쓰지 않고 토큰 변수를 쓴다 | 예: `var(--color-accent-default)` · `var(--space-4)` |
+| 글자는 Figma 텍스트 스타일 이름 클래스를 쓴다 | 예: `Body/13 Strong` → `.text-body-13-strong` |
+| 토큰 값을 바꿀 때는 Figma 먼저, 그다음 `tokens.css` | 둘이 어긋나지 않게 |
 
 ## 로컬 실행
 
-준비 중
+필요한 것: Node 24 (`.nvmrc`)
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run lint     # 코드 검사 (design-system 경계 포함)
+npm run build    # 타입 검사 + 빌드
+```
+
+`/api` 로 시작하는 요청은 개발 서버가 `localhost:8080`(api-server)으로 넘긴다.
 
 ## 환경변수
 
@@ -21,13 +49,14 @@
 
 | 이름 | 설명 |
 |---|---|
-| (준비 중) | |
+| `VITE_API_BASE` | API 주소 앞부분 (기본 `/api/v1`) |
 
 ## 포트
 
 | 서비스 | 포트 |
 |---|---|
-| (준비 중) | |
+| 개발 서버 (Vite) | 5173 |
+| api-server (monimo-backend) | 8080 |
 
 ## 관련 문서
 
