@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  },
+  "overrides": [
+    {
+      "files": ["src/design-system/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/features*", "@/api*", "@/stores*", "@/app*", "**/features/**", "**/api/**", "**/stores/**", "**/app/**"],
+                "message": "design-system 은 화면·API·상태를 몰라야 한다. 필요한 값은 props 로 받는다."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
