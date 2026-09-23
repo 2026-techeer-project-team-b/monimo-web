@@ -1,6 +1,13 @@
 // 디자인 시스템 입구. 화면 코드는 여기로만 가져다 쓴다.
 //   import { Button } from '@/design-system'
-// 부품을 만들면 아래에 export 를 한 줄씩 추가한다.
-import './tokens/tokens.css'
-import './tokens/typography.css'
-import './tokens/base.css'
+// 구성은 Figma 「디자인 시스템」 섹션 순서(01~07)와 같다. 각 파일 머리 주석에 추가 규칙이 있다.
+
+import './tokens/color.css'      /* 01 색 */
+import './tokens/typography.css' /* 02 타이포그래피 */
+import './tokens/layout.css'     /* 03 간격 · 반경 · 그림자 */
+import './tokens/base.css'       /* 공통 바탕 (토큰 다음에 온다) */
+
+export * from './icons'               /* 04 아이콘 */
+export * from './components/base'     /* 05 컴포넌트 (기본) */
+export * from './components/extended' /* 06 컴포넌트 (확장) */
+export * from './patterns'            /* 07 패턴 */

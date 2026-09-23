@@ -1,0 +1,110 @@
+/*
+ * 01 색 (Color)
+ * Figma 「디자인 시스템」 DS Content (파일 1dH26CE91tZIpMiW1mbC8t · 노드 555:7) 와 이름·값을 1:1로 맞춘다.
+ * 값을 바꿀 때는 Figma 먼저, 그다음 여기. 화면 코드에서 hex 하드코딩은 금지.
+ *
+ * 두 층으로 나뉜다.
+ *   (b) 원시 색 Primitives 29개  --gray-50 …        램프 원본. 화면에서 직접 쓰지 않는다.
+ *   (a) 의미 색 Color 34개       --color-bg-canvas … 화면에서 쓰는 색은 전부 이 층에서만 고른다.
+ * 이름 규칙: Figma `bg/canvas` → `--color-bg-canvas`, Figma `gray/50` → `--gray-50`.
+ */
+:root {
+  /* ───────── (b) 원시 색 — Primitives 29 ───────── */
+
+  /* gray — 뉴트럴 13 */
+  --white: #ffffff;
+  --gray-50: #f3f5f8;
+  --gray-75: #f7f9fb;
+  --gray-100: #eef1f5;
+  --gray-150: #e6eaf0;
+  --gray-200: #d9dee6;
+  --gray-250: #c9d1dc;
+  --gray-300: #b8c0cc;
+  --gray-400: #8b96a5;
+  --gray-500: #6b7684;
+  --gray-600: #5e6875;
+  --gray-700: #3e4753;
+  --gray-900: #151a22;
+
+  /* indigo — 강조 4 */
+  --indigo-100: #e4e9fb;
+  --indigo-300: #7b8ff0;
+  --indigo-500: #3452d6;
+  --indigo-700: #22389a;
+
+  /* green — 정상 3 */
+  --green-100: #ddf3e6;
+  --green-400: #34c46a;
+  --green-600: #1f8a4c;
+
+  /* amber — 경고 2 */
+  --amber-100: #fbefd9;
+  --amber-600: #b2680a;
+
+  /* red — 위험 2 */
+  --red-100: #fadddb;
+  --red-600: #c8362f;
+
+  /* service — 서비스 5 (indigo-500 과 채도·명도를 맞춘 색) */
+  --teal-600: #0f8b8d;
+  --orange-600: #b25e1f;
+  --purple-600: #7a3fbf;
+  --pink-600: #c0397a;
+  --olive-600: #4e7a1f;
+
+  /* ───────── (a) 의미 색 — Color 34 ───────── */
+
+  /* bg — 배경 */
+  --color-bg-canvas: var(--gray-50);     /* 본문 배경 */
+  --color-bg-surface: var(--white);      /* 카드 · 표 · 패널 · 모달 */
+  --color-bg-surface-2: var(--gray-100); /* 표 헤더 · 비활성 · 코드 인라인 */
+  --color-bg-sidebar: var(--gray-900);   /* 사이드바 · 코드 블록 */
+  --color-bg-overlay: var(--gray-900);   /* 모달 뒤 오버레이. 45% 불투명으로 씌운다 */
+
+  /* border — 선 */
+  --color-border-default: var(--gray-200); /* 카드 · 표 선 */
+  --color-border-strong: var(--gray-300);  /* 입력 · 버튼 테두리 */
+  --color-border-grid: var(--gray-150);    /* 차트 격자선 */
+
+  /* text — 글자 */
+  --color-text-primary: var(--gray-900);         /* 본문 */
+  --color-text-secondary: var(--gray-700);       /* 보조 */
+  --color-text-tertiary: var(--gray-600);        /* 캡션 · 라벨 (대비 5.3:1) */
+  --color-text-disabled: var(--gray-500);        /* 비활성 */
+  --color-text-on-dark: var(--white);            /* 사이드바 활성 · 버튼 글자 */
+  --color-text-on-dark-muted: var(--gray-250);   /* 사이드바 기본 글자 */
+  --color-text-on-dark-caption: var(--gray-400); /* 사이드바 캡션 */
+
+  /* accent — 강조 */
+  --color-accent-default: var(--indigo-500); /* 주 버튼 · 링크 · 활성 · 선택 */
+  --color-accent-strong: var(--indigo-700);  /* 링크 hover · 강조 글자 */
+  --color-accent-soft: var(--indigo-100);    /* 선택 행 · 활성 세그먼트 배경 */
+  --color-accent-on-dark: var(--indigo-300); /* 사이드바 활성 바 */
+
+  /* status — 상태 (의미가 있을 때만 쓴다) */
+  --color-status-ok: var(--green-600);         /* 정상 · 성공 · RESOLVED */
+  --color-status-ok-soft: var(--green-100);    /* ok 배지 배경 */
+  --color-status-ok-on-dark: var(--green-400); /* 사이드바 카나리 점 */
+  --color-status-warn: var(--amber-600);       /* 경고 · 지연 · WARNING */
+  --color-status-warn-soft: var(--amber-100);  /* warn 배지 · 배너 배경 */
+  --color-status-crit: var(--red-600);         /* 위험 · 실패 · CRITICAL · 5xx */
+  --color-status-crit-soft: var(--red-100);    /* crit 배지 · 배너 배경 */
+  --color-status-muted: var(--gray-500);       /* INACTIVE · 비활성 점 */
+  --color-status-muted-soft: var(--gray-100);  /* muted 배지 배경 */
+
+  /* service — 서비스 팔레트 (서버맵 노드 · 트레이스 스팬 바. 채도 · 명도 동일) */
+  --color-service-1: var(--indigo-500); /* shop-gateway */
+  --color-service-2: var(--teal-600);   /* shop-order */
+  --color-service-3: var(--orange-600); /* shop-inventory */
+  --color-service-4: var(--purple-600); /* 예비 · 6번째 노드 */
+  --color-service-5: var(--pink-600);   /* shop-payment */
+  --color-service-6: var(--olive-600);  /* shop-user */
+}
+
+/*
+ * 대비 규칙 (Figma 「대비 규칙」 블록)
+ * - text/tertiary #5E6875 on bg/surface — 5.3:1. 캡션·라벨이 넘어서는 안 되는 최소선.
+ * - accent/default #3452D6 on bg/surface — 6:1. 본문 크기 링크·활성 라벨에 쓴다.
+ * - 흰 글자(text/on-dark)는 accent/default · status/ok · status/warn · status/crit 네 가지 진한 색 위에만 쓴다.
+ *   soft 배경(ok-soft · warn-soft · crit-soft · accent-soft) 위에는 같은 계열의 진한 글자를 쓴다.
+ */

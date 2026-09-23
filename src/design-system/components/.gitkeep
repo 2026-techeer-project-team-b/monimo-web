@@ -1,1 +1,0 @@
-# 공통 부품: Figma 「디자인 시스템」 컴포넌트를 코드로 옮긴다 (Button · Badge · StatusDot · Input · Select · Switch · Card · Shell 등). 부품 하나 = 폴더 하나, index.ts 에서 export
