@@ -1,31 +1,32 @@
 /*
- * 03 간격 · 반경 · 그림자 (Spacing · Radius · Shadow)
- * Figma 「디자인 시스템」 03 섹션과 1:1. 부품 고정 크기도 여기서 관리한다.
+ * 03 간격 · 반경 · 그림자 (Spacing · Radius · Elevation)
+ * Figma 「디자인 시스템」 03 섹션(노드 555:15)과 1:1. 4의 배수 간격 5단계, 반경 3단계, 고정 크기 8종, 그림자 2종.
  * 화면 코드에서 px 를 직접 쓰지 않고 이 변수만 쓴다. 값을 바꿀 때는 Figma 먼저, 그다음 여기.
  */
 :root {
-  /* 간격 — 4px 배수 */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
+  /* (a) space — 간격 5단계. 모든 간격은 4의 배수, 임의 값을 쓰지 않는다 */
+  --space-1: 4px;  /* 아주 좁은 간격 */
+  --space-2: 8px;  /* 기본 간격 (칩 · 아이콘) */
+  --space-3: 12px; /* 컨트롤 안 패딩 · 행 간격 */
+  --space-4: 16px; /* 카드 패딩 · 카드 간 gap */
+  --space-5: 24px; /* 본문 패딩 */
 
-  /* 모서리 */
-  --radius-sm: 6px;    /* 배지 · 입력 · 버튼 */
-  --radius-md: 10px;   /* 카드 · 패널 · 모달 */
-  --radius-full: 999px; /* 점 · 스위치 · 알약 */
+  /* (b) radius — 반경 3단계 */
+  --radius-sm: 6px;     /* 버튼 · 입력 · 세그먼트 */
+  --radius-md: 10px;    /* 카드 · 모달 */
+  --radius-full: 999px; /* 배지 · 칩 · 아바타 */
 
-  /* 그림자 (gray-900 기반 알파) */
-  --shadow-card: 0 1px 2px #141a220f;
-  --shadow-overlay: 0 12px 32px #141a222e;
-
-  /* 크기 — 부품 고정값 */
-  --size-control: 36px;  /* 버튼 · 입력 높이 */
+  /* (c) size — 고정 크기 8종. 셸과 컨트롤의 치수, 화면마다 다시 정하지 않는다 */
+  --size-control: 36px;  /* 버튼 · 입력 · 셀렉트 높이 */
   --size-row: 40px;      /* 표 행 높이 */
-  --size-topbar: 56px;
-  --size-sidebar: 224px;
-  --size-drawer: 480px;
-  --size-switch-w: 40px;
-  --size-switch-h: 22px;
+  --size-topbar: 56px;   /* 상단바 높이 */
+  --size-sidebar: 224px; /* 사이드바 폭 */
+  --size-drawer: 480px;  /* 우측 드로어 폭 */
+  --size-icon: 16px;     /* 기본 아이콘 */
+  --size-switch-w: 40px; /* 스위치 폭 */
+  --size-switch-h: 22px; /* 스위치 높이 */
+
+  /* (d) 그림자 2종. 캔버스 위 카드와, 본문 위로 떠오르는 레이어를 구분한다 */
+  --shadow-card: 0 1px 2px #141a220f;     /* rgba(20,26,34,.06) — 카드 · 표 패널 */
+  --shadow-overlay: 0 12px 32px #141a222e; /* rgba(20,26,34,.18) — 모달 · 드로어 · 토스트 */
 }
