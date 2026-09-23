@@ -12,10 +12,18 @@
 
 ```
 src/
-├── design-system/   공통 부품 공장 (화면을 모른다)
-│   ├── tokens/      색 · 글자 · 간격 값 (Figma 「디자인 시스템」 변수와 1:1)
-│   ├── components/  Button · Badge · Input · Card ... (부품 하나 = 폴더 하나)
-│   └── index.ts     입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
+├── design-system/   공통 부품 공장 (화면을 모른다). Figma 「디자인 시스템」 섹션 01~07 과 1:1
+│   ├── tokens/
+│   │   ├── color.css       01 색 (의미 색 34 + 원시 색 29)
+│   │   ├── typography.css  02 타이포그래피 (서체 변수 + 텍스트 스타일 클래스)
+│   │   ├── layout.css      03 간격 · 반경 · 그림자 · 크기
+│   │   └── base.css        공통 바탕 (reset · body)
+│   ├── icons/              04 아이콘 (SVG 를 감싼 컴포넌트)
+│   ├── components/
+│   │   ├── base/           05 컴포넌트 (기본): Button · Badge · Input · Card ...
+│   │   └── extended/       06 컴포넌트 (확장): Table · Tabs · Modal ...
+│   ├── patterns/           07 패턴 (PageHeader · FilterBar · EmptyState ...)
+│   └── index.ts            입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
 ├── features/        화면 하나 = 폴더 하나 (server-map · scatter · call-tree ...)
 ├── api/             API 호출 + 가짜 응답
 ├── stores/          여러 화면이 같이 쓰는 값 (Zustand)
@@ -28,7 +36,8 @@ src/
 | `design-system` 은 `features` · `api` · `stores` · `app` 을 가져다 쓰지 않는다 | `npm run lint` 가 막는다 (`.oxlintrc.json`) |
 | 색 · 간격은 hex · px 를 직접 쓰지 않고 토큰 변수를 쓴다 | 예: `var(--color-accent-default)` · `var(--space-4)` |
 | 글자는 Figma 텍스트 스타일 이름 클래스를 쓴다 | 예: `Body/13 Strong` → `.text-body-13-strong` |
-| 토큰 값을 바꿀 때는 Figma 먼저, 그다음 `tokens.css` | 둘이 어긋나지 않게 |
+| 토큰 값을 바꿀 때는 Figma 먼저, 그다음 `tokens/` 의 해당 파일 | 둘이 어긋나지 않게 |
+| 화면에서는 의미 색(`--color-*`)만 쓴다. 원시 색(`--gray-500` 등) 직접 사용 금지 | `color.css` 의 두 층 구분 참고 |
 
 ## 로컬 실행
 

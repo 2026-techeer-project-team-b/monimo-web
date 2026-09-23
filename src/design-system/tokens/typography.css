@@ -1,7 +1,15 @@
 /*
- * 글자 스타일: Figma 텍스트 스타일 이름을 그대로 클래스로 만든다.
- * Figma `Body/13 Strong` → `.text-body-13-strong`
+ * 02 타이포그래피 (Typography)
+ * Figma 「디자인 시스템」 02 섹션과 1:1. 서체 변수 + 텍스트 스타일 클래스.
+ * Figma 텍스트 스타일 이름을 그대로 클래스로 만든다: `Body/13 Strong` → `.text-body-13-strong`
+ * 화면 코드에서는 font-size · font-weight 를 직접 쓰지 않고 이 클래스만 쓴다.
  */
+:root {
+  --font-sans: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* 본문 서체 (IBM Plex Sans KR) */
 .text-title-20 { font: 600 20px/24px var(--font-sans); }
 .text-section-15 { font: 600 15px/20px var(--font-sans); }
 .text-body-13 { font: 400 13px/19px var(--font-sans); }
@@ -10,6 +18,7 @@
 .text-caption-12-medium { font: 500 12px/17px var(--font-sans); }
 .text-micro-11 { font: 600 11px/15px var(--font-sans); letter-spacing: 2px; }
 
+/* 고정폭 서체 (IBM Plex Mono) — 숫자 · 코드 · 식별자 */
 .text-mono-16-strong { font: 600 16px/20px var(--font-mono); letter-spacing: 4px; }
 .text-mono-13 { font: 400 13px/19px var(--font-mono); }
 .text-mono-12 { font: 400 12px/17px var(--font-mono); }

@@ -1,0 +1,31 @@
+/*
+ * 03 간격 · 반경 · 그림자 (Spacing · Radius · Shadow)
+ * Figma 「디자인 시스템」 03 섹션과 1:1. 부품 고정 크기도 여기서 관리한다.
+ * 화면 코드에서 px 를 직접 쓰지 않고 이 변수만 쓴다. 값을 바꿀 때는 Figma 먼저, 그다음 여기.
+ */
+:root {
+  /* 간격 — 4px 배수 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  /* 모서리 */
+  --radius-sm: 6px;    /* 배지 · 입력 · 버튼 */
+  --radius-md: 10px;   /* 카드 · 패널 · 모달 */
+  --radius-full: 999px; /* 점 · 스위치 · 알약 */
+
+  /* 그림자 (gray-900 기반 알파) */
+  --shadow-card: 0 1px 2px #141a220f;
+  --shadow-overlay: 0 12px 32px #141a222e;
+
+  /* 크기 — 부품 고정값 */
+  --size-control: 36px;  /* 버튼 · 입력 높이 */
+  --size-row: 40px;      /* 표 행 높이 */
+  --size-topbar: 56px;
+  --size-sidebar: 224px;
+  --size-drawer: 480px;
+  --size-switch-w: 40px;
+  --size-switch-h: 22px;
+}
