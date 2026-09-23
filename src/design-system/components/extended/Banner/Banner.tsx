@@ -25,7 +25,7 @@ const ICON: Record<BannerTone, ReactNode> = {
  */
 export function Banner({ tone = 'info', action, className, children, ...rest }: BannerProps) {
   return (
-    <div role="status" className={cx('ds-banner', `ds-banner--${tone}`, className)} {...rest}>
+    <div role={tone === 'crit' ? 'alert' : 'status'} className={cx('ds-banner', `ds-banner--${tone}`, className)} {...rest}>
       <span className="ds-banner__icon">{ICON[tone]}</span>
       <div className="ds-banner__body text-body-13">{children}</div>
       {action ? <div className="ds-banner__action text-caption-12-medium">{action}</div> : null}

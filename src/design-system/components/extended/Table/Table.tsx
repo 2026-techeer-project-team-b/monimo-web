@@ -1,4 +1,4 @@
-import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
+import type { HTMLAttributes, KeyboardEvent, MouseEvent, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cx } from '../../../cx'
 import './Table.css'
 
@@ -37,13 +37,25 @@ export type TableRowProps = HTMLAttributes<HTMLTableRowElement> & {
   selected?: boolean
 }
 
-/** Figma Table/Row — 높이 40. onClick 이 있으면 클릭 가능한 행으로 보인다 */
-export function TableRow({ selected, className, onClick, ...rest }: TableRowProps) {
+/**
+ * Figma Table/Row — 높이 40. onClick 이 있으면 클릭 가능한 행이 되고 Tab 으로 닿아 Enter · Space 로도 실행된다.
+ * 선택된 행은 aria-current 로 알린다 (aria-selected 는 grid 전용이라 일반 표에서는 쓰지 않는다).
+ */
+export function TableRow({ selected, className, onClick, onKeyDown, ...rest }: TableRowProps) {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
+    onKeyDown?.(e)
+    if (onClick && !e.defaultPrevented && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick(e as unknown as MouseEvent<HTMLTableRowElement>)
+    }
+  }
   return (
     <tr
-      aria-selected={selected || undefined}
+      aria-current={selected ? 'true' : undefined}
+      tabIndex={onClick ? 0 : undefined}
       className={cx('ds-table__row', selected && 'ds-table__row--selected', onClick && 'ds-table__row--clickable', className)}
       onClick={onClick}
+      onKeyDown={onClick || onKeyDown ? handleKeyDown : undefined}
       {...rest}
     />
   )

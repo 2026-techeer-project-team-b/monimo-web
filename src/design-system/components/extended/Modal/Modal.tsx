@@ -35,20 +35,25 @@ export type ModalProps = {
 export function Modal({ open, onClose, title, footer, children, className }: ModalProps) {
   const titleId = useId()
   const ref = useRef<HTMLDivElement>(null)
+  // onClose 는 보통 인라인 화살표라 매 렌더마다 바뀐다. ref 로 받아 아래 effect 가 open 에만 반응하게 한다
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
 
   useEffect(() => {
     if (!open) return
     const previous = document.activeElement as HTMLElement | null
     ref.current?.focus()
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
       previous?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 

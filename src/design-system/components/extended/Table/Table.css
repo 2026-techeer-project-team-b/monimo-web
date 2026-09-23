@@ -28,5 +28,6 @@
 
 .ds-table__row--clickable { cursor: pointer; }
 .ds-table__row--clickable:hover { background: var(--color-bg-surface-2); }
+.ds-table__row--clickable:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: -2px; }
 .ds-table__row--selected,
 .ds-table__row--selected:hover { background: var(--color-accent-soft); }

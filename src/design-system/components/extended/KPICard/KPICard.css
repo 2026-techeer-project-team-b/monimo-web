@@ -1,5 +1,5 @@
 /* Figma KPICard — Card + gap space/2 · 폭 240 견본 */
-.ds-kpi {
+.ds-kpi.ds-card { /* Card 의 gap 을 CSS 로드 순서와 무관하게 덮는다 */
   gap: var(--space-2);
   width: 240px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
 }
