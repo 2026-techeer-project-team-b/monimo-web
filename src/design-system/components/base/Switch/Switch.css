@@ -1,0 +1,33 @@
+/* Figma Switch — size/switch-w × size/switch-h · 손잡이 18 흰색 · On accent/default · Off border/strong */
+.ds-switch {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--size-switch-w);
+  height: var(--size-switch-h);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.ds-switch--on { background: var(--color-accent-default); }
+.ds-switch:disabled { cursor: not-allowed; opacity: 0.5; }
+.ds-switch:focus-visible {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+.ds-switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px; /* Figma 값 */
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  transition: transform 120ms ease;
+}
+.ds-switch--on .ds-switch__knob {
+  /* 트랙 폭 − 손잡이 18 − 양쪽 인셋 2×2 */
+  transform: translateX(calc(var(--size-switch-w) - 18px - 4px));
+}

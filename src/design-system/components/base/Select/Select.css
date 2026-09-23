@@ -1,0 +1,36 @@
+/* Figma Select — Input 과 같은 규격 + 우측 chevron 12px (text/tertiary) */
+.ds-select {
+  position: relative;
+  display: inline-block;
+  width: 160px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
+}
+.ds-select__native {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--size-control);
+  padding: 0 calc(10px + 12px + var(--space-2)) 0 10px; /* 우측: 여백 + chevron + gap */
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  appearance: none;
+  cursor: pointer;
+}
+.ds-select__native:focus-visible {
+  outline: none;
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 2px var(--color-accent-soft);
+}
+.ds-select__native:disabled {
+  background: var(--color-bg-surface-2);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.ds-select__chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}

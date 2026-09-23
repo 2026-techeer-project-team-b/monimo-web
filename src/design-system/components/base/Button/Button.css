@@ -1,0 +1,40 @@
+/* Figma Button/* — 높이 size/control · radius/sm · 좌우 14 · Body/13 Strong */
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--size-control);
+  padding: 0 14px; /* Figma 값 (03 토큰에 없음) */
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ds-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.ds-button:focus-visible {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+
+.ds-button--primary {
+  background: var(--color-accent-default);
+  color: var(--color-text-on-dark);
+}
+.ds-button--primary:hover:not(:disabled) { background: var(--color-accent-strong); }
+
+.ds-button--secondary {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+.ds-button--secondary:hover:not(:disabled) { background: var(--color-bg-surface-2); }
+
+.ds-button--danger {
+  background: var(--color-bg-surface);
+  border-color: var(--color-status-crit);
+  color: var(--color-status-crit);
+}
+.ds-button--danger:hover:not(:disabled) { background: var(--color-status-crit-soft); }

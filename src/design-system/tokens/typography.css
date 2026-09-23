@@ -25,6 +25,7 @@
 .text-micro-11 { font: 600 11px/15px var(--font-sans); letter-spacing: 0.02em; } /* 마이크로 라벨 (자간 2%) */
 
 /* 고정폭 서체 (IBM Plex Mono) */
+.text-mono-16-strong { font: 600 16px/20px var(--font-mono); letter-spacing: 0.04em; } /* 워드마크 (Shell/Sidebar). 02 표에는 없지만 Figma 텍스트 스타일에 있다 */
 .text-mono-13 { font: 400 13px/19px var(--font-mono); }         /* ID · 경로 · 수치 */
 .text-mono-12 { font: 400 12px/17px var(--font-mono); }         /* 작은 수치 · 시각 */
 .text-mono-12-strong { font: 600 12px/16px var(--font-mono); }  /* 배지 라벨 */

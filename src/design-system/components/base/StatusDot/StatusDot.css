@@ -1,0 +1,13 @@
+/* Figma StatusDot — 8px 원 */
+.ds-status-dot {
+  display: inline-block;
+  width: 8px;  /* Figma 값 */
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.ds-status-dot--ok     { background: var(--color-status-ok); }
+.ds-status-dot--warn   { background: var(--color-status-warn); }
+.ds-status-dot--crit   { background: var(--color-status-crit); }
+.ds-status-dot--muted  { background: var(--color-status-muted); }
+.ds-status-dot--accent { background: var(--color-accent-default); }
