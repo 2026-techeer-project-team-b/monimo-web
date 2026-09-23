@@ -6,12 +6,15 @@
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
 }
-.ds-banner__icon { display: inline-flex; flex-shrink: 0; }
+.ds-banner__icon { display: inline-flex; flex-shrink: 0; } /* 아이콘은 상태색, 글자는 -text 토큰 */
 .ds-banner__body { flex: 1; min-width: 0; }
 .ds-banner__action { flex-shrink: 0; white-space: nowrap; }
 .ds-banner__action a { color: inherit; }
 
 .ds-banner--info { background: var(--color-accent-soft);      color: var(--color-accent-strong); }
-.ds-banner--ok   { background: var(--color-status-ok-soft);   color: var(--color-status-ok); }
-.ds-banner--warn { background: var(--color-status-warn-soft); color: var(--color-status-warn); }
-.ds-banner--crit { background: var(--color-status-crit-soft); color: var(--color-status-crit); }
+.ds-banner--ok   { background: var(--color-status-ok-soft);   color: var(--color-status-ok-text); }
+.ds-banner--warn { background: var(--color-status-warn-soft); color: var(--color-status-warn-text); }
+.ds-banner--crit { background: var(--color-status-crit-soft); color: var(--color-status-crit-text); }
+.ds-banner--ok .ds-banner__icon   { color: var(--color-status-ok); }
+.ds-banner--warn .ds-banner__icon { color: var(--color-status-warn); }
+.ds-banner--crit .ds-banner__icon { color: var(--color-status-crit); }
