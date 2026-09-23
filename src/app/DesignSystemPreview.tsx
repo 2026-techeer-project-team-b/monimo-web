@@ -63,7 +63,7 @@ export function DesignSystemPreview() {
       <div style={row}>
         <Input defaultValue="값" />
         <Input placeholder="플레이스홀더" />
-        <Select defaultValue="all">
+        <Select defaultValue="all" aria-label="범위">
           <option value="all">전체</option>
           <option value="shop-order">shop-order</option>
         </Select>
@@ -88,7 +88,7 @@ export function DesignSystemPreview() {
         <div style={{ flex: 1, background: 'var(--color-bg-canvas)' }}>
           <Topbar title="서버맵" subtitle="서비스 간 호출 관계와 에러를 한눈에">
             <span className="text-caption-12" style={{ color: 'var(--color-text-tertiary)' }}>서비스</span>
-            <Select defaultValue="shop-order">
+            <Select defaultValue="shop-order" aria-label="서비스">
               <option value="shop-order">shop-order</option>
             </Select>
             <Button variant="secondary">30s</Button>

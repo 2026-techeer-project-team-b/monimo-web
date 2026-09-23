@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cx } from '../../../cx'
 import './Switch.css'
 
-export type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> & {
+export type SwitchProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'onClick'> & {
   /** Figma `State=On | Off` */
   checked: boolean
   onChange?: (checked: boolean) => void

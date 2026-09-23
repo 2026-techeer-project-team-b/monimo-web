@@ -13,8 +13,8 @@
 .ds-sidebar__brand {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 0 0 20px var(--space-3);
+  gap: 2px; /* Figma 값 */
+  padding: 0 0 20px var(--space-3); /* 20: Figma 값 */
 }
 .ds-sidebar__brand-name { color: var(--color-text-on-dark); }
 .ds-sidebar__brand-caption { color: var(--color-text-on-dark-caption); }
@@ -22,7 +22,7 @@
 .ds-sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 2px; /* Figma 값 */
 }
 .ds-sidebar__item {
   box-sizing: border-box;

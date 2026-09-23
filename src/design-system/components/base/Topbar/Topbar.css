@@ -13,7 +13,7 @@
 .ds-topbar__heading {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 1px; /* Figma 값 */
   min-width: 0;
 }
 .ds-topbar__title {

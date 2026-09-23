@@ -12,7 +12,6 @@
 .ds-card__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
 }
 .ds-card__title {
@@ -20,6 +19,7 @@
   color: var(--color-text-primary);
 }
 .ds-card__actions {
+  margin-left: auto; /* 제목이 없어도 우측 정렬 */
   display: flex;
   align-items: center;
   gap: var(--space-2);

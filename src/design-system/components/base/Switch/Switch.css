@@ -28,5 +28,6 @@
   transition: transform 120ms ease;
 }
 .ds-switch--on .ds-switch__knob {
+  /* 트랙 폭 − 손잡이 18 − 양쪽 인셋 2×2 */
   transform: translateX(calc(var(--size-switch-w) - 18px - 4px));
 }

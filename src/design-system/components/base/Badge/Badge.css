@@ -2,7 +2,7 @@
 .ds-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--space-2);
+  padding: 2px var(--space-2); /* 2: Figma 값 */
   border-radius: var(--radius-full);
   white-space: nowrap;
 }
