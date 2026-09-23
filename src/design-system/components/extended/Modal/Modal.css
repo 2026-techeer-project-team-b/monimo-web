@@ -2,14 +2,15 @@
 .ds-overlay {
   position: fixed;
   inset: 0;
+  z-index: var(--layer-overlay);
   background: color-mix(in srgb, var(--color-bg-overlay) 45%, transparent);
 }
 
-/* 레이어 순서. 06 P3 「모달·드로어·토스트 레이어링」 확정 시 토큰으로 옮긴다 */
+/* 레이어 순서는 03 layer 토큰 (06 P3) */
 .ds-modal-layer {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: var(--layer-modal);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -4,7 +4,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 100; /* Modal(200) 아래. 06 P3 확정 시 토큰화 */
+  z-index: var(--layer-drawer); /* Overlay · Modal 아래 (06 P3) */
   display: flex;
   flex-direction: column;
   width: var(--size-drawer);

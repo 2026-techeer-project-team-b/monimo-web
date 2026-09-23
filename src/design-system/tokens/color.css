@@ -4,12 +4,12 @@
  * 값을 바꿀 때는 Figma 먼저, 그다음 여기. 화면 코드에서 hex 하드코딩은 금지.
  *
  * 두 층으로 나뉜다.
- *   (b) 원시 색 Primitives 29개  --gray-50 …        램프 원본. 화면에서 직접 쓰지 않는다.
- *   (a) 의미 색 Color 34개       --color-bg-canvas … 화면에서 쓰는 색은 전부 이 층에서만 고른다.
+ *   (b) 원시 색 Primitives 32개  --gray-50 …        램프 원본. 화면에서 직접 쓰지 않는다.
+ *   (a) 의미 색 Color 37개       --color-bg-canvas … 화면에서 쓰는 색은 전부 이 층에서만 고른다.
  * 이름 규칙: Figma `bg/canvas` → `--color-bg-canvas`, Figma `gray/50` → `--gray-50`.
  */
 :root {
-  /* ───────── (b) 원시 색 — Primitives 29 ───────── */
+  /* ───────── (b) 원시 색 — Primitives 32 ───────── */
 
   /* gray — 뉴트럴 13 */
   --white: #ffffff;
@@ -32,18 +32,21 @@
   --indigo-500: #3452d6;
   --indigo-700: #22389a;
 
-  /* green — 정상 3 */
+  /* green — 정상 4 */
   --green-100: #ddf3e6;
   --green-400: #34c46a;
   --green-600: #1f8a4c;
+  --green-700: #1a7540; /* soft 배경 위 글자용 */
 
-  /* amber — 경고 2 */
+  /* amber — 경고 3 */
   --amber-100: #fbefd9;
   --amber-600: #b2680a;
+  --amber-700: #975808; /* soft 배경 위 글자용 */
 
-  /* red — 위험 2 */
+  /* red — 위험 3 */
   --red-100: #fadddb;
   --red-600: #c8362f;
+  --red-700: #b4302a; /* soft 배경 위 글자용 */
 
   /* service — 서비스 5 (indigo-500 과 채도·명도를 맞춘 색) */
   --teal-600: #0f8b8d;
@@ -52,7 +55,7 @@
   --pink-600: #c0397a;
   --olive-600: #4e7a1f;
 
-  /* ───────── (a) 의미 색 — Color 34 ───────── */
+  /* ───────── (a) 의미 색 — Color 37 ───────── */
 
   /* bg — 배경 */
   --color-bg-canvas: var(--gray-50);     /* 본문 배경 */
@@ -91,6 +94,9 @@
   --color-status-crit-soft: var(--red-100);    /* crit 배지 · 배너 배경 */
   --color-status-muted: var(--gray-500);       /* INACTIVE · 비활성 점 */
   --color-status-muted-soft: var(--gray-100);  /* muted 배지 배경 */
+  --color-status-ok-text: var(--green-700);    /* ok-soft 위 글자 · 링크 (4.9:1) */
+  --color-status-warn-text: var(--amber-700);  /* warn-soft 위 글자 · 링크 (5.0:1) */
+  --color-status-crit-text: var(--red-700);    /* crit-soft 위 글자 · 링크 (4.8:1) */
 
   /* service — 서비스 팔레트 (서버맵 노드 · 트레이스 스팬 바. 채도 · 명도 동일) */
   --color-service-1: var(--indigo-500); /* shop-gateway */
@@ -106,5 +112,6 @@
  * - text/tertiary #5E6875 on bg/surface — 5.3:1. 캡션·라벨이 넘어서는 안 되는 최소선.
  * - accent/default #3452D6 on bg/surface — 6:1. 본문 크기 링크·활성 라벨에 쓴다.
  * - 흰 글자(text/on-dark)는 accent/default · status/ok · status/warn · status/crit 네 가지 진한 색 위에만 쓴다.
- *   soft 배경(ok-soft · warn-soft · crit-soft · accent-soft) 위에는 같은 계열의 진한 글자를 쓴다.
+ * - soft 배경 위 글자 · 링크는 status/ok-text · warn-text · crit-text 를 쓴다 (ok 4.9 · warn 5.0 · crit 4.8 : 1). 짧은 배지 라벨도 같다.
+ *   status/ok · warn · crit 자체는 soft 배경에서 3.8~4.1:1 이라 아이콘 · 점 · 테두리 같은 도형에만 쓴다. accent-soft 위에는 accent-strong (8.3:1). muted-soft 위에는 text/secondary (8.3:1).
  */
