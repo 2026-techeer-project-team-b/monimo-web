@@ -1,0 +1,64 @@
+/* Figma Slider — 트랙 4 surface-2 · 채움 accent · 손잡이 16 흰 원 + accent 테두리 + Shadow/card · 눈금 1×6 border/strong */
+.ds-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 280px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
+}
+.ds-slider__input {
+  width: 100%;
+  height: var(--size-icon);
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+.ds-slider__input::-webkit-slider-runnable-track {
+  height: 4px; /* Figma 값 */
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, var(--color-accent-default) var(--ds-slider-pct), var(--color-bg-surface-2) var(--ds-slider-pct));
+}
+.ds-slider__input::-moz-range-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface-2);
+}
+.ds-slider__input::-moz-range-progress {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-default);
+}
+.ds-slider__input::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--size-icon);
+  height: var(--size-icon);
+  margin-top: -6px; /* (16 - 4) / 2 */
+  border: 1px solid var(--color-accent-default);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+}
+.ds-slider__input::-moz-range-thumb {
+  width: var(--size-icon);
+  height: var(--size-icon);
+  border: 1px solid var(--color-accent-default);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+}
+.ds-slider__input:focus-visible { outline: none; }
+.ds-slider__input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--color-accent-soft); }
+.ds-slider__input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(--color-accent-soft); }
+.ds-slider__input:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.ds-slider__ticks,
+.ds-slider__labels {
+  display: flex;
+  justify-content: space-between;
+}
+.ds-slider__tick {
+  width: 1px; /* Figma 값 */
+  height: 6px; /* Figma 값 */
+  background: var(--color-border-strong);
+}
+.ds-slider__labels { color: var(--color-text-tertiary); }

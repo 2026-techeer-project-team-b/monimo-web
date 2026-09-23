@@ -4,20 +4,30 @@ import {
   Badge,
   Button,
   Card,
+  Checkbox,
+  Chip,
+  Field,
   IconAlerts,
   IconError,
   IconInspector,
   IconLogs,
   IconPlatform,
   IconServerMap,
+  IconPlus,
   IconSettings,
   IconTransactions,
   Input,
+  Pagination,
+  Segmented,
   Select,
   Sidebar,
   SidebarStatusCard,
+  Slider,
+  StatusBadge,
   StatusDot,
   Switch,
+  Tabs,
+  Textarea,
   Topbar,
   type Tone,
 } from '@/design-system'
@@ -38,6 +48,11 @@ const NAV = [
 export function DesignSystemPreview() {
   const [on, setOn] = useState(true)
   const [active, setActive] = useState('server-map')
+  const [range, setRange] = useState('1h')
+  const [tab, setTab] = useState('overview')
+  const [chips, setChips] = useState<Record<string, boolean>>({ all: true, ok: true, warn: false, crit: false })
+  const [ratio, setRatio] = useState(60)
+  const [page, setPage] = useState(1)
   const row = { display: 'flex', gap: 'var(--space-4)', alignItems: 'center', marginBottom: 'var(--space-5)' } as const
 
   return (
@@ -78,6 +93,67 @@ export function DesignSystemPreview() {
         </Card>
       </div>
 
+      <h1 className="text-title-20" style={{ marginBottom: 'var(--space-5)' }}>05-B 확장 컴포넌트 (1/2)</h1>
+
+      <div style={row}>
+        <Button variant="primary" icon={<IconPlus />}>새 규칙</Button>
+        <Button variant="primary" size="lg" icon={<IconPlus />}>새 규칙</Button>
+        <Button variant="secondary" size="lg" icon={<IconSettings />}>설정</Button>
+        <Button variant="danger" size="lg">삭제</Button>
+        <Button variant="primary" disabled icon={<IconPlus />}>비활성</Button>
+      </div>
+
+      <div style={row}>
+        {TONES.map((t) => <StatusBadge key={t} tone={t}>FIRING</StatusBadge>)}
+      </div>
+
+      <div style={row}>
+        {(['all', 'ok', 'warn', 'crit'] as const).map((k) => (
+          <Chip key={k} tone={k === 'all' ? 'default' : k} selected={chips[k]} onChange={(v) => setChips({ ...chips, [k]: v })}>
+            {k === 'all' ? '전체' : k.toUpperCase()}
+          </Chip>
+        ))}
+      </div>
+
+      <div style={row}>
+        <Segmented
+          aria-label="시간 범위"
+          value={range}
+          onChange={setRange}
+          options={['5m', '15m', '1h', '6h', '24h', '사용자 지정'].map((v) => ({ value: v, label: v }))}
+        />
+        <Tabs
+          aria-label="트랜잭션 보기"
+          value={tab}
+          onChange={setTab}
+          items={[
+            { value: 'overview', label: '개요' },
+            { value: 'spans', label: '스팬 타임라인' },
+            { value: 'sql', label: 'SQL · 로그' },
+          ]}
+        />
+      </div>
+
+      <div style={{ ...row, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Checkbox defaultChecked>SLACK 채널로 보내기</Checkbox>
+          <Checkbox>이메일로 보내기</Checkbox>
+          <Checkbox disabled>비활성</Checkbox>
+        </div>
+        <Textarea defaultValue="경보 발생 시 담당자에게 전달할 메모를 적습니다." />
+        <Slider value={ratio} onChange={setRatio} aria-label="샘플링 비율" />
+      </div>
+
+      <div style={{ ...row, alignItems: 'flex-start' }}>
+        <Field label="임계값 (ms)" htmlFor="f-threshold" help="P95 기준으로 이 값을 넘으면 경보가 발생합니다.">
+          <Input id="f-threshold" defaultValue="500" />
+        </Field>
+        <Field label="임계값 (ms)" htmlFor="f-threshold-err" error="값을 입력해 주세요. 1 이상의 정수만 됩니다.">
+          <Input id="f-threshold-err" aria-invalid />
+        </Field>
+        <Pagination start={(page - 1) * 20 + 1} end={Math.min(page * 20, 184)} total={184} onPrev={() => setPage(page - 1)} onNext={() => setPage(page + 1)} />
+      </div>
+
       <div style={{ display: 'flex', height: 960, border: '1px solid var(--color-border-default)' }}>
         <Sidebar
           items={NAV}
@@ -91,6 +167,7 @@ export function DesignSystemPreview() {
             <Select defaultValue="shop-order" aria-label="서비스">
               <option value="shop-order">shop-order</option>
             </Select>
+            <Segmented aria-label="시간 범위" value={range} onChange={setRange} options={['5m', '15m', '1h', '6h', '24h'].map((v) => ({ value: v, label: v }))} />
             <Button variant="secondary">30s</Button>
             <Badge tone="accent">ADMIN</Badge>
           </Topbar>

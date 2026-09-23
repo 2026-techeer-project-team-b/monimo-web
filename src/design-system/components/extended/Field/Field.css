@@ -1,0 +1,21 @@
+/* Figma Field — 세로 gap space/1 · 라벨 Caption/12 Medium text/secondary · 도움말 Caption/12 text/tertiary */
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 280px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
+}
+.ds-field > .ds-input,
+.ds-field > .ds-select,
+.ds-field > .ds-textarea { width: 100%; }
+.ds-field__label { color: var(--color-text-secondary); }
+.ds-field__message {
+  margin: 0;
+  color: var(--color-text-tertiary);
+}
+.ds-field__message--error { color: var(--color-status-crit); }
+
+/* State=error: 안의 입력 테두리를 status/crit 으로 */
+.ds-field--error > .ds-input,
+.ds-field--error > .ds-textarea,
+.ds-field--error > .ds-select > .ds-select__native { border-color: var(--color-status-crit); }

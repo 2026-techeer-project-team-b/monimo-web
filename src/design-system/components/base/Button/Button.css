@@ -10,9 +10,13 @@
   cursor: pointer;
   white-space: nowrap;
 }
+.ds-button--lg { height: 44px; } /* Figma Button/Icon Size=lg */
 .ds-button:disabled {
+  /* Figma State=Disabled: surface-2 배경 + text/disabled */
+  background: var(--color-bg-surface-2);
+  border-color: transparent;
+  color: var(--color-text-disabled);
   cursor: not-allowed;
-  opacity: 0.5;
 }
 .ds-button:focus-visible {
   outline: 2px solid var(--color-accent-default);

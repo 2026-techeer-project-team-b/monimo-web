@@ -1,0 +1,48 @@
+/* Figma Checkbox — 상자 16 · radius/sm · gap space/2 · 체크 12 */
+.ds-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.ds-checkbox__input {
+  /* 화면에서 감추되 스크린리더 · 키보드에는 남기는 표준 기법 (Figma 값 아님) */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.ds-checkbox__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-icon);
+  height: var(--size-icon);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-on-dark);
+}
+.ds-checkbox__check { visibility: hidden; }
+.ds-checkbox__input:checked + .ds-checkbox__box {
+  background: var(--color-accent-default);
+  border-color: var(--color-accent-default);
+}
+.ds-checkbox__input:checked + .ds-checkbox__box .ds-checkbox__check { visibility: visible; }
+.ds-checkbox__input:focus-visible + .ds-checkbox__box {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+.ds-checkbox__input:disabled + .ds-checkbox__box {
+  background: var(--color-bg-surface-2);
+  border-color: var(--color-border-default);
+}
+/* :has() — 에버그린 브라우저 대상 (내부 운영 도구) */
+.ds-checkbox:has(.ds-checkbox__input:disabled) {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
