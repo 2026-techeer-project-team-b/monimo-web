@@ -7,6 +7,7 @@
   cursor: pointer;
 }
 .ds-checkbox__input {
+  /* 화면에서 감추되 스크린리더 · 키보드에는 남기는 표준 기법 (Figma 값 아님) */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -40,6 +41,7 @@
   background: var(--color-bg-surface-2);
   border-color: var(--color-border-default);
 }
+/* :has() — 에버그린 브라우저 대상 (내부 운영 도구) */
 .ds-checkbox:has(.ds-checkbox__input:disabled) {
   color: var(--color-text-disabled);
   cursor: not-allowed;
