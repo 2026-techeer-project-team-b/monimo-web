@@ -1,0 +1,16 @@
+.ds-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Figma Icon/close: 클릭 영역 최소 32×32 */
+  height: 32px;
+  margin: -8px; /* 아이콘 16 기준으로 자리를 차지하지 않게 */
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+.ds-close-button:hover { background: var(--color-bg-surface-2); color: var(--color-text-primary); }
+.ds-close-button:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: -2px; }

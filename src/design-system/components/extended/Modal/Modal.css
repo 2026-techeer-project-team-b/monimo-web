@@ -1,0 +1,57 @@
+/* Figma Overlay — bg/overlay 45% */
+.ds-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-bg-overlay) 45%, transparent);
+}
+
+/* 레이어 순서. 06 P3 「모달·드로어·토스트 레이어링」 확정 시 토큰으로 옮긴다 */
+.ds-modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+/* Figma Modal — 폭 600 · bg/surface · radius/md · Shadow/overlay */
+.ds-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 600px; /* Figma 값 */
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+  overflow: hidden;
+  outline: none;
+}
+.ds-modal__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-default);
+}
+.ds-modal__title {
+  flex: 1;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.ds-modal__body {
+  padding: var(--space-5);
+  overflow: auto;
+}
+.ds-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-surface-2);
+  border-top: 1px solid var(--color-border-default);
+}

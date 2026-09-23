@@ -1,0 +1,33 @@
+/* Figma Table — 헤더 surface-2 높이 36 · 본문 셀 높이 40 + 아래선 border/default · 좌우 space/3 */
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-surface);
+}
+.ds-table__th {
+  height: var(--size-control);
+  padding: 0 var(--space-3);
+  background: var(--color-bg-surface-2);
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+.ds-table__th--right { text-align: right; }
+
+.ds-table__td {
+  height: var(--size-row);
+  padding: 0 var(--space-3);
+  border-bottom: 1px solid var(--color-border-default);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+.ds-table__td--mono { color: var(--color-text-secondary); }
+.ds-table__td--number { text-align: right; }
+.ds-table__td--badge { line-height: 0; } /* 배지 높이만큼만 차지 */
+
+.ds-table__row--clickable { cursor: pointer; }
+.ds-table__row--clickable:hover { background: var(--color-bg-surface-2); }
+.ds-table__row--clickable:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: -2px; }
+.ds-table__row--selected,
+.ds-table__row--selected:hover { background: var(--color-accent-soft); }

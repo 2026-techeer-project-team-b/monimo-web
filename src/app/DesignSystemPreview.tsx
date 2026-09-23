@@ -2,10 +2,13 @@
 import { useState } from 'react'
 import {
   Badge,
+  Banner,
   Button,
   Card,
   Checkbox,
   Chip,
+  CodeBlock,
+  Drawer,
   Field,
   IconAlerts,
   IconError,
@@ -17,6 +20,8 @@ import {
   IconSettings,
   IconTransactions,
   Input,
+  KPICard,
+  Modal,
   Pagination,
   Segmented,
   Select,
@@ -26,8 +31,15 @@ import {
   StatusBadge,
   StatusDot,
   Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
   Tabs,
   Textarea,
+  Toast,
   Topbar,
   type Tone,
 } from '@/design-system'
@@ -53,6 +65,9 @@ export function DesignSystemPreview() {
   const [chips, setChips] = useState<Record<string, boolean>>({ all: true, ok: true, warn: false, crit: false })
   const [ratio, setRatio] = useState(60)
   const [page, setPage] = useState(1)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState(0)
   const row = { display: 'flex', gap: 'var(--space-4)', alignItems: 'center', marginBottom: 'var(--space-5)' } as const
 
   return (
@@ -153,6 +168,74 @@ export function DesignSystemPreview() {
         </Field>
         <Pagination start={(page - 1) * 20 + 1} end={Math.min(page * 20, 184)} total={184} onPrev={() => setPage(page - 1)} onNext={() => setPage(page + 1)} />
       </div>
+
+      <h1 className="text-title-20" style={{ marginBottom: 'var(--space-5)' }}>05-B 확장 컴포넌트 (2/2)</h1>
+
+      <div style={{ ...row, alignItems: 'flex-start' }}>
+        <div style={{ width: 720, border: '1px solid var(--color-border-default)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+          <Table>
+            <TableHead>
+              <tr>
+                <TableHeaderCell>서비스</TableHeaderCell>
+                <TableHeaderCell>트레이스 ID</TableHeaderCell>
+                <TableHeaderCell align="right">건수</TableHeaderCell>
+                <TableHeaderCell>상태</TableHeaderCell>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {[0, 1, 2].map((i) => (
+                <TableRow key={i} selected={selectedRow === i} onClick={() => { setSelectedRow(i); setDrawerOpen(true) }}>
+                  <TableCell>shop-order</TableCell>
+                  <TableCell type="mono">a3f1…9c2e</TableCell>
+                  <TableCell type="number">1,284</TableCell>
+                  <TableCell type="badge"><Badge tone="crit">CRITICAL</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', width: 500 }}>
+          <KPICard label="P95 응답시간" value="482 ms" delta="0%" caption="정상 범위" />
+          <KPICard label="P95 응답시간" value="482 ms" delta="-12%" caption="전일 대비 개선" tone="ok" />
+          <KPICard label="P95 응답시간" value="482 ms" delta="+18%" caption="임계값 초과" tone="crit" />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', width: 600, marginBottom: 'var(--space-5)' }}>
+        {(['info', 'ok', 'warn', 'crit'] as const).map((t) => (
+          <Banner key={t} tone={t} action={<a href="#detail">자세히</a>}>안내 문구</Banner>
+        ))}
+      </div>
+
+      <div style={{ ...row, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Toast tone="ok" onClose={() => {}}>알림 문구</Toast>
+          <Toast tone="crit" onClose={() => {}}>알림 문구</Toast>
+        </div>
+        <CodeBlock style={{ width: 440 }}>{`java.lang.IllegalStateException: order already settled
+  at shop.order.OrderService.settle(OrderService.java:142)
+  at shop.order.OrderController.post(OrderController.java:58)`}</CodeBlock>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <Button variant="primary" onClick={() => setModalOpen(true)}>모달 열기</Button>
+          <Button onClick={() => setDrawerOpen(true)}>드로어 열기</Button>
+        </div>
+      </div>
+
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="덤프 내려받기"
+        footer={<><Button onClick={() => setModalOpen(false)}>취소</Button><Button variant="primary" onClick={() => setModalOpen(false)}>저장</Button></>}
+      >
+        <div className="text-caption-12" style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-surface-2)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-tertiary)' }}>
+          본문 슬롯 — 폼 · 표 · 안내 문구를 넣는다
+        </div>
+      </Modal>
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="트레이스 상세">
+        <div className="text-caption-12" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-surface-2)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-tertiary)' }}>
+          본문 슬롯 — 스팬 목록 · 속성 표 · 로그를 넣는다
+        </div>
+      </Drawer>
 
       <div style={{ display: 'flex', height: 960, border: '1px solid var(--color-border-default)' }}>
         <Sidebar

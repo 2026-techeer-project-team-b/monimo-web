@@ -1,0 +1,12 @@
+/* Figma CodeBlock — bg/sidebar · radius/md · padding space/4 */
+.ds-code-block {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-bg-sidebar);
+  border-radius: var(--radius-md);
+  color: var(--color-text-on-dark);
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 2;
+}
+.ds-code-block code { font: inherit; }
