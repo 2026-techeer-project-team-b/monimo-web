@@ -41,4 +41,4 @@
   border-color: var(--color-status-crit);
   color: var(--color-status-crit);
 }
-.ds-button--danger:hover:not(:disabled) { background: var(--color-status-crit-soft); }
+.ds-button--danger:hover:not(:disabled) { background: var(--color-status-crit-soft); color: var(--color-status-crit-text); } /* soft 배경 위 글자는 -text (4.8:1) */
