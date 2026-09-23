@@ -1,0 +1,23 @@
+/* Figma Textarea — 높이 80 · border/strong · radius/sm · 좌우 space/3 · 상하 space/2 */
+.ds-textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 320px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
+  height: 80px; /* Figma 값 */
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  resize: vertical;
+}
+.ds-textarea::placeholder { color: var(--color-text-tertiary); }
+.ds-textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 2px var(--color-accent-soft);
+}
+.ds-textarea:disabled {
+  background: var(--color-bg-surface-2);
+  color: var(--color-text-disabled);
+}

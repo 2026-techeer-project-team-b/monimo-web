@@ -1,0 +1,29 @@
+/* Figma Chip — 높이 30 · radius/full · 좌우 space/3 · 테두리 1px · Caption/12 Medium */
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 30px; /* Figma 값 */
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ds-chip:focus-visible {
+  outline: 2px solid var(--color-accent-default);
+  outline-offset: 2px;
+}
+.ds-chip:disabled { cursor: not-allowed; color: var(--color-text-disabled); }
+
+/* 해제 상태: tone 글자만 */
+.ds-chip--ok   { color: var(--color-status-ok); }
+.ds-chip--warn { color: var(--color-status-warn); }
+.ds-chip--crit { color: var(--color-status-crit); }
+
+/* 선택 상태: tone soft 배경 + tone 테두리 */
+.ds-chip--selected.ds-chip--default { background: var(--color-accent-soft);      border-color: var(--color-accent-default); color: var(--color-accent-strong); }
+.ds-chip--selected.ds-chip--ok      { background: var(--color-status-ok-soft);   border-color: var(--color-status-ok); }
+.ds-chip--selected.ds-chip--warn    { background: var(--color-status-warn-soft); border-color: var(--color-status-warn); }
+.ds-chip--selected.ds-chip--crit    { background: var(--color-status-crit-soft); border-color: var(--color-status-crit); }
