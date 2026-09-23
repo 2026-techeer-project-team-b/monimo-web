@@ -14,7 +14,7 @@ export type ToastProps = HTMLAttributes<HTMLDivElement> & {
 
 /**
  * Figma Toast — 방금 동작의 결과 알림 (저장 완료 · 전송 실패). 폭 372 고정.
- * 우측 하단에 띄우고 몇 초 뒤 지우는 것(위치 · 타이머 · 스택)은 화면의 토스트 컨테이너가 맡는다. 계속 떠 있어야 하면 Banner.
+ * 06 P3 위치는 top 140 · right 24 (우측 상단). 띄우고 몇 초 뒤 지우는 것(위치 · z-index --layer-toast · 타이머 · 스택)은 화면의 토스트 컨테이너가 맡는다. 계속 떠 있어야 하면 Banner.
  * crit 은 role="alert"(즉시 읽음), ok 는 role="status"(한가할 때 읽음).
  */
 export function Toast({ tone, onClose, className, children, ...rest }: ToastProps) {

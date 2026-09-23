@@ -11,10 +11,13 @@
   width: 6px; /* Figma 값 */
   height: 6px;
   border-radius: var(--radius-full);
-  background: currentColor;
+  background: currentColor; /* muted · accent. ok · warn · crit 은 아래서 상태색으로 */
 }
-.ds-status-badge--ok     { background: var(--color-status-ok-soft);    color: var(--color-status-ok); }
-.ds-status-badge--warn   { background: var(--color-status-warn-soft);  color: var(--color-status-warn); }
-.ds-status-badge--crit   { background: var(--color-status-crit-soft);  color: var(--color-status-crit); }
-.ds-status-badge--muted  { background: var(--color-status-muted-soft); color: var(--color-status-muted); }
+.ds-status-badge--ok     { background: var(--color-status-ok-soft);    color: var(--color-status-ok-text); }
+.ds-status-badge--warn   { background: var(--color-status-warn-soft);  color: var(--color-status-warn-text); }
+.ds-status-badge--crit   { background: var(--color-status-crit-soft);  color: var(--color-status-crit-text); }
+.ds-status-badge--muted  { background: var(--color-status-muted-soft); color: var(--color-text-secondary); }
+.ds-status-badge--ok .ds-status-badge__dot   { background: var(--color-status-ok); }
+.ds-status-badge--warn .ds-status-badge__dot { background: var(--color-status-warn); }
+.ds-status-badge--crit .ds-status-badge__dot { background: var(--color-status-crit); }
 .ds-status-badge--accent { background: var(--color-accent-soft);       color: var(--color-accent-strong); }
