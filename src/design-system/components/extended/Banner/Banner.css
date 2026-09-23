@@ -1,0 +1,17 @@
+/* Figma Banner — soft 배경 · radius/md · 좌우 space/4 · 상하 space/3 · gap space/3 */
+.ds-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+.ds-banner__icon { display: inline-flex; flex-shrink: 0; }
+.ds-banner__body { flex: 1; min-width: 0; }
+.ds-banner__action { flex-shrink: 0; white-space: nowrap; }
+.ds-banner__action a { color: inherit; }
+
+.ds-banner--info { background: var(--color-accent-soft);      color: var(--color-accent-strong); }
+.ds-banner--ok   { background: var(--color-status-ok-soft);   color: var(--color-status-ok); }
+.ds-banner--warn { background: var(--color-status-warn-soft); color: var(--color-status-warn); }
+.ds-banner--crit { background: var(--color-status-crit-soft); color: var(--color-status-crit); }

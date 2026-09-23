@@ -1,0 +1,15 @@
+/* Figma KPICard — Card + gap space/2 · 폭 240 견본 */
+.ds-kpi {
+  gap: var(--space-2);
+  width: 240px; /* Figma 견본 폭. 부모에서 덮어쓴다 */
+}
+.ds-kpi__label,
+.ds-kpi__caption { color: var(--color-text-tertiary); }
+.ds-kpi__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ds-kpi__value { color: var(--color-text-primary); white-space: nowrap; }
+.ds-kpi--ok .ds-kpi__value { color: var(--color-status-ok); }
+.ds-kpi--crit .ds-kpi__value { color: var(--color-status-crit); }

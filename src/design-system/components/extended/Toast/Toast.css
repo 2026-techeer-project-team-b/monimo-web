@@ -1,0 +1,17 @@
+/* Figma Toast — 폭 372 · 흰 배경 + border/default · radius/md · Shadow/overlay · padding space/3 · gap space/3 */
+.ds-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 372px; /* Figma 값 (고정) */
+  padding: var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-text-primary);
+}
+.ds-toast__icon { display: inline-flex; flex-shrink: 0; }
+.ds-toast--ok .ds-toast__icon { color: var(--color-status-ok); }
+.ds-toast--crit .ds-toast__icon { color: var(--color-status-crit); }
+.ds-toast__body { flex: 1; min-width: 0; }
