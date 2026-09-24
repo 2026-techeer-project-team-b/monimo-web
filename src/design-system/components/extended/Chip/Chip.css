@@ -17,10 +17,10 @@
 }
 .ds-chip:disabled { cursor: not-allowed; color: var(--color-text-disabled); }
 
-/* 해제 상태: tone 글자만 */
-.ds-chip--ok   { color: var(--color-status-ok); }
-.ds-chip--warn { color: var(--color-status-warn); }
-.ds-chip--crit { color: var(--color-status-crit); }
+/* 해제 상태: tone 글자만 (soft/흰 배경 위 글자는 -text 토큰) */
+.ds-chip--ok   { color: var(--color-status-ok-text); }
+.ds-chip--warn { color: var(--color-status-warn-text); }
+.ds-chip--crit { color: var(--color-status-crit-text); }
 
 /* 선택 상태: tone soft 배경 + tone 테두리 */
 .ds-chip--selected.ds-chip--default { background: var(--color-accent-soft);      border-color: var(--color-accent-default); color: var(--color-accent-strong); }
