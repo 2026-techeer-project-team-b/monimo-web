@@ -104,7 +104,7 @@ const c = chartColors()
 
 - 히트맵은 `heatmapVisualMap()` · `heatmapStep()` 으로 06 P5 농도 5단계 + 에러 색을 칠한다.
 - 새 차트 종류 · 부품(범례 · 확대 등)이 필요하면 `src/shared/charts/echarts.ts` 에 등록한다 (번들 크기 때문에 쓰는 것만).
-- ECharts 는 `vendor-echarts` 파일로 떨어져 있고, 차트를 쓰는 화면에서만 내려받는다. 서버맵 그래프(React Flow)도 `vendor-xyflow` 로 따로 떨어진다.
+- ECharts 는 `vendor-echarts` 파일로 떨어져 있고, 차트를 쓰는 화면에서만 내려받는다. 서버맵 그래프(React Flow)도 `vendor-xyflow` 로 따로 떨어진다. React 는 `vendor-react` 로 떨어져 배포가 바뀌어도 브라우저 캐시를 그대로 쓴다.
 
 ## 로그인 · 권한
 
