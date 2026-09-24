@@ -1,0 +1,69 @@
+/* 상단바 펼침 패널 공용 (사용자 메뉴 · 사용자 지정 범위 · 새로고침) */
+.topbar-panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 2; /* 상단바(1) 위 · Drawer 아래 */
+  padding: var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-overlay);
+}
+
+.topbar-controls__service { display: flex; align-items: center; gap: var(--space-2); }
+.topbar-controls__caption { color: var(--color-text-tertiary); white-space: nowrap; }
+
+.topbar-controls__range,
+.topbar-controls__refresh { position: relative; }
+
+.topbar-controls__custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 280px; /* 입력 두 칸이 들어가는 폭 */
+}
+.topbar-controls__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+}
+.topbar-controls__field > .ds-input { width: 100%; }
+.topbar-controls__hint { margin: 0; color: var(--color-text-tertiary); }
+.topbar-controls__error { margin: 0; color: var(--color-status-crit); }
+.topbar-controls__actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+
+/* Figma Shell/Topbar Refresh — 높이 size/control · border/strong · radius/sm · 좌우 space/3 · gap 6 · Mono/12 text/secondary */
+.topbar-controls__refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* Figma 값 */
+  height: var(--size-control);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.topbar-controls__refresh-btn:hover { background: var(--color-bg-surface-2); }
+.topbar-controls__refresh-btn:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: 2px; }
+.topbar-controls__refresh-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  white-space: nowrap;
+}
+
+/* 불러오는 중이면 새로고침 아이콘이 돈다. 움직임 줄이기 설정이면 멈춘다 */
+.topbar-controls__spin { animation: topbar-spin 1s linear infinite; }
+@keyframes topbar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .topbar-controls__spin { animation: none; } }
+
+/* 기준 폭은 1440 (IA). 그보다 좁으면 글자 라벨을 줄여 제목 자리를 남긴다 */
+@media (max-width: 1279px) {
+  .topbar-controls__caption,
+  .user-menu__name { display: none; }
+}

@@ -2,9 +2,8 @@
 
 모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
 
-- 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · MSW(가짜 응답)
-- 나중에 넣을 것: Zustand (여러 화면이 같이 쓰는 값, 2단계)
-- 상태: 디자인 시스템 완료 · 앱 기반(경로 · 셸 · API 클라이언트) · 로그인 · 권한 완료 · 화면은 빈 페이지
+- 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · MSW(가짜 응답)
+- 상태: 디자인 시스템 · 앱 기반(경로 · 셸 · API 클라이언트) · 로그인 · 권한 · 상단바 공통 상태 완료 · 화면은 빈 페이지
 
 ## 폴더 구성
 
@@ -27,7 +26,7 @@ src/
 ├── features/        화면 하나 = 폴더 하나 = 경로 하나 (아래 「화면 경로」 표)
 ├── api/             API 호출 (client.ts · auth.ts · tokens.ts) + 가짜 응답 (mocks/)
 ├── auth/            로그인 상태 · 라우트 가드 · 역할 (useAuth · RequireAuth · AdminOnly)
-├── stores/          여러 화면이 같이 쓰는 값 (Zustand, 2단계)
+├── stores/          여러 화면이 같이 쓰는 값 (Zustand): 서비스 · 시간 범위 · 새로고침 주기
 ├── app/             앱 뼈대: 경로(routes.tsx) · 셸(AppLayout) · TanStack Query · 디자인 시스템 미리보기
 └── main.tsx
 ```
@@ -61,6 +60,30 @@ VITE_API_MOCK=true npm run dev
 
 가짜 응답의 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER).
 브라우저 콘솔에서 `__monimoMock.expireAccess()` 는 토큰 만료(자동 재발급 시험), `__monimoMock.revokeRefresh()` 는 세션 만료를 흉내 낸다.
+
+## 상단바 공통 상태 (서비스 · 시간 범위 · 새로고침)
+
+상단바의 서비스 선택 · 시간 범위(5m · 15m · 1h · 6h · 24h · 사용자 지정) · 자동 새로고침 주기는 `src/stores/filters.ts` 한 곳에 있고 주소와 맞춰진다.
+`?service=shop-order&range=1h&refresh=30` 처럼 링크를 공유하면 같은 화면이 열린다. 화면이 쓰는 다른 쿼리(예: `tab`)는 그대로 둔다.
+
+화면에서는 이렇게 쓴다. 시간 창을 `queryKey` 에 넣으면 자동 새로고침 때마다 다시 불린다.
+
+```tsx
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { api } from '@/api'
+import { useServiceName, useTimeWindow } from '@/stores'
+
+const serviceName = useServiceName() // null = 전체
+const { from, to } = useTimeWindow() // UTC ISO, 명세 공통 파라미터 그대로
+const { data } = useQuery({
+  queryKey: ['server-map', serviceName, from, to],
+  queryFn: () => api.get('/server-map', { query: { service_name: serviceName, from, to } }),
+  placeholderData: keepPreviousData, // 새로고침 때 화면이 비지 않게
+})
+```
+
+- 서비스가 꼭 필요한 문(`/traces/scatter` 등)인데 "전체"면 화면에서 "서비스를 선택하세요" 안내를 띄운다.
+- 자동 새로고침은 탭이 숨겨지면 멈추고, 사용자 지정(고정 시각) 범위에서는 돌지 않는다.
 
 ## 로그인 · 권한
 

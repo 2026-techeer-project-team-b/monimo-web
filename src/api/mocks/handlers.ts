@@ -57,6 +57,17 @@ export const mockControls = {
   },
 }
 
+// ── 감시 대상 서비스 (로그인 시안의 쇼핑몰 5개) ──
+const APPLICATIONS = ['shop-gateway', 'shop-order', 'shop-payment', 'shop-inventory', 'shop-user'].map((name, i) => ({
+  application_uuid: `0b0e6a6e-2f00-4c1a-9a01-00000000000${i + 1}`,
+  name,
+  display_name: name,
+  description: '',
+  agent_count: 2,
+  created_at: '2026-09-01T00:00:00Z',
+  updated_at: '2026-09-01T00:00:00Z',
+}))
+
 export const handlers = [
   http.post(`${API_BASE}/auth/login`, async ({ request }) => {
     const body = (await request.json().catch(() => null)) as { email?: string; password?: string } | null
@@ -79,6 +90,11 @@ export const handlers = [
     const body = (await request.json().catch(() => null)) as { refresh_token?: string } | null
     if (body?.refresh_token) refreshTokens.delete(body.refresh_token)
     return ok({ result: 'LOGGED_OUT' })
+  }),
+
+  http.get(`${API_BASE}/applications`, ({ request }) => {
+    if (!currentUser(request)) return fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.')
+    return HttpResponse.json({ data: APPLICATIONS, page: { next_cursor: null, limit: 50 } }, { headers: { 'X-Request-Id': reqId() } })
   }),
 
   http.get(`${API_BASE}/auth/me`, ({ request }) => {

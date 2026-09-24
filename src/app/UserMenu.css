@@ -26,16 +26,8 @@
 }
 .user-menu__name { white-space: nowrap; }
 .user-menu__panel {
-  position: absolute;
-  top: calc(100% + var(--space-1));
-  right: 0;
-  z-index: 2; /* 상단바(1) 위 · Drawer 아래 */
   min-width: 200px;
-  padding: var(--space-1);
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-overlay);
+  padding: var(--space-1); /* 공용 .topbar-panel 보다 좁게 */
 }
 .user-menu__email { padding: var(--space-2) var(--space-3); color: var(--color-text-tertiary); }
 .user-menu__item {
