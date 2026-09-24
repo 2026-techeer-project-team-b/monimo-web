@@ -15,11 +15,12 @@ export type ToastViewportProps = {
 
 /**
  * Figma 06 P3 토스트 자리 — 우측 상단 top 140 · right 24, 레이어는 가장 위(--layer-toast).
+ * 스크린리더 알림은 각 Toast 의 role(status · alert)이 맡으므로 여기엔 aria-live 를 두지 않는다.
  * body 에 포털로 붙는다. 몇 초 뒤 지우는 타이머 · 목록 상태는 화면(앱)이 가진다.
  */
 export function ToastViewport({ children }: ToastViewportProps) {
   return createPortal(
-    <div className="ds-toast-viewport" aria-live="polite">
+    <div className="ds-toast-viewport">
       {children}
     </div>,
     document.body,

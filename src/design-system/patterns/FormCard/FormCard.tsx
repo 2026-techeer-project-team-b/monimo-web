@@ -20,10 +20,18 @@ export type FormCardProps = {
 /**
  * Figma 06 P6 폼 규칙 — 카드 안에 제목 · 안내 배너 · 필드 · 액션을 이 순서로 쌓는다 (간격 space/3).
  * 네이티브 <form> 이라 Enter 로 제출된다. 저장 버튼은 type="submit" 으로 넣는다.
+ * 페이지 새로고침은 여기서 항상 막고(preventDefault) onSubmit 을 부른다.
  */
 export function FormCard({ title, banners, children, actions, permissionNote, onSubmit, className }: FormCardProps) {
   return (
-    <form className={cx('ds-form-card', className)} onSubmit={onSubmit} noValidate>
+    <form
+      className={cx('ds-form-card', className)}
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit?.(e)
+      }}
+      noValidate
+    >
       <h2 className="ds-form-card__title text-section-15">{title}</h2>
       {banners}
       {children}

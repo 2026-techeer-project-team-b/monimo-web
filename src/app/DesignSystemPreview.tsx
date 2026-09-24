@@ -296,7 +296,6 @@ export function DesignSystemPreview() {
             banners={<Banner tone="warn">409 CONFLICT · 다른 사용자가 먼저 저장했습니다. 판번호 v7 → v8, 최신 값을 불러온 뒤 다시 저장하세요.</Banner>}
             actions={<><Button variant="primary" type="submit">저장</Button><Button>취소</Button></>}
             permissionNote="VIEWER는 읽기만 · 변경은 ADMIN"
-            onSubmit={(e) => e.preventDefault()}
           >
             <Field label="규칙 이름" htmlFor="p6-name"><Input id="p6-name" defaultValue="5XX 비율" /></Field>
             <Field label="임계값 (%)" htmlFor="p6-th" error="0 보다 큰 숫자를 넣어 주세요."><Input id="p6-th" aria-invalid /></Field>

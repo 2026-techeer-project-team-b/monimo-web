@@ -9,7 +9,7 @@ export function formatTime(value: Date | number | string): string {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`
 }
 
-/** 긴 ID → 앞 4 + … + 끝 4. 10자 이하는 그대로. 전체 값은 title 속성 등으로 따로 보여준다 */
+/** 긴 ID → 대시를 뺀 문자열의 앞 4 + … + 끝 4. 대시를 뺀 길이가 10자 이하면 원래 값 그대로. 전체 값은 title 속성 등으로 따로 보여준다 */
 export function shortId(id: string, head = 4, tail = 4): string {
   const s = id.replace(/-/g, '')
   return s.length <= head + tail + 2 ? id : `${s.slice(0, head)}…${s.slice(-tail)}`
