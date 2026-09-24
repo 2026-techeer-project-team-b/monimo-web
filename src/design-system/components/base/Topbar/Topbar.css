@@ -14,17 +14,22 @@
   display: flex;
   flex-direction: column;
   gap: 1px; /* Figma 값 */
-  min-width: 0;
+  min-width: 96px; /* 창이 좁아도 제목이 컨트롤에 눌려 사라지지 않게 */
+  overflow: hidden;
 }
 .ds-topbar__title {
   margin: 0;
+  overflow: hidden;
   color: var(--color-text-primary);
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ds-topbar__subtitle {
   margin: 0;
+  overflow: hidden;
   color: var(--color-text-tertiary);
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ds-topbar__controls {
   display: flex;
