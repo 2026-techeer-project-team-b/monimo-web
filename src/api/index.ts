@@ -2,3 +2,4 @@ export { api, ApiError, API_BASE, type Page, type RequestOptions } from './clien
 export { login, logout, fetchMe, restoreSession, type Role, type User } from './auth'
 export { onSessionExpired } from './tokens'
 export { listApplications, type Application } from './applications'
+export { getServerMap, type CalleeKind, type ServerMap, type ServerMapEdge, type ServerMapNode, type ServerMapQuery } from './serverMap'

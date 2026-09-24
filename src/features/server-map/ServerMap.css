@@ -1,0 +1,91 @@
+/* 서버맵 (S01). 색은 토큰만. 노드 크기는 model.ts NODE_SIZE 와 같은 값 */
+.sm-page {
+  display: flex;
+  gap: var(--space-4);
+  /* 상단바 · 본문 위아래 여백을 뺀 높이를 그래프가 채운다 */
+  height: calc(100vh - var(--size-topbar) - 2 * var(--space-5));
+  min-height: 560px;
+}
+.sm-graph-card { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sm-aside { width: clamp(300px, 34%, 436px); flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+
+/* 도구줄 */
+.sm-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sm-toolbar__search { width: 190px; }
+.sm-legend { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); color: var(--color-text-tertiary); }
+.sm-legend__item { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.sm-legend__ext { width: 14px; height: 10px; border: 1.4px dashed currentColor; border-radius: 3px; box-sizing: border-box; }
+
+/* 그래프 캔버스 */
+.sm-canvas { position: relative; flex: 1; min-height: 0; }
+.sm-canvas .react-flow { --xy-background-color: transparent; font-family: inherit; }
+.sm-canvas__state {
+  position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  color: var(--color-text-tertiary);
+}
+.sm-canvas.is-loading .react-flow { opacity: 0.5; }
+
+/* 노드 공통 */
+.sm-node {
+  box-sizing: border-box;
+  display: flex; flex-direction: column; justify-content: center; gap: 6px;
+  padding: 0 14px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.sm-node.is-dimmed { opacity: 0.3; }
+.sm-node__name { max-width: 100%; display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sm-node__dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex-shrink: 0; }
+.sm-node__stats { display: flex; justify-content: space-between; gap: 8px; color: var(--color-text-tertiary); white-space: nowrap; }
+.sm-err--ok { color: var(--color-status-ok-text); }
+.sm-err--warn { color: var(--color-status-warn-text); }
+.sm-err--crit { color: var(--color-status-crit-text); font-weight: 600; }
+.sm-port { opacity: 0; pointer-events: none; }
+
+/* 서비스: 카드 */
+.sm-node--service {
+  width: 168px; height: 64px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.sm-node--service.sm-node--crit { border: 2px solid var(--color-status-crit); }
+/* 외부: 점선 카드 */
+.sm-node--external {
+  width: 208px; height: 58px;
+  border: 1.6px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+.sm-node--external.sm-node--crit { border-color: var(--color-status-crit); }
+/* DB: 원통 (테두리는 SVG 로) */
+.sm-node--db { position: relative; width: 184px; height: 80px; padding-top: 18px; align-items: center; background: none; }
+.sm-node--db > :not(svg) { position: relative; }
+.sm-node__cylinder { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sm-node__cylinder path, .sm-node__cylinder ellipse {
+  fill: var(--color-bg-surface); stroke: var(--color-border-strong); stroke-width: 1.4; vector-effect: non-scaling-stroke;
+}
+.sm-node--db.sm-node--crit .sm-node__cylinder :is(path, ellipse) { stroke: var(--color-status-crit); }
+
+/* 선택됨: accent 테두리 + 옅은 바깥 고리 */
+.sm-node.is-selected:not(.sm-node--db) {
+  border: 2px solid var(--color-accent-default);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-default) 22%, transparent);
+}
+.sm-node--db.is-selected .sm-node__cylinder :is(path, ellipse) { stroke: var(--color-accent-default); stroke-width: 2; }
+.react-flow__node:focus-visible { outline: none; }
+.react-flow__node:focus-visible > .sm-node { outline: 2px solid var(--color-accent-default); outline-offset: 3px; }
+
+/* 선택한 노드 카드 */
+.sm-picked__head { display: flex; align-items: center; gap: var(--space-2); }
+.sm-picked__range { margin-left: auto; color: var(--color-text-tertiary); }
+/* 폭이 모자라면 2 × 2 로 내려간다 */
+.sm-picked__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-3); margin: 0; }
+.sm-picked__stats dt { color: var(--color-text-tertiary); }
+.sm-picked__stats dd { margin: 4px 0 0; white-space: nowrap; }
+.sm-picked__unit { margin-left: 3px; color: var(--color-text-tertiary); }
+.sm-picked__note { margin: 0; color: var(--color-text-secondary); }
+
+/* 확대 · 축소 · 맞춤 버튼 */
+.sm-canvas .react-flow__controls { box-shadow: var(--shadow-card); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); overflow: hidden; }
+.sm-canvas .react-flow__controls-button { background: var(--color-bg-surface); border-bottom-color: var(--color-border-default); color: var(--color-text-secondary); }
