@@ -58,6 +58,7 @@ import {
   Topbar,
   type Tone,
 } from '@/design-system'
+import { ChartPreview } from './ChartPreview'
 
 const TONES: Tone[] = ['ok', 'warn', 'crit', 'muted', 'accent']
 
@@ -326,6 +327,9 @@ export function DesignSystemPreview() {
           </Card>
         </PageGridItem>
       </PageGrid>
+
+      <h2 className="text-section-15" style={{ marginBottom: 'var(--space-3)' }}>06 P5 차트 (ECharts 공용 틀)</h2>
+      <ChartPreview />
 
       <ToastViewport>
         <Toast tone="ok" onClose={() => {}}>규칙을 저장했습니다 · 판번호 v8</Toast>

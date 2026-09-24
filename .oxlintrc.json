@@ -1,21 +1,66 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
+  "plugins": [
+    "react",
+    "typescript",
+    "oxc"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ]
   },
   "overrides": [
     {
-      "files": ["src/design-system/**"],
+      "files": [
+        "src/design-system/**"
+      ],
       "rules": {
         "no-restricted-imports": [
           "error",
           {
             "patterns": [
               {
-                "group": ["@/features*", "@/api*", "@/stores*", "@/app*", "**/features/**", "**/api/**", "**/stores/**", "**/app/**"],
-                "message": "design-system 은 화면·API·상태를 몰라야 한다. 필요한 값은 props 로 받는다."
+                "group": [
+                  "@/features*",
+                  "@/api*",
+                  "@/stores*",
+                  "@/app*",
+                  "**/features/**",
+                  "**/api/**",
+                  "**/stores/**",
+                  "**/app/**",
+                  "@/shared*",
+                  "**/shared/**"
+                ],
+                "message": "design-system 은 화면·API·상태·앱 공용 코드(shared)를 몰라야 한다. 필요한 값은 props 로 받는다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/shared/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/features*",
+                  "@/app*",
+                  "**/features/**",
+                  "**/app/**"
+                ],
+                "message": "shared 는 여러 화면이 같이 쓰는 코드라 특정 화면(features)이나 앱 뼈대(app)를 몰라야 한다."
               }
             ]
           }
