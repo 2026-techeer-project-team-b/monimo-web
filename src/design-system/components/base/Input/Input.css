@@ -15,6 +15,7 @@
   border-color: var(--color-accent-default);
   box-shadow: 0 0 0 2px var(--color-accent-soft);
 }
+.ds-input[aria-invalid='true'] { border-color: var(--color-status-crit); } /* 05-B Field State=error 와 같은 규칙 */
 .ds-input:disabled {
   background: var(--color-bg-surface-2);
   color: var(--color-text-disabled);

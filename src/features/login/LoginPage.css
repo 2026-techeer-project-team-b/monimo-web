@@ -1,0 +1,115 @@
+/* S00 로그인 — 시안(Login.dc.html) 구조를 토큰으로 옮겼다. 좌측 다크 소개 720 · 우측 카드 420 */
+.login {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-canvas);
+}
+
+.login__intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-5);
+  width: 720px; /* 시안 값 */
+  flex-shrink: 0;
+  padding: 72px 56px; /* 시안 값 */
+  background: var(--color-bg-sidebar);
+  color: var(--color-text-on-dark-muted);
+}
+.login__brand { display: flex; flex-direction: column; gap: var(--space-4); }
+.login__wordmark {
+  font: 600 40px/1 var(--font-mono); /* 시안 값: 로그인 화면 전용 큰 워드마크 */
+  letter-spacing: 0.04em;
+  color: var(--color-text-on-dark);
+}
+.login__tagline {
+  max-width: 560px; /* 시안 값 */
+  margin: 0;
+  font: 400 15px/1.7 var(--font-sans); /* 시안 값 */
+}
+.login__pipeline-block { display: flex; flex-direction: column; gap: var(--space-4); }
+.login__micro { color: var(--color-text-on-dark-caption); }
+.login__pipeline {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.login__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.login__node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;  /* 시안 값 */
+  height: 44px; /* 시안 값 */
+  border: 1px solid color-mix(in srgb, var(--color-text-on-dark) 14%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-text-on-dark) 6%, transparent);
+  color: var(--color-text-on-dark);
+  white-space: nowrap;
+}
+.login__node--last {
+  border-color: var(--color-accent-on-dark);
+  background: color-mix(in srgb, var(--color-accent-on-dark) 18%, transparent);
+}
+.login__node-sub { color: var(--color-text-on-dark-caption); }
+.login__arrow {
+  position: absolute;
+  top: 16px; /* 노드 높이 44 의 가운데 */
+  right: -10px;
+  color: var(--color-text-on-dark-caption);
+}
+
+.login__main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+.login__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 420px; /* 시안 값 */
+}
+.login__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+.login__heading { display: flex; flex-direction: column; gap: var(--space-1); }
+.login__title { margin: 0; color: var(--color-text-primary); }
+.login__subtitle { margin: 0; color: var(--color-text-tertiary); }
+.login__form { display: flex; flex-direction: column; gap: var(--space-3); }
+.login__form > .ds-field { width: 100%; }
+.login__submit { justify-content: center; width: 100%; }
+.login__help {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-bg-surface-2);
+  color: var(--color-text-tertiary);
+}
+.login__help-strong { color: var(--color-text-secondary); }
+.login__note { margin: 0; padding: 0 2px; color: var(--color-text-tertiary); }
+
+/* 좁은 창에서는 소개 패널을 숨긴다 */
+@media (max-width: 1100px) {
+  .login__intro { display: none; }
+}
