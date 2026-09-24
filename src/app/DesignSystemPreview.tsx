@@ -10,6 +10,7 @@ import {
   CodeBlock,
   Drawer,
   Field,
+  FormCard,
   IconAlerts,
   IconError,
   IconInspector,
@@ -20,7 +21,21 @@ import {
   IconSettings,
   IconTransactions,
   Input,
+  CursorPager,
   KPICard,
+  PageGrid,
+  PageGridItem,
+  alertStateTone,
+  chartTheme,
+  formatTime,
+  heatmapLevel,
+  httpStatusTone,
+  podStatusTone,
+  serviceColor,
+  severityTone,
+  shortId,
+  ToastViewport,
+  TableCard,
   Modal,
   Pagination,
   Segmented,
@@ -236,6 +251,85 @@ export function DesignSystemPreview() {
           본문 슬롯 — 스팬 목록 · 속성 표 · 로그를 넣는다
         </div>
       </Drawer>
+
+      <h1 className="text-title-20" style={{ marginBottom: 'var(--space-5)' }}>06 패턴</h1>
+
+      <PageGrid style={{ marginBottom: 'var(--space-5)' }}>
+        <PageGridItem span={8}>
+          <TableCard
+            title="최근 트랜잭션"
+            actions={<Button>내보내기</Button>}
+            summary="1,284건 · limit 50 · 커서 페이징"
+            pager={<CursorPager hasPrev={page > 1} hasNext onPrev={() => setPage(page - 1)} onNext={() => setPage(page + 1)} />}
+          >
+            <Table>
+              <TableHead>
+                <tr>
+                  <TableHeaderCell>시각</TableHeaderCell>
+                  <TableHeaderCell>trace_id</TableHeaderCell>
+                  <TableHeaderCell>서비스</TableHeaderCell>
+                  <TableHeaderCell align="right">http</TableHeaderCell>
+                  <TableHeaderCell align="right">응답(ms)</TableHeaderCell>
+                </tr>
+              </TableHead>
+              <TableBody>
+                {[
+                  [200, 'shop-order', 142],
+                  [404, 'shop-gateway', 36],
+                  [500, 'shop-inventory', 1204],
+                ].map(([code, svc, ms], i) => (
+                  <TableRow key={i}>
+                    <TableCell type="mono">{formatTime(Date.UTC(2026, 8, 24, 5, 38, 12, 481 + i * 400))}</TableCell>
+                    <TableCell type="mono" title="a3f1e2d4-5b6c-7d8e-9f00-11229c2e">{shortId('a3f1e2d4-5b6c-7d8e-9f00-11229c2e')}</TableCell>
+                    <TableCell>{svc}</TableCell>
+                    <TableCell type="number"><Badge tone={httpStatusTone(Number(code))}>{code}</Badge></TableCell>
+                    <TableCell type="number">{ms}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableCard>
+        </PageGridItem>
+        <PageGridItem span={4}>
+          <FormCard
+            title="경보 규칙 수정"
+            banners={<Banner tone="warn">409 CONFLICT · 다른 사용자가 먼저 저장했습니다. 판번호 v7 → v8, 최신 값을 불러온 뒤 다시 저장하세요.</Banner>}
+            actions={<><Button variant="primary" type="submit">저장</Button><Button>취소</Button></>}
+            permissionNote="VIEWER는 읽기만 · 변경은 ADMIN"
+          >
+            <Field label="규칙 이름" htmlFor="p6-name"><Input id="p6-name" defaultValue="5XX 비율" /></Field>
+            <Field label="임계값 (%)" htmlFor="p6-th" error="0 보다 큰 숫자를 넣어 주세요."><Input id="p6-th" aria-invalid /></Field>
+          </FormCard>
+        </PageGridItem>
+        <PageGridItem span={6}>
+          <Card title="P4 상태색 규칙">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {['FIRING', 'RESOLVED'].map((v) => <Badge key={v} tone={alertStateTone(v)}>{v}</Badge>)}
+              {['CRITICAL', 'WARNING', 'INFO'].map((v) => <Badge key={v} tone={severityTone(v)}>{v}</Badge>)}
+              {['UP', 'DOWN', 'UNKNOWN'].map((v) => <Badge key={v} tone={podStatusTone(v)}>{v}</Badge>)}
+            </div>
+          </Card>
+        </PageGridItem>
+        <PageGridItem span={6}>
+          <Card title="P5 차트 색">
+            <div style={{ display: 'flex', gap: 2 }}>
+              {[1, 2, 3, 4, 5].map((v) => <span key={v} style={{ width: 24, height: 24, background: heatmapLevel(v, 5) ?? undefined }} />)}
+              <span style={{ width: 24, height: 24, background: chartTheme.heatmap.error }} />
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+              {['shop-gateway', 'shop-order', 'shop-payment'].map((svc, i) => (
+                <span key={svc} className={chartTheme.axisTextClass} style={{ color: chartTheme.axisText, display: 'inline-flex', gap: 'var(--space-1)', alignItems: 'center' }}>
+                  <span style={{ width: 12, height: 12, borderRadius: 'var(--radius-sm)', background: serviceColor(i) }} />{svc}
+                </span>
+              ))}
+            </div>
+          </Card>
+        </PageGridItem>
+      </PageGrid>
+
+      <ToastViewport>
+        <Toast tone="ok" onClose={() => {}}>규칙을 저장했습니다 · 판번호 v8</Toast>
+      </ToastViewport>
 
       <div style={{ display: 'flex', height: 960, border: '1px solid var(--color-border-default)' }}>
         <Sidebar

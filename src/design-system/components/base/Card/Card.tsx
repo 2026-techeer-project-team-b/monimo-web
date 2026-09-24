@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react'
 import { cx } from '../../../cx'
 import './Card.css'
 
-export type CardProps = HTMLAttributes<HTMLElement> & {
+export type CardProps = Omit<HTMLAttributes<HTMLElement>, 'title'> & {
   /** Section/15 제목. 없으면 헤더 없이 본문만 */
   title?: ReactNode
   /** 제목 우측 액션 (Button 등) */

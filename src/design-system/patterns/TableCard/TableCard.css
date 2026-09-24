@@ -1,0 +1,18 @@
+/* Figma 06 P2 — 표 테두리 border/default · radius/sm, 하단 캡션 Caption/12 text/tertiary + 버튼 gap space/2 */
+.ds-table-card__table {
+  overflow: auto;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+}
+.ds-table-card__table > .ds-table tbody > tr:last-child > td { border-bottom: 0; }
+.ds-table-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.ds-table-card__summary { color: var(--color-text-tertiary); }
+.ds-cursor-pager {
+  display: inline-flex;
+  gap: var(--space-2);
+}
