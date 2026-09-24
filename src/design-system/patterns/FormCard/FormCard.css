@@ -1,0 +1,20 @@
+/* Figma 06 P6 폼 카드 — Card 와 같은 틀 (surface · border/default · radius/md · padding space/4 · gap space/3 · Shadow/card) */
+.ds-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+.ds-form-card > .ds-field { width: 100%; }
+.ds-form-card__title { margin: 0; color: var(--color-text-primary); }
+.ds-form-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ds-form-card__buttons { display: flex; gap: var(--space-2); }
+.ds-form-card__note { margin: 0; color: var(--color-text-tertiary); }

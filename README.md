@@ -12,7 +12,7 @@
 
 ```
 src/
-├── design-system/   공통 부품 공장 (화면을 모른다). Figma 「디자인 시스템」 섹션 01~07 과 1:1
+├── design-system/   공통 부품 공장 (화면을 모른다). Figma 「디자인 시스템」 섹션 01~06 과 1:1
 │   ├── tokens/
 │   │   ├── color.css       01 색 (의미 색 34 + 원시 색 29)
 │   │   ├── typography.css  02 타이포그래피 (서체 변수 + 텍스트 스타일 클래스)
@@ -20,9 +20,9 @@ src/
 │   │   └── base.css        공통 바탕 (reset · body)
 │   ├── icons/              04 아이콘 (SVG 를 감싼 컴포넌트)
 │   ├── components/
-│   │   ├── base/           05 컴포넌트 (기본): Button · Badge · Input · Card ...
-│   │   └── extended/       06 컴포넌트 (확장): Table · Tabs · Modal ...
-│   ├── patterns/           07 패턴 (PageHeader · FilterBar · EmptyState ...)
+│   │   ├── base/           05-A 기본 컴포넌트: Button · Badge · Input · Sidebar ...
+│   │   └── extended/       05-B 확장 컴포넌트: Table · Tabs · Modal ...
+│   ├── patterns/           06 패턴: AppShell · TableCard · FormCard · 상태색 · 차트 규칙
 │   └── index.ts            입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
 ├── features/        화면 하나 = 폴더 하나 (server-map · scatter · call-tree ...)
 ├── api/             API 호출 + 가짜 응답

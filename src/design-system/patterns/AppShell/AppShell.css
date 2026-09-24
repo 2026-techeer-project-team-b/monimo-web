@@ -1,0 +1,38 @@
+/* Figma 06 P1 앱 셸 */
+.ds-app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-canvas);
+}
+.ds-app-shell__sidebar {
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  width: var(--size-sidebar);
+  height: 100vh;
+}
+.ds-app-shell__sidebar > .ds-sidebar { height: 100%; }
+.ds-app-shell__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.ds-app-shell__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1; /* 본문 카드 위 · Drawer(--layer-drawer) 아래 */
+}
+.ds-app-shell__content {
+  flex: 1;
+  padding: var(--space-5);
+}
+
+/* 12열 격자 · 열 간격 space/4 (카드 gap 16) */
+.ds-page-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+.ds-page-grid__item { grid-column: span var(--ds-span); min-width: 0; }

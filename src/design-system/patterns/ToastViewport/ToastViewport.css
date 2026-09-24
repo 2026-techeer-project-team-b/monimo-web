@@ -1,0 +1,12 @@
+/* Figma 06 P3 — top 140 · right 24 · 폭 372 (Toast 고정 폭) */
+.ds-toast-viewport {
+  position: fixed;
+  top: 140px; /* Figma 값 */
+  right: var(--space-5);
+  z-index: var(--layer-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+.ds-toast-viewport > * { pointer-events: auto; }
