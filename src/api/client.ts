@@ -41,6 +41,8 @@ async function parseBody(res: Response): Promise<unknown> {
   try {
     return JSON.parse(text)
   } catch {
+    // 오류 응답이 JSON 이 아니면(게이트웨이 502 HTML 등) 본문은 버리고 HTTP_<status> 로 알린다
+    if (!res.ok) return undefined
     throw new ApiError(res.status, 'INVALID_RESPONSE', '서버 응답을 읽지 못했습니다.', res.headers.get('X-Request-Id'))
   }
 }
@@ -57,7 +59,10 @@ function toApiError(res: Response, body: unknown): ApiError {
 
 /** 봉투를 벗기기 전 본문 전체를 돌려준다 */
 async function send(method: string, path: string, body: unknown, options: RequestOptions, retried = false): Promise<unknown> {
+  // 토큰이 API 서버가 아닌 곳으로 가지 않도록 경로는 항상 '/…' 로 시작하는 우리 쪽 상수여야 한다
+  if (!path.startsWith('/') || path.startsWith('//')) throw new Error(`API 경로는 '/' 로 시작해야 합니다: ${path}`)
   const { query, headers, auth = true, ...init } = options
+  const generation = tokens.generation()
   const qs = query
     ? new URLSearchParams(
         Object.entries(query)
@@ -89,7 +94,8 @@ async function send(method: string, path: string, body: unknown, options: Reques
   if (res.status === 401 && auth && !retried) {
     const outcome = await refreshAccessToken()
     if (outcome === 'ok') return send(method, path, body, options, true)
-    if (outcome === 'invalid') {
+    // 요청 도중 로그아웃했으면(세대가 바뀜) 세션 만료로 알리지 않는다
+    if (outcome === 'invalid' && generation === tokens.generation()) {
       tokens.clear()
       notifySessionExpired()
     }
@@ -114,8 +120,11 @@ export function refreshAccessToken(): Promise<RefreshOutcome> {
   refreshing ??= (async (): Promise<RefreshOutcome> => {
     const refreshToken = tokens.getRefresh()
     if (!refreshToken) return 'invalid'
+    const generation = tokens.generation()
     try {
       const data = unwrap<{ access_token: string }>(await send('POST', '/auth/refresh', { refresh_token: refreshToken }, { auth: false }))
+      // 재발급 중에 로그아웃했으면 받은 토큰을 되살리지 않는다
+      if (generation !== tokens.generation()) return 'error'
       tokens.setAccess(data.access_token)
       return 'ok'
     } catch (e) {

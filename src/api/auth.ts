@@ -1,5 +1,5 @@
 // 인증 문 4개 (api-spec 20 · 28 · 31 · 32번)
-import { api, refreshAccessToken } from './client'
+import { api, ApiError, refreshAccessToken } from './client'
 import { tokens } from './tokens'
 
 export type Role = 'ADMIN' | 'VIEWER'
@@ -33,7 +33,10 @@ export async function logout(): Promise<void> {
 
 export const fetchMe = () => api.get<User>('/auth/me')
 
-/** 앱 시작 때 저장된 refresh 로 로그인을 되살린다. 되살릴 수 없으면 null */
+/**
+ * 앱 시작 때 저장된 refresh 로 로그인을 되살린다. 되살릴 수 없으면 null.
+ * 서버 · 네트워크 일시 오류면 토큰을 남긴 채 ApiError 를 던진다 (호출자가 다시 시도한다).
+ */
 export async function restoreSession(): Promise<User | null> {
   if (!tokens.getRefresh()) return null
   const outcome = await refreshAccessToken()
@@ -41,6 +44,11 @@ export async function restoreSession(): Promise<User | null> {
     tokens.clear()
     return null
   }
-  if (outcome === 'error') return null // 서버 문제면 토큰은 남겨 두고 로그인 화면만 보여준다
-  return fetchMe()
+  if (outcome === 'error') throw new ApiError(0, 'REFRESH_UNAVAILABLE', '로그인 상태를 확인하지 못했습니다.')
+  try {
+    return await fetchMe()
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) return null // client 가 이미 세션을 정리했다
+    throw e
+  }
 }

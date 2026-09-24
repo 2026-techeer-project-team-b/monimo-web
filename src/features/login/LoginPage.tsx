@@ -37,6 +37,8 @@ export function LoginPage() {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<{ text: string; code?: string } | null>(null)
 
+  // 세션 복원 중에는 폼을 그리지 않는다 (이미 로그인된 사람에게 폼이 잠깐 보이지 않도록)
+  if (status === 'loading') return <div className="login" aria-busy="true" />
   if (status === 'authenticated') return <Navigate to={next} replace />
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -93,10 +95,10 @@ export function LoginPage() {
             {expired && !error ? <Banner tone="warn">세션이 만료되었습니다. 다시 로그인하세요.</Banner> : null}
             <form className="login__form" onSubmit={onSubmit} noValidate>
               <Field label="이메일" htmlFor="login-email">
-                <Input id="login-email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={invalid} autoFocus />
+                <Input id="login-email" type="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError(null) }} aria-invalid={invalid} autoFocus />
               </Field>
               <Field label="비밀번호" htmlFor="login-password">
-                <Input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={invalid} />
+                <Input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); setError(null) }} aria-invalid={invalid} />
               </Field>
               {error ? (
                 <Banner tone="crit">
