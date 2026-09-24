@@ -1,4 +1,4 @@
-// 디자인 시스템 미리보기. Figma 05-A 섹션과 눈으로 대조하는 용도. 라우터가 생기면 /design-system 경로로 옮긴다.
+// 디자인 시스템 미리보기 (/design-system). Figma 「디자인 시스템」 과 눈으로 대조하는 용도. 사이드바에는 없다.
 import { useState } from 'react'
 import {
   Badge,

@@ -1,0 +1,1 @@
+export { ServerMapPage } from './ServerMapPage'

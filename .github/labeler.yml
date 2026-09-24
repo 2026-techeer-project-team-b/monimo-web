@@ -5,40 +5,50 @@ area/server-map:
     - any-glob-to-any-file:
       - 'src/features/server-map/**'
 
-area/scatter:
+area/transactions:
   - changed-files:
     - any-glob-to-any-file:
-      - 'src/features/scatter/**'
-
-area/call-tree:
-  - changed-files:
-    - any-glob-to-any-file:
-      - 'src/features/call-tree/**'
+      - 'src/features/transactions/**'
 
 area/inspector:
   - changed-files:
     - any-glob-to-any-file:
       - 'src/features/inspector/**'
 
-area/alert-rules:
+area/errors:
   - changed-files:
     - any-glob-to-any-file:
-      - 'src/features/alert-rules/**'
+      - 'src/features/errors/**'
+
+area/logs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/logs/**'
+
+area/alerts:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/alerts/**'
 
 area/settings:
   - changed-files:
     - any-glob-to-any-file:
       - 'src/features/settings/**'
 
+area/platform:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/platform/**'
+
 area/api:
   - changed-files:
     - any-glob-to-any-file:
       - 'src/api/**'
 
-area/components:
+area/design-system:
   - changed-files:
     - any-glob-to-any-file:
-      - 'src/components/**'
+      - 'src/design-system/**'
 
 area/build:
   - changed-files:

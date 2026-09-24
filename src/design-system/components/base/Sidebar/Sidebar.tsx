@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import { cx } from '../../../cx'
 import { StatusDot } from '../StatusDot'
 import type { Tone } from '../Badge'
@@ -21,7 +21,8 @@ export type SidebarProps = {
   brandCaption?: string
   items: SidebarItem[]
   activeKey?: string
-  onSelect?: (key: string) => void
+  /** 클릭한 메뉴 key 와 이벤트. 라우터 링크로 쓸 때는 e.preventDefault() 후 navigate 한다 */
+  onSelect?: (key: string, e: MouseEvent<HTMLElement>) => void
   /** 하단 슬롯. 보통 <SidebarStatusCard> */
   footer?: ReactNode
   className?: string
@@ -58,11 +59,11 @@ export function Sidebar({
             </>
           )
           return item.href ? (
-            <a key={item.key} href={item.href} className={cls} aria-current={active ? 'page' : undefined} onClick={() => onSelect?.(item.key)}>
+            <a key={item.key} href={item.href} className={cls} aria-current={active ? 'page' : undefined} onClick={(e) => onSelect?.(item.key, e)}>
               {inner}
             </a>
           ) : (
-            <button key={item.key} type="button" className={cls} aria-current={active ? 'page' : undefined} onClick={() => onSelect?.(item.key)}>
+            <button key={item.key} type="button" className={cls} aria-current={active ? 'page' : undefined} onClick={(e) => onSelect?.(item.key, e)}>
               {inner}
             </button>
           )
