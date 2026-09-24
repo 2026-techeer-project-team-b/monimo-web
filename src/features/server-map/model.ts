@@ -44,6 +44,7 @@ export type MapGraph = { nodes: MapNodeData[]; edges: ServerMapEdge[]; key: stri
  * key 는 노드 · 간선 구성이 같으면 같은 글자 — 숫자만 바뀐 새로고침에서는 배치를 다시 하지 않는 기준이다
  */
 export function toGraph(map: ServerMap): MapGraph {
+  const edges = mergeEdges(map.edges)
   const byName = new Map<string, MapNodeData>()
   const add = (name: string, kind: CalleeKind, cnt: number, errCnt: number) => {
     const prev = byName.get(name)
@@ -53,7 +54,7 @@ export function toGraph(map: ServerMap): MapGraph {
     } else byName.set(name, { name, kind, cnt, errCnt, health: 'ok' })
   }
   for (const n of map.nodes) add(n.service_name, 'SERVICE', n.cnt, n.err_cnt)
-  for (const e of map.edges) {
+  for (const e of edges) {
     if (!byName.has(e.caller_service)) add(e.caller_service, 'SERVICE', 0, 0)
     // 서비스 노드는 서버가 준 합계를 쓴다. 응답에 없는 서비스 · DB · 외부만 간선에서 더한다
     const known = map.nodes.some((n) => n.service_name === e.callee_service)
@@ -65,14 +66,37 @@ export function toGraph(map: ServerMap): MapGraph {
     n.health = health(n.cnt, n.errCnt)
     if (n.kind === 'SERVICE') n.colorIndex = services.indexOf(n.name)
   }
-  const key = [...nodes.map((n) => `${n.kind}:${n.name}`).sort(), ...map.edges.map(edgeId).sort()].join('|')
-  return { nodes, edges: map.edges, key }
+  const key = [...nodes.map((n) => `${n.kind}:${n.name}`).sort(), ...edges.map(edgeId).sort()].join('|')
+  return { nodes, edges, key }
 }
 
 export const edgeId = (e: ServerMapEdge) => `${e.caller_service}->${e.callee_service}`
 
-/** dagre 로 왼쪽(부르는 쪽) → 오른쪽(불리는 쪽) 배치. 반환은 노드 왼쪽 위 좌표 */
+/** 같은 호출 쌍이 여러 줄로 오면 한 간선으로 합친다 (cnt · err_cnt 는 더하고, avg 는 호출 수로 가중 평균). 그래프 간선 id 가 겹치지 않게 */
+function mergeEdges(edges: ServerMapEdge[]): ServerMapEdge[] {
+  const byId = new Map<string, ServerMapEdge>()
+  for (const e of edges) {
+    const prev = byId.get(edgeId(e))
+    if (!prev) {
+      byId.set(edgeId(e), { ...e })
+      continue
+    }
+    const cnt = prev.cnt + e.cnt
+    prev.avg_duration_ms = cnt > 0 ? (prev.avg_duration_ms * prev.cnt + e.avg_duration_ms * e.cnt) / cnt : 0
+    prev.cnt = cnt
+    prev.err_cnt += e.err_cnt
+  }
+  return [...byId.values()]
+}
+
+let lastLayout: { key: string; pos: Record<string, { x: number; y: number }> } | null = null
+
+/**
+ * dagre 로 왼쪽(부르는 쪽) → 오른쪽(불리는 쪽) 배치. 반환은 노드 왼쪽 위 좌표.
+ * 자리는 구성(key)으로만 정해지므로, 숫자만 바뀐 새로고침에서는 직전 결과를 그대로 돌려준다
+ */
 export function autoLayout(graph: MapGraph): Record<string, { x: number; y: number }> {
+  if (lastLayout?.key === graph.key) return lastLayout.pos
   const g = new Graph()
   g.setGraph({ rankdir: 'LR', nodesep: 40, ranksep: 170, marginx: 16, marginy: 16 })
   g.setDefaultEdgeLabel(() => ({}))
@@ -86,6 +110,7 @@ export function autoLayout(graph: MapGraph): Record<string, { x: number; y: numb
     const { width, height } = NODE_SIZE[n.kind]
     out[n.name] = { x: p.x - width / 2, y: p.y - height / 2 }
   }
+  lastLayout = { key: graph.key, pos: out }
   return out
 }
 
@@ -106,6 +131,8 @@ export const fmtCount = (n: number) => n.toLocaleString('en-US')
 /** 간선 라벨용 짧은 수: 940 · 9.6k · 1.2M */
 export function fmtCompact(n: number): string {
   if (n < 1000) return String(n)
-  if (n < 1_000_000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`
-  return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  const short = (v: number, unit: string) => `${v.toFixed(1).replace(/\.0$/, '')}${unit}`
+  // 반올림한 뒤에 단위를 고른다 (999,950 이 1000k 가 되지 않게)
+  const k = Math.round(n / 100) / 10
+  return k < 1000 ? short(k, 'k') : short(n / 1_000_000, 'M')
 }

@@ -28,7 +28,7 @@ export function ServerMapGraph({ graph, selected, onSelect, query, layoutNonce }
   // dagre 배치는 같은 구성이면 늘 같은 자리라, 숫자만 바뀐 새로고침에서도 노드가 움직이지 않는다.
   // 끌어 옮긴 위치는 구성(graph.key)이 바뀌거나 재정렬을 누르면 버린다
   const layoutKey = `${graph.key}#${layoutNonce}`
-  const auto = useMemo(() => autoLayout(graph), [graph])
+  const auto = useMemo(() => autoLayout(graph), [graph]) // 구성이 같으면 autoLayout 이 직전 결과를 돌려준다
   const [dragged, setDragged] = useState<{ key: string; pos: Record<string, Point> }>({ key: '', pos: {} })
   // React Flow 가 잰 노드 크기. 넘겨주지 않으면 매 렌더마다 다시 재느라 간선이 잠깐 사라진다
   const [sizes, setSizes] = useState<Record<string, Size>>({})

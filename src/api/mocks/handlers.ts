@@ -3,7 +3,7 @@
 // 화면 작업에서 필요한 엔드포인트는 화면별 파일(mocks/<화면>.ts)에 만들고 아래 handlers 에 펼쳐 넣는다.
 import { http, HttpResponse } from 'msw'
 import { API_BASE } from '../client'
-import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, reqId, USERS } from './common'
+import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
 import { serverMapHandlers } from './serverMap'
 
 // refresh → user_uuid. 실제 서버처럼 새로고침 뒤에도 남도록 sessionStorage 에 둔다 (가짜 응답 전용)
@@ -60,14 +60,16 @@ export const handlers = [
   }),
 
   http.post(`${API_BASE}/auth/logout`, async ({ request }) => {
-    if (!currentUser(request)) return fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.')
+    const denied = unauthenticated(request)
+    if (denied) return denied
     const body = (await request.json().catch(() => null)) as { refresh_token?: string } | null
     if (body?.refresh_token) refreshTokens.delete(body.refresh_token)
     return ok({ result: 'LOGGED_OUT' })
   }),
 
   http.get(`${API_BASE}/applications`, ({ request }) => {
-    if (!currentUser(request)) return fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.')
+    const denied = unauthenticated(request)
+    if (denied) return denied
     return HttpResponse.json({ data: APPLICATIONS, page: { next_cursor: null, limit: 50 } }, { headers: { 'X-Request-Id': reqId() } })
   }),
 
