@@ -4,7 +4,7 @@
 
 - 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · MSW(가짜 응답)
 - 나중에 넣을 것: Zustand (여러 화면이 같이 쓰는 값, 2단계)
-- 상태: 디자인 시스템 완료 · 앱 기반(경로 · 셸 · API 클라이언트) 완료 · 화면은 빈 페이지
+- 상태: 디자인 시스템 완료 · 앱 기반(경로 · 셸 · API 클라이언트) · 로그인 · 권한 완료 · 화면은 빈 페이지
 
 ## 폴더 구성
 
@@ -25,7 +25,8 @@ src/
 │   ├── patterns/           06 패턴: AppShell · TableCard · FormCard · 상태색 · 차트 규칙
 │   └── index.ts            입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
 ├── features/        화면 하나 = 폴더 하나 = 경로 하나 (아래 「화면 경로」 표)
-├── api/             API 호출 (client.ts) + 가짜 응답 (mocks/)
+├── api/             API 호출 (client.ts · auth.ts · tokens.ts) + 가짜 응답 (mocks/)
+├── auth/            로그인 상태 · 라우트 가드 · 역할 (useAuth · RequireAuth · AdminOnly)
 ├── stores/          여러 화면이 같이 쓰는 값 (Zustand, 2단계)
 ├── app/             앱 뼈대: 경로(routes.tsx) · 셸(AppLayout) · TanStack Query · 디자인 시스템 미리보기
 └── main.tsx
@@ -58,6 +59,19 @@ npm run build    # 타입 검사 + 빌드
 VITE_API_MOCK=true npm run dev
 ```
 
+가짜 응답의 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER).
+브라우저 콘솔에서 `__monimoMock.expireAccess()` 는 토큰 만료(자동 재발급 시험), `__monimoMock.revokeRefresh()` 는 세션 만료를 흉내 낸다.
+
+## 로그인 · 권한
+
+백엔드 명세(monimo-backend `docs/design/web-v2/api-spec.md` §0)를 따른다.
+
+- `/login` 에서 로그인하면 access 토큰은 메모리, refresh 토큰은 localStorage 에 둔다. 모든 요청에 `Authorization: Bearer` 가 붙는다.
+- 요청이 401 이면 refresh 로 한 번 재발급하고 다시 보낸다 (동시에 여러 개여도 재발급은 1번). 재발급도 실패하면 로그인 화면으로 가며 "세션 만료" 배너가 뜬다.
+- 로그인하지 않고 화면 주소로 들어오면 `/login?next=<원래 주소>` 로 가고, 로그인 뒤 원래 주소로 돌아온다.
+- 화면에서 역할은 `useAuth()` 의 `isAdmin`, ADMIN 전용 버튼은 `<AdminOnly>` 로 감싼다. **이건 화면을 가리는 편의 기능이고, 실제로 막는 것은 API 서버다.**
+- API 응답은 명세 봉투(`{ data }` · `{ error: { code, message } }`)를 `api.get` 등이 벗겨서 돌려준다. 목록은 `api.getPage` 가 `{ items, nextCursor }` 로 준다.
+
 ## 화면 경로
 
 화면 하나 = `src/features/<폴더>/` 하나 = 경로 하나. 경로 · 메뉴 · 상단바 제목은 `src/app/routes.tsx` 한 곳에서 정한다. 화면 코드는 경로별로 따로 내려받는다.
@@ -72,7 +86,8 @@ VITE_API_MOCK=true npm run dev
 | `/alerts` | 경보 (이벤트 · 규칙 · 채널) | `features/alerts` |
 | `/settings` | 설정 | `features/settings` |
 | `/platform` | 플랫폼 상태 | `features/platform` |
-| `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음) | `app/DesignSystemPreview.tsx` |
+| `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `features/login` |
+| `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | `app/DesignSystemPreview.tsx` |
 
 화면 규칙
 

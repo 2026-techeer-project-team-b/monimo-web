@@ -1,0 +1,53 @@
+/* Figma Shell/Topbar UserChip — 높이 size/control · radius/full · border/default · 좌 6 우 10 · 아바타 26 accent-soft */
+.user-menu { position: relative; }
+.user-menu__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--size-control);
+  padding: 0 10px 0 6px; /* Figma 값 */
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.user-menu__chip:hover { background: var(--color-bg-surface-2); }
+.user-menu__chip:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: 2px; }
+.user-menu__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; /* Figma 값 */
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+.user-menu__name { white-space: nowrap; }
+.user-menu__panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 2; /* 상단바(1) 위 · Drawer 아래 */
+  min-width: 200px;
+  padding: var(--space-1);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-overlay);
+}
+.user-menu__email { padding: var(--space-2) var(--space-3); color: var(--color-text-tertiary); }
+.user-menu__item {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.user-menu__item:hover,
+.user-menu__item:focus-visible { background: var(--color-bg-surface-2); outline: none; }

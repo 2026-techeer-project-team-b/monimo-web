@@ -2,6 +2,7 @@ import type { MouseEvent } from 'react'
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router'
 import { AppShell, Sidebar, Topbar } from '@/design-system'
 import { SCREENS, type ScreenMeta } from './screens'
+import { UserMenu } from './UserMenu'
 
 const NAV_ITEMS = SCREENS.map((s) => ({ key: s.path, label: s.title, icon: s.icon, href: `/${s.path}` }))
 
@@ -23,7 +24,11 @@ export function AppLayout() {
   return (
     <AppShell
       sidebar={<Sidebar items={NAV_ITEMS} activeKey={activeKey} onSelect={onSelect} />}
-      topbar={<Topbar title={meta?.title ?? ''} subtitle={meta?.subtitle} />}
+      topbar={
+        <Topbar title={meta?.title ?? ''} subtitle={meta?.subtitle}>
+          <UserMenu />
+        </Topbar>
+      }
     >
       <Outlet />
     </AppShell>
