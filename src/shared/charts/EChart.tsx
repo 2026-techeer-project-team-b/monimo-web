@@ -4,13 +4,13 @@ import { ensureTheme } from './theme'
 import './EChart.css'
 
 export type EChartProps = {
-  /** ECharts option. 색은 chartColors() 의 풀린 값을 쓴다 */
+  /** ECharts option. 색은 chartColors() 의 풀린 값을 쓴다. 참조가 바뀔 때마다 통째로 다시 그리므로 useMemo 로 감싸서 넘긴다 */
   option: ChartOption
   /** 차트가 무엇을 보여주는지 (스크린리더용, 필수) */
   'aria-label': string
   /** 높이. 기본 240px. 폭은 부모를 채운다 */
   height?: number | string
-  /** 이벤트 이름 → 처리기. 예: { brushSelected: (e) => …, click: (e) => … } */
+  /** 이벤트 이름 → 처리기. 예: { brushSelected: (e) => …, click: (e) => … }. 참조가 바뀌면 다시 연결하므로 useMemo 로 감싸서 넘긴다 */
   onEvents?: Record<string, (params: unknown) => void>
   /** 인스턴스가 준비되면 한 번 불린다 (브러시 켜기 등 명령형 조작용) */
   onReady?: (chart: ChartInstance) => void
@@ -28,6 +28,9 @@ export function EChart({ option, height = 240, onEvents, onReady, className, sty
   const chartRef = useRef<ChartInstance | null>(null)
   // 그리기 실패 안내. 차트 라이브러리(외부)와 맞추는 일이라 React 상태 대신 DOM 표시로 켜고 끈다
   const failRef = useRef<HTMLDivElement>(null)
+  const showFail = (fail: boolean) => {
+    if (failRef.current) failRef.current.hidden = !fail
+  }
   const onReadyRef = useRef(onReady)
   useEffect(() => {
     onReadyRef.current = onReady
@@ -40,7 +43,14 @@ export function EChart({ option, height = 240, onEvents, onReady, className, sty
     const chart = echarts.init(el, ensureTheme(), { renderer: 'canvas' })
     chartRef.current = chart
     onReadyRef.current?.(chart)
-    const ro = new ResizeObserver(() => chart.resize())
+    const ro = new ResizeObserver(() => {
+      try {
+        chart.resize()
+      } catch (e) {
+        console.error('[EChart] 크기를 바꿔 다시 그리지 못했습니다', e)
+        showFail(true)
+      }
+    })
     ro.observe(el)
     return () => {
       ro.disconnect()
@@ -52,10 +62,10 @@ export function EChart({ option, height = 240, onEvents, onReady, className, sty
   useEffect(() => {
     try {
       chartRef.current?.setOption(option, { notMerge: true })
-      if (failRef.current) failRef.current.hidden = true
+      showFail(false)
     } catch (e) {
       console.error('[EChart] 차트를 그리지 못했습니다', e)
-      if (failRef.current) failRef.current.hidden = false
+      showFail(true)
     }
   }, [option])
 

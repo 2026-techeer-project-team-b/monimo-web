@@ -8,7 +8,7 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   build: {
-    // vendor-echarts(ECharts 본체, 약 580 kB · gzip 195 kB)만 500 kB 를 넘는다. 쓰는 화면에서만 내려받으므로 기준을 그만큼 올린다
+    // vendor-echarts(ECharts 본체)만 500 kB 를 넘는다 (크기는 npm run build 출력 참고). 쓰는 화면에서만 내려받으므로 기준을 그만큼 올린다
     chunkSizeWarningLimit: 600,
     rolldownOptions: {
       output: {
