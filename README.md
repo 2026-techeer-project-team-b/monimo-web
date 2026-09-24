@@ -1,10 +1,10 @@
 # monimo-web
 
-모니모니터링 화면 (서버맵 · 스캐터 · 콜트리 · 인스펙터 · 규칙/설정)
+모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
 
-- 기술: React 19 · TypeScript · Vite · oxlint
-- 나중에 넣을 것: Zustand (여러 화면이 같이 쓰는 값) · TanStack Query (서버 데이터). 쓰는 화면이 생길 때 설치한다
-- 상태: 뼈대만 있음 (디자인 토큰까지)
+- 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · MSW(가짜 응답)
+- 나중에 넣을 것: Zustand (여러 화면이 같이 쓰는 값, 2단계)
+- 상태: 디자인 시스템 완료 · 앱 기반(경로 · 셸 · API 클라이언트) 완료 · 화면은 빈 페이지
 
 ## 폴더 구성
 
@@ -24,10 +24,10 @@ src/
 │   │   └── extended/       05-B 확장 컴포넌트: Table · Tabs · Modal ...
 │   ├── patterns/           06 패턴: AppShell · TableCard · FormCard · 상태색 · 차트 규칙
 │   └── index.ts            입구. 밖에서는 '@/design-system' 으로만 가져다 쓴다
-├── features/        화면 하나 = 폴더 하나 (server-map · scatter · call-tree ...)
-├── api/             API 호출 + 가짜 응답
-├── stores/          여러 화면이 같이 쓰는 값 (Zustand)
-├── app/             앱 뼈대 (라우터 · TanStack Query 연결 자리)
+├── features/        화면 하나 = 폴더 하나 = 경로 하나 (아래 「화면 경로」 표)
+├── api/             API 호출 (client.ts) + 가짜 응답 (mocks/)
+├── stores/          여러 화면이 같이 쓰는 값 (Zustand, 2단계)
+├── app/             앱 뼈대: 경로(routes.tsx) · 셸(AppLayout) · TanStack Query · 디자인 시스템 미리보기
 └── main.tsx
 ```
 
@@ -52,6 +52,34 @@ npm run build    # 타입 검사 + 빌드
 
 `/api` 로 시작하는 요청은 개발 서버가 `localhost:8080`(api-server)으로 넘긴다.
 
+백엔드 없이 화면을 만들 때는 가짜 응답을 켠다. 응답은 `src/api/mocks/handlers.ts` 에 추가한다 (개발 서버에서만 동작, 빌드 결과물에는 안 들어감).
+
+```bash
+VITE_API_MOCK=true npm run dev
+```
+
+## 화면 경로
+
+화면 하나 = `src/features/<폴더>/` 하나 = 경로 하나. 경로 · 메뉴 · 상단바 제목은 `src/app/routes.tsx` 한 곳에서 정한다. 화면 코드는 경로별로 따로 내려받는다.
+
+| 경로 | 화면 | 폴더 |
+|---|---|---|
+| `/server-map` (첫 화면) | 서버맵 | `features/server-map` |
+| `/transactions` | 트랜잭션 (스캐터 · 목록 · 콜트리 드로어) | `features/transactions` |
+| `/inspector` | 인스펙터 | `features/inspector` |
+| `/errors` | 에러 | `features/errors` |
+| `/logs` | 로그 | `features/logs` |
+| `/alerts` | 경보 (이벤트 · 규칙 · 채널) | `features/alerts` |
+| `/settings` | 설정 | `features/settings` |
+| `/platform` | 플랫폼 상태 | `features/platform` |
+| `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음) | `app/DesignSystemPreview.tsx` |
+
+화면 규칙
+
+- API 는 `@/api` 의 `api.get` 등만 쓰고 fetch 를 직접 쓰지 않는다. 실패는 `ApiError(status · code · message)` 로 온다.
+- 서버 데이터는 TanStack Query(`useQuery` · `useMutation`)로 가져온다.
+- 부품 · 레이아웃 · 상태색은 `@/design-system` 에서 가져다 쓴다 (06 패턴: `TableCard` · `FormCard` · `severityTone` ...).
+
 ## 환경변수
 
 실제 값은 레포에 올리지 않는다. `.env.example` 에 이름만 적는다.
@@ -59,6 +87,7 @@ npm run build    # 타입 검사 + 빌드
 | 이름 | 설명 |
 |---|---|
 | `VITE_API_BASE` | API 주소 앞부분 (기본 `/api/v1`) |
+| `VITE_API_MOCK` | `true` 면 개발 서버에서 가짜 응답 사용 (기본 `false`) |
 
 ## 포트
 
