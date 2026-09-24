@@ -2,7 +2,7 @@
 
 모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
 
-- 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · MSW(가짜 응답)
+- 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · ECharts · React Flow · MSW(가짜 응답)
 - 상태: 디자인 시스템 · 앱 기반(경로 · 셸 · API 클라이언트) · 로그인 · 권한 · 상단바 공통 상태 완료 · 화면은 빈 페이지
 
 ## 폴더 구성
@@ -26,6 +26,7 @@ src/
 ├── features/        화면 하나 = 폴더 하나 = 경로 하나 (아래 「화면 경로」 표)
 ├── api/             API 호출 (client.ts · auth.ts · tokens.ts) + 가짜 응답 (mocks/)
 ├── auth/            로그인 상태 · 라우트 가드 · 역할 (useAuth · RequireAuth · AdminOnly)
+├── shared/          여러 화면이 같이 쓰는 앱 코드: 차트 공용 틀(charts/EChart) 등
 ├── stores/          여러 화면이 같이 쓰는 값 (Zustand): 서비스 · 시간 범위 · 새로고침 주기
 ├── app/             앱 뼈대: 경로(routes.tsx) · 셸(AppLayout) · TanStack Query · 디자인 시스템 미리보기
 └── main.tsx
@@ -33,7 +34,8 @@ src/
 
 | 규칙 | 지키는 방법 |
 |---|---|
-| `design-system` 은 `features` · `api` · `stores` · `app` 을 가져다 쓰지 않는다 | `npm run lint` 가 막는다 (`.oxlintrc.json`) |
+| `design-system` 은 `features` · `api` · `stores` · `app` · `shared` 를 가져다 쓰지 않는다 | `npm run lint` 가 막는다 (`.oxlintrc.json`) |
+| `shared` 는 `features` · `app` 을 가져다 쓰지 않는다 | `npm run lint` 가 막는다 |
 | 색 · 간격은 hex · px 를 직접 쓰지 않고 토큰 변수를 쓴다 | 예: `var(--color-accent-default)` · `var(--space-4)` |
 | 글자는 Figma 텍스트 스타일 이름 클래스를 쓴다 | 예: `Body/13 Strong` → `.text-body-13-strong` |
 | 토큰 값을 바꿀 때는 Figma 먼저, 그다음 `tokens/` 의 해당 파일 | 둘이 어긋나지 않게 |
@@ -84,6 +86,25 @@ const { data } = useQuery({
 
 - 서비스가 꼭 필요한 문(`/traces/scatter` 등)인데 "전체"면 화면에서 "서비스를 선택하세요" 안내를 띄운다.
 - 자동 새로고침은 탭이 숨겨지면 멈추고, 사용자 지정(고정 시각) 범위에서는 돌지 않는다.
+
+## 차트
+
+차트는 ECharts 를 `@/shared` 의 `EChart` 로만 그린다. 06 P5 차트 규약(축 글자 · 격자 · 툴팁)이 테마로 자동 적용된다.
+캔버스는 CSS 변수를 못 읽으므로 색은 `chartColors()` 가 풀어 둔 값을 쓴다.
+
+```tsx
+import { chartColors, EChart } from '@/shared'
+
+const c = chartColors()
+<EChart
+  aria-label="응답시간 스캐터"
+  option={{ xAxis: { type: 'time' }, yAxis: { type: 'value' }, series: [{ type: 'scatter', itemStyle: { color: c.scatter.ok }, data }] }}
+/>
+```
+
+- 히트맵은 `heatmapVisualMap()` · `heatmapStep()` 으로 06 P5 농도 5단계 + 에러 색을 칠한다.
+- 새 차트 종류 · 부품(범례 · 확대 등)이 필요하면 `src/shared/charts/echarts.ts` 에 등록한다 (번들 크기 때문에 쓰는 것만).
+- ECharts 는 `vendor-echarts` 파일로 떨어져 있고, 차트를 쓰는 화면에서만 내려받는다. 서버맵 그래프(React Flow)도 `vendor-xyflow` 로 따로 떨어진다.
 
 ## 로그인 · 권한
 

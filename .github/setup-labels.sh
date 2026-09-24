@@ -28,6 +28,7 @@ LABELS=(
   "area/settings:C5DEF5:설정 화면"
   "area/platform:C5DEF5:플랫폼 상태 화면"
   "area/api:1D76DB:API 호출 (src/api)"
+  "area/shared:D4C5F9:화면 공용 코드 (src/shared)"
   "area/design-system:D4C5F9:디자인 시스템 (src/design-system)"
   "area/build:FEF2C0:빌드 · 의존성 · Docker"
   "area/ci:CFD3D7:CI · GitHub 설정"

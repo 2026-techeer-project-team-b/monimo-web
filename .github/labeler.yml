@@ -45,6 +45,11 @@ area/api:
     - any-glob-to-any-file:
       - 'src/api/**'
 
+area/shared:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/shared/**'
+
 area/design-system:
   - changed-files:
     - any-glob-to-any-file:
