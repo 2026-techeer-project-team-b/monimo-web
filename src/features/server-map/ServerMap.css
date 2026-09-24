@@ -1,13 +1,15 @@
 /* 서버맵 (S01). 색은 토큰만. 노드 크기는 model.ts NODE_SIZE 와 같은 값 */
-.sm-page {
+.sm-screen {
   display: flex;
+  flex-direction: column;
   gap: var(--space-4);
-  /* 상단바 · 본문 위아래 여백을 뺀 높이를 그래프가 채운다 */
+  /* 상단바 · 본문 위아래 여백을 뺀 높이를 경보 띠 + 그래프가 채운다 */
   height: calc(100vh - var(--size-topbar) - 2 * var(--space-5));
-  min-height: 560px;
+  min-height: 600px;
 }
+.sm-page { flex: 1; min-height: 0; display: flex; gap: var(--space-4); }
 .sm-graph-card { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.sm-aside { width: clamp(300px, 34%, 436px); flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+.sm-aside { width: clamp(300px, 34%, 436px); flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-4); overflow-y: auto; }
 
 /* 도구줄 */
 .sm-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
@@ -89,3 +91,28 @@
 /* 확대 · 축소 · 맞춤 버튼 */
 .sm-canvas .react-flow__controls { box-shadow: var(--shadow-card); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); overflow: hidden; }
 .sm-canvas .react-flow__controls-button { background: var(--color-bg-surface); border-bottom-color: var(--color-border-default); color: var(--color-text-secondary); }
+
+/* 발화 중 경보 띠 */
+.sm-alerts .ds-banner__body { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.sm-alerts__list { display: contents; }
+.sm-alerts__item { display: flex; align-items: center; gap: 6px; color: var(--color-text-primary); }
+.sm-alerts__item .text-caption-12 { color: var(--color-text-secondary); }
+
+/* 오른쪽 카드 공통. 좁으면 제목 옆 링크가 아래 줄로 내려간다 */
+.sm-aside .ds-card__header { flex-wrap: wrap; }
+.sm-card-title { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.sm-card-sub { color: var(--color-text-tertiary); font-weight: 400; }
+.sm-card-notice { margin: 0; padding: var(--space-3) 0; color: var(--color-text-tertiary); }
+.sm-link { color: var(--color-accent-strong); text-decoration: none; white-space: nowrap; }
+.sm-link:hover { text-decoration: underline; }
+
+/* 스캐터 */
+.sm-scatter__foot { display: flex; align-items: center; gap: var(--space-3); color: var(--color-text-secondary); }
+.sm-scatter__legend { display: inline-flex; align-items: center; gap: 5px; }
+.sm-scatter__total { margin-left: auto; color: var(--color-text-secondary); }
+.sm-dot { width: 8px; height: 8px; border-radius: var(--radius-full); display: inline-block; }
+.sm-dot--ok { background: color-mix(in srgb, var(--color-accent-default) 60%, transparent); }
+.sm-dot--fail { background: var(--color-status-crit); }
+
+/* 상위 URL */
+.sm-url__name { max-width: 0; width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

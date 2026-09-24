@@ -15,3 +15,4 @@ export {
   type TimeWindow,
 } from './filters'
 export { parseFilters, writeFilters, filterKeyString, FILTER_KEYS } from './filtersUrl'
+export { useFilterHref } from './useFilterHref'

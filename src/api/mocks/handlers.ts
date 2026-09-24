@@ -4,7 +4,10 @@
 import { http, HttpResponse } from 'msw'
 import { API_BASE } from '../client'
 import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
+import { alertsHandlers } from './alerts'
 import { serverMapHandlers } from './serverMap'
+import { statsHandlers } from './stats'
+import { tracesHandlers } from './traces'
 
 // refresh → user_uuid. 실제 서버처럼 새로고침 뒤에도 남도록 sessionStorage 에 둔다 (가짜 응답 전용)
 const MOCK_REFRESH_KEY = 'monimo.mock.refresh_tokens'
@@ -79,4 +82,7 @@ export const handlers = [
   }),
 
   ...serverMapHandlers,
+  ...tracesHandlers,
+  ...statsHandlers,
+  ...alertsHandlers,
 ]
