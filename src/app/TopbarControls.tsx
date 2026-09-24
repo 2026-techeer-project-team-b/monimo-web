@@ -3,7 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { useIsFetching, useQuery } from '@tanstack/react-query'
 import { listApplications } from '@/api'
 import { Button, IconRefresh, Segmented, Select } from '@/design-system'
-import { RANGE_PRESETS, REFRESH_OPTIONS, useFilters, useTimeWindow, type RefreshSec } from '@/stores'
+import { RANGE_PRESETS, REFRESH_OPTIONS, toIso, useFilters, useTimeWindow, type RefreshSec } from '@/stores'
 import { usePopover } from './usePopover'
 import './TopbarControls.css'
 
@@ -52,7 +52,11 @@ function isoToLocalInput(iso: string) {
   const d = new Date(iso)
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
-const localInputToIso = (v: string) => new Date(v).toISOString().replace(/\.\d{3}Z$/, 'Z')
+/** 잘못된 값이면 null */
+const localInputToIso = (v: string) => {
+  const ms = new Date(v).getTime()
+  return Number.isNaN(ms) ? null : toIso(ms)
+}
 
 /** 시간 범위: 프리셋 5 개 + 사용자 지정(시작 · 끝 입력) */
 function TimeRangeControl() {
@@ -76,6 +80,7 @@ function TimeRangeControl() {
     if (!from || !to) return setError('시작과 끝을 모두 입력하세요')
     const f = localInputToIso(from)
     const t = localInputToIso(to)
+    if (!f || !t) return setError('날짜와 시각을 올바르게 입력하세요')
     if (Date.parse(f) >= Date.parse(t)) return setError('시작이 끝보다 앞서야 합니다')
     setRange({ kind: 'custom', from: f, to: t })
     close()
@@ -93,7 +98,7 @@ function TimeRangeControl() {
         />
       </div>
       {open ? (
-        <div ref={panelRef} id={panelId} role="dialog" aria-label="사용자 지정 시간 범위" className="topbar-panel topbar-controls__custom">
+        <div ref={panelRef} id={panelId} role="group" aria-label="사용자 지정 시간 범위" className="topbar-panel topbar-controls__custom">
           <label className="topbar-controls__field text-caption-12-medium">
             시작
             <input type="datetime-local" className="ds-input text-body-13" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} />

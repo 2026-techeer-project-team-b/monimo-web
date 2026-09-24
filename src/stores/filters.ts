@@ -49,10 +49,17 @@ export const useFilters = create<FilterState>()((set) => ({
   setRange: (range) => set({ range, anchor: Date.now() }),
   setRefreshSec: (refreshSec) => set({ refreshSec }),
   refreshNow: () => set({ anchor: Date.now() }),
-  patch: (values) => set((s) => ({ ...values, anchor: values.range ? Date.now() : s.anchor })),
+  // 범위가 실제로 바뀐 경우에만 기준 시각을 다시 잡는다 (같은 값이 다시 들어와도 시간 창이 흔들리지 않게)
+  patch: (values) => set((s) => ({ ...values, anchor: values.range && !sameRange(values.range, s.range) ? Date.now() : s.anchor })),
 }))
 
-const toIso = (ms: number) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z')
+export function sameRange(a: TimeRange, b: TimeRange): boolean {
+  if (a.kind === 'preset' || b.kind === 'preset') return a.kind === b.kind && a.kind === 'preset' && b.kind === 'preset' && a.preset === b.preset
+  return a.from === b.from && a.to === b.to
+}
+
+/** 명세 형식: UTC ISO, 초 단위 (예: 2026-09-14T10:20:30Z) */
+export const toIso = (ms: number) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z')
 
 /** 명세 공통 파라미터 from(포함) · to(제외), UTC ISO 초 단위 */
 export type TimeWindow = { from: string; to: string }
