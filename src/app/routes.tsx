@@ -16,5 +16,5 @@ export const routes: RouteObject[] = [
     ],
   },
   // 디자인 시스템 미리보기. 사이드바에는 없고 주소로만 들어간다
-  { path: '/design-system', lazy: () => import('./DesignSystemPreview').then((m) => ({ Component: m.DesignSystemPreview })) },
+  { path: '/design-system', errorElement: <RouteError />, lazy: () => import('./DesignSystemPreview').then((m) => ({ Component: m.DesignSystemPreview })) },
 ]

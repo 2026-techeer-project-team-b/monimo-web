@@ -51,12 +51,17 @@ async function request<T>(method: string, path: string, body: unknown, options: 
     : ''
   const url = `${API_BASE}${path}${qs ? `?${qs}` : ''}`
 
+  // Headers 인스턴스 · 배열 형태도 합쳐지도록 Headers 로 통일한다 (호출자 값이 이긴다)
+  const merged = new Headers({ Accept: 'application/json' })
+  if (body !== undefined) merged.set('Content-Type', 'application/json')
+  new Headers(headers).forEach((v, k) => merged.set(k, v))
+
   let res: Response
   try {
     res = await fetch(url, {
       ...init,
       method,
-      headers: { Accept: 'application/json', ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...headers },
+      headers: merged,
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch (e) {
@@ -65,8 +70,14 @@ async function request<T>(method: string, path: string, body: unknown, options: 
   }
 
   if (!res.ok) throw await readError(res)
-  if (res.status === 204) return undefined as T
-  return (await res.json()) as T
+  // 204 · 빈 본문은 undefined. JSON 이 아닌 본문도 ApiError 로 통일해 화면이 한 가지 오류만 다루게 한다
+  const text = await res.text()
+  if (!text) return undefined as T
+  try {
+    return JSON.parse(text) as T
+  } catch {
+    throw new ApiError(res.status, 'INVALID_RESPONSE', '서버 응답을 읽지 못했습니다.')
+  }
 }
 
 export const api = {
