@@ -1,0 +1,36 @@
+/* 트랜잭션 (S02). 색은 토큰만 */
+.tx-page { display: flex; flex-direction: column; gap: var(--space-4); }
+.tx-title { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.tx-empty { margin: 0; padding: var(--space-4) 0; color: var(--color-text-tertiary); }
+.tx-note { margin: 0; color: var(--color-status-warn-text); }
+.tx-crit { color: var(--color-status-crit-text); font-weight: 600; }
+
+/* 스캐터 카드 */
+.tx-scatter .ds-card__header { flex-wrap: wrap; }
+.tx-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.tx-filter { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }
+.tx-filter .ds-select { width: 240px; }
+.tx-filter .tx-filter__result { width: 100px; }
+.tx-scatter__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); color: var(--color-text-secondary); }
+.tx-scatter__meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.tx-scatter__picked { margin-left: auto; color: var(--color-accent-strong); font-weight: 600; }
+.tx-scatter__hint { margin-left: auto; color: var(--color-text-tertiary); }
+.tx-dot { width: 8px; height: 8px; border-radius: var(--radius-full); display: inline-block; }
+.tx-dot--ok { background: color-mix(in srgb, var(--color-accent-default) 60%, transparent); }
+.tx-dot--fail { background: var(--color-status-crit); }
+.tx-linkbtn {
+  margin-left: var(--space-2); padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 500; color: var(--color-text-secondary); text-decoration: underline;
+}
+
+/* 요청 목록 */
+/* 표 위 조건 줄 — 표 테두리 안 맨 위 띠 */
+.tx-conds {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+}
+/* 칸이 좁아도 파드 이름 · ID · 시각이 꺾이지 않게 (넘치면 표가 가로로 스크롤) */
+.tx-table .ds-table td { white-space: nowrap; }
+.tx-table.is-loading .ds-table-card__table { opacity: 0.6; }
