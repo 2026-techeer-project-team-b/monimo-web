@@ -30,3 +30,21 @@ export function currentUser(request: Request) {
 
 /** 로그인이 안 됐으면 401 응답, 됐으면 null */
 export const unauthenticated = (request: Request) => (currentUser(request) ? null : fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.'))
+
+/** 목록 응답 { data, page } */
+export const okPage = (data: unknown[], limit: number, nextCursor: string | null = null) =>
+  HttpResponse.json({ data, page: { next_cursor: nextCursor, limit } }, { headers: { 'X-Request-Id': reqId() } })
+
+/** 공통 시간 범위 from · to 를 읽는다. 없거나 from ≥ to 면 명세대로 422 UNPROCESSABLE 응답을 돌려준다 */
+export function timeRange(url: URL): { from: number; to: number; hours: number } | Response {
+  const from = Date.parse(url.searchParams.get('from') ?? '')
+  const to = Date.parse(url.searchParams.get('to') ?? '')
+  if (!(from < to)) return fail(422, 'UNPROCESSABLE', 'from 은 to 보다 앞이어야 합니다.')
+  return { from, to, hours: (to - from) / 3_600_000 }
+}
+
+/** 고정 씨앗 난수 — 같은 입력이면 늘 같은 가짜 데이터 */
+export function seeded(text: string) {
+  let s = [...text].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7)
+  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296
+}

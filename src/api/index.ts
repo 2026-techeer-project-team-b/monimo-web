@@ -3,3 +3,6 @@ export { login, logout, fetchMe, restoreSession, type Role, type User } from './
 export { onSessionExpired } from './tokens'
 export { listApplications, type Application } from './applications'
 export { getServerMap, type CalleeKind, type ServerMap, type ServerMapEdge, type ServerMapNode, type ServerMapQuery } from './serverMap'
+export { getScatter, type Scatter, type ScatterPoint, type ScatterQuery } from './traces'
+export { listUrlStats, type UrlStat, type UrlStatsQuery } from './stats'
+export { listAlertEvents, type AlertEvent, type AlertEventsQuery, type AlertState, type Severity } from './alerts'

@@ -2,9 +2,10 @@
 import { http } from 'msw'
 import { API_BASE } from '../client'
 import type { ServerMap } from '../serverMap'
-import { fail, ok, unauthenticated } from './common'
+import { ok, timeRange, unauthenticated } from './common'
 
-const HOUR: ServerMap = {
+/** 시안의 1시간 값. 다른 가짜 응답(스캐터 등)도 서비스별 호출 수를 여기서 맞춘다 */
+export const HOUR: ServerMap = {
   nodes: [
     { service_name: 'shop-gateway', cnt: 12540, err_cnt: 404 },
     { service_name: 'shop-order', cnt: 12480, err_cnt: 402 },
@@ -27,12 +28,9 @@ export const serverMapHandlers = [
   http.get(`${API_BASE}/server-map`, ({ request }) => {
     const denied = unauthenticated(request)
     if (denied) return denied
-    const url = new URL(request.url)
-    const from = Date.parse(url.searchParams.get('from') ?? '')
-    const to = Date.parse(url.searchParams.get('to') ?? '')
-    if (!(from < to)) return fail(400, 'INVALID_REQUEST', 'from 은 to 보다 앞이어야 합니다.')
-    const k = (to - from) / 3_600_000
-    const scale = (n: number) => Math.round(n * k)
+    const range = timeRange(new URL(request.url))
+    if (range instanceof Response) return range
+    const scale = (n: number) => Math.round(n * range.hours)
     return ok({
       nodes: HOUR.nodes.map((n) => ({ ...n, cnt: scale(n.cnt), err_cnt: scale(n.err_cnt) })),
       edges: HOUR.edges.map((e) => ({ ...e, cnt: scale(e.cnt), err_cnt: scale(e.err_cnt) })),
