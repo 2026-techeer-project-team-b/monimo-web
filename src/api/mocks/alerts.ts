@@ -20,8 +20,15 @@ export const alertsHandlers = [
     const state = q.get('state') ?? 'FIRING'
     const limit = Math.min(Number(q.get('limit')) || 50, 500)
     const now = Date.now()
+    // from · to 는 선택 값이다. 오면 fired_at 이 그 안에 드는 것만 준다
+    const from = Date.parse(q.get('from') ?? '')
+    const to = Date.parse(q.get('to') ?? '')
+    const inRange = (firedAgoMin: number) => {
+      const t = now - firedAgoMin * MIN
+      return (Number.isNaN(from) || t >= from) && (Number.isNaN(to) || t < to)
+    }
     const rows: AlertEvent[] = EVENTS.filter(
-      (e) => e.state === state && (!q.get('service_name') || e.service_name === q.get('service_name')) && (!q.get('severity') || e.severity === q.get('severity')),
+      (e) => e.state === state && (!q.get('service_name') || e.service_name === q.get('service_name')) && (!q.get('severity') || e.severity === q.get('severity')) && inRange(e.firedAgoMin),
     ).map(({ firedAgoMin, resolvedAgoMin, ...e }) => ({
       ...e,
       fired_at: new Date(now - firedAgoMin * MIN).toISOString(),

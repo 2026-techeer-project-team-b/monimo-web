@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { getScatter, type ScatterPoint } from '@/api'
 import { Badge, Card } from '@/design-system'
@@ -21,7 +21,8 @@ export function ScatterCard({ serviceName, notice }: { serviceName: string | nul
     queryKey: ['scatter', serviceName, from, to, LIMIT],
     queryFn: ({ signal }) => getScatter({ serviceName: serviceName!, from, to, limit: LIMIT }, signal),
     enabled: !!serviceName,
-    placeholderData: keepPreviousData,
+    // 새로고침 · 시간 범위 변경 때만 이전 값을 유지한다. 다른 서비스로 바꾸면 이전 서비스 데이터를 보이지 않는다
+    placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[1] === serviceName ? prev : undefined),
   })
 
   const option = useMemo<ChartOption | null>(() => {
