@@ -1,17 +1,71 @@
-// 스캐터 가짜 응답 (GET /traces/scatter). 서비스별 호출 수 · 에러율은 서버맵 가짜 응답(HOUR)과 맞춘다.
-// 점은 시간 범위 1분당 약 1.2개 — 시안처럼 뒤쪽 1/3 에서 실패 · 느린 요청이 몰린다
+// 트레이스 가짜 응답 (GET /traces/scatter · GET /traces/transactions).
+// 요청은 "분 단위 고정 씨앗" 으로 만든다: 같은 서비스 · 같은 분이면 언제 불러도 같은 요청이 나온다.
+// 그래서 스캐터(넓은 범위)에서 드래그한 사각형으로 목록(좁은 범위)을 불러도 같은 요청을 가리킨다.
+// 1분에 평균 1.2건. 10분 묶음 중 일부는 "나쁜 구간" 이라 실패 · 느린 요청이 몰린다 (시안처럼)
 import { http } from 'msw'
 import { API_BASE } from '../client'
-import type { ScatterPoint } from '../traces'
-import { ok, seeded, timeRange, unauthenticated } from './common'
+import type { ScatterPoint, Transaction } from '../traces'
+import { agentKeysOf } from './agents'
+import { ok, okPage, seeded, timeRange, unauthenticated } from './common'
 import { HOUR } from './serverMap'
 
+const MIN = 60_000
 const SPANS: Record<string, string[]> = {
   'shop-gateway': ['GET /orders/**', 'POST /orders/**', 'GET /users/**'],
-  'shop-order': ['GET /api/v1/orders/{orderId}', 'POST /api/v1/orders', 'GET /api/v1/orders'],
+  'shop-order': [
+    'POST /api/v1/orders/{orderId}/pay',
+    'POST /api/v1/orders',
+    'GET /api/v1/orders',
+    'GET /api/v1/orders/{orderId}',
+    'GET /api/v1/orders/{orderId}/items',
+    'POST /api/v1/orders/{orderId}/cancel',
+  ],
   'shop-payment': ['POST /api/v1/payments', 'GET /api/v1/payments/{paymentId}'],
   'shop-inventory': ['GET /api/v1/stock/{sku}', 'POST /api/v1/stock/reserve'],
   'shop-user': ['GET /api/v1/users/{userId}', 'GET /api/v1/users/me'],
+}
+
+const hex = (r: () => number, len: number) => Array.from({ length: len }, () => Math.floor(r() * 16).toString(16)).join('')
+
+function minutePoints(service: string, minute: number): Transaction[] {
+  const node = HOUR.nodes.find((n) => n.service_name === service)
+  if (!node) return []
+  const r = seeded(`${service}|${minute}`)
+  // 10분 묶음 중 "나쁜 구간": 매시 30~40분은 항상, 나머지는 30% 확률
+  const block = Math.floor(minute / (10 * MIN))
+  const bad = block % 6 === 3 || seeded(`${service}|bad|${block}`)() < 0.3
+  const failRate = bad ? Math.min(0.5, (node.err_cnt / node.cnt) * 8) : 0.002
+  const base = HOUR.edges.find((e) => e.callee_service === service)?.avg_duration_ms ?? 120
+  const spans = SPANS[service] ?? ['GET /']
+  const pods = agentKeysOf(service)
+  const n = r() < 0.2 ? 2 : 1
+  return Array.from({ length: n }, () => {
+    const isError = r() < failRate
+    const slow = bad && r() < 0.25
+    const ms = isError ? 900 + r() * 1800 : slow ? base * 2 + r() * base * 6 : base * (0.15 + r() * 0.6)
+    return {
+      trace_id: hex(r, 32),
+      start_time: new Date(minute + Math.floor(r() * MIN)).toISOString(),
+      duration_ms: Math.max(1, Math.round(ms)),
+      service_name: service,
+      agent_key: pods[Math.floor(r() * pods.length)] ?? `${service}-unknown`,
+      span_name: spans[Math.floor(r() * spans.length)],
+      is_error: isError,
+      http_status: isError ? (r() < 0.8 ? 500 : 504) : 200,
+    }
+  })
+}
+
+/** [from, to) 안의 요청 전부 (시각 순) */
+function requestsIn(service: string, from: number, to: number, agentKey: string | null): Transaction[] {
+  const out: Transaction[] = []
+  for (let m = Math.floor(from / MIN) * MIN; m < to; m += MIN) {
+    for (const p of minutePoints(service, m)) {
+      const t = Date.parse(p.start_time)
+      if (t >= from && t < to && (!agentKey || p.agent_key === agentKey)) out.push(p)
+    }
+  }
+  return out
 }
 
 export const tracesHandlers = [
@@ -24,31 +78,32 @@ export const tracesHandlers = [
     const service = url.searchParams.get('service_name') ?? ''
     const node = HOUR.nodes.find((n) => n.service_name === service)
     if (!node) return ok({ mode: 'raw', total_count: 0, points: [] })
-
+    const all = requestsIn(service, range.from, range.to, url.searchParams.get('agent_key'))
     const limit = Math.min(Number(url.searchParams.get('limit')) || 5000, 5000)
-    const want = Math.max(20, Math.round(range.hours * 60 * 1.2))
-    const n = Math.min(want, limit)
-    const base = HOUR.edges.find((e) => e.callee_service === service)?.avg_duration_ms ?? 120
-    const failRate = Math.min(0.5, (node.err_cnt / node.cnt) * 8)
-    const r = seeded(`${service}|${range.from}|${range.to}`)
-    const spans = SPANS[service] ?? ['GET /']
-    const points: ScatterPoint[] = Array.from({ length: n }, (_, i) => {
-      const t = range.from + r() * (range.to - range.from)
-      const late = t > range.from + (range.to - range.from) * 0.66
-      const isError = late && r() < failRate
-      const ms = isError ? 800 + r() * 500 : late && r() < 0.15 ? base * 1.5 + r() * base * 2 : base * (0.2 + r() * 0.5)
-      const status = isError ? (r() < 0.8 ? 500 : 503) : 200
-      return {
-        trace_id: `${service.slice(5, 8)}${i.toString(16).padStart(4, '0')}${Math.floor(r() * 1e12).toString(16)}`,
-        start_time: new Date(t).toISOString(),
-        duration_ms: Math.round(ms),
-        is_error: isError,
-        http_status: status,
-        span_name: spans[Math.floor(r() * spans.length)],
-        agent_key: `${service}-7d9f4-${['x2k8q', 'm4p1z'][i % 2]}`,
-      }
-    })
-    points.sort((a, b) => a.start_time.localeCompare(b.start_time))
-    return ok({ mode: want > limit ? 'bucketed' : 'raw', total_count: Math.round(node.cnt * range.hours), points })
+    // 점이 limit 을 넘으면 서버가 격자로 접는다. 가짜 응답은 고르게 솎아서 흉내만 낸다
+    const step = all.length / limit
+    const shown = all.length > limit ? Array.from({ length: limit }, (_, i) => all[Math.floor(i * step)]) : all
+    const points: ScatterPoint[] = shown.map(({ service_name: _s, ...p }) => p)
+    return ok({ mode: all.length > limit ? 'bucketed' : 'raw', total_count: Math.round(node.cnt * range.hours), points })
+  }),
+
+  // 드래그한 사각형 안의 요청. 느린 순, 커서는 건너뛸 건수
+  http.get(`${API_BASE}/traces/transactions`, ({ request }) => {
+    const denied = unauthenticated(request)
+    if (denied) return denied
+    const url = new URL(request.url)
+    const range = timeRange(url)
+    if (range instanceof Response) return range
+    const q = url.searchParams
+    const min = q.has('min_duration_ms') ? Number(q.get('min_duration_ms')) : -Infinity
+    const max = q.has('max_duration_ms') ? Number(q.get('max_duration_ms')) : Infinity
+    const isError = q.get('is_error')
+    const rows = requestsIn(q.get('service_name') ?? '', range.from, range.to, q.get('agent_key'))
+      .filter((p) => p.duration_ms >= min && p.duration_ms <= max && (isError === null || String(p.is_error) === isError))
+      .sort((a, b) => b.duration_ms - a.duration_ms)
+    const limit = Math.min(Number(q.get('limit')) || 50, 500)
+    const offset = Number(q.get('cursor')) || 0
+    const next = offset + limit < rows.length ? String(offset + limit) : null
+    return okPage(rows.slice(offset, offset + limit), limit, next)
   }),
 ]
