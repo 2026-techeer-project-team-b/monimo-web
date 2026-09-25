@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Agent, Scatter } from '@/api'
 import { Badge, Card, Select } from '@/design-system'
 import { chartColors, EChart, type ChartInstance, type ChartOption } from '@/shared'
-import { pointsIn, toCoordRange, toSelection, type ResultFilter, type Selection } from './selection'
+import { filterByResult, toCoordRange, toSelection, type ResultFilter, type Selection } from './selection'
 
 const fmt = (n: number) => n.toLocaleString('en-US')
 
@@ -17,6 +17,8 @@ type Props = {
   result: ResultFilter
   onResult: (v: ResultFilter) => void
   selection: Selection | null
+  /** 선택 건수 (격자로 접혀 셀 수 없으면 null) */
+  count: { total: number; failed: number } | null
   onSelection: (s: Selection | null) => void
 }
 
@@ -26,13 +28,9 @@ type Dot = { value: [number, number]; span: string; status: number | null }
 export function ScatterPanel(p: Props) {
   const { scatter, from, to, result, selection } = p
   // 결과 필터는 화면에서 거른다 (스캐터 API 에는 is_error 파라미터가 없다)
-  const points = useMemo(
-    () => (scatter?.points ?? []).filter((x) => result === 'all' || x.is_error === (result === 'fail')),
-    [scatter, result],
-  )
+  const points = useMemo(() => filterByResult(scatter?.points ?? [], result), [scatter, result])
   const okCount = points.filter((x) => !x.is_error).length
   const failCount = points.length - okCount
-  const picked = selection ? pointsIn(points, selection) : null
 
   const option = useMemo<ChartOption>(() => {
     const c = chartColors()
@@ -128,9 +126,9 @@ export function ScatterPanel(p: Props) {
       <div className="tx-scatter__meta text-caption-12">
         <span><i className="tx-dot tx-dot--ok" aria-hidden />성공 {fmt(okCount)}</span>
         <span><i className="tx-dot tx-dot--fail" aria-hidden />실패 {fmt(failCount)}</span>
-        {picked ? (
+        {selection ? (
           <span className="tx-scatter__picked">
-            선택 {fmt(picked.length)}건 · 실패 {fmt(picked.filter((x) => x.is_error).length)}
+            {p.count ? `선택 ${fmt(p.count.total)}건 · 실패 ${fmt(p.count.failed)}` : '영역 선택됨 (점이 격자로 접혀 건수는 아래 표에서)'}
             <button type="button" className="tx-linkbtn" onClick={() => p.onSelection(null)}>선택 해제</button>
           </span>
         ) : (

@@ -27,7 +27,20 @@ const SPANS: Record<string, string[]> = {
 
 const hex = (r: () => number, len: number) => Array.from({ length: len }, () => Math.floor(r() * 16).toString(16)).join('')
 
+// 같은 (서비스, 분) 은 늘 같은 결과라 한 번 만든 것은 담아 둔다. 긴 범위(7일 = 10,080분)를 새로고침마다 다시 만들지 않게
+const cache = new Map<string, Transaction[]>()
+
 function minutePoints(service: string, minute: number): Transaction[] {
+  const key = `${service}|${minute}`
+  let hit = cache.get(key)
+  if (!hit) {
+    if (cache.size > 50_000) cache.clear()
+    cache.set(key, (hit = makeMinute(service, minute)))
+  }
+  return hit
+}
+
+function makeMinute(service: string, minute: number): Transaction[] {
   const node = HOUR.nodes.find((n) => n.service_name === service)
   if (!node) return []
   const r = seeded(`${service}|${minute}`)

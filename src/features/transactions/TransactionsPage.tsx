@@ -4,7 +4,7 @@ import { getScatter, listAgents } from '@/api'
 import { Card } from '@/design-system'
 import { useServiceName, useTimeWindow } from '@/stores'
 import { ScatterPanel } from './ScatterPanel'
-import { pointsIn, type ResultFilter, type Selection } from './selection'
+import { selectedCount, type ResultFilter, type Selection } from './selection'
 import { TransactionTable } from './TransactionTable'
 import './Transactions.css'
 
@@ -42,12 +42,8 @@ function ServiceTransactions({ serviceName }: { serviceName: string }) {
     placeholderData: keepPreviousData,
   })
 
-  // 목록 제목의 건수. 점이 요청 하나씩일 때(raw)만 정확하다
-  const count = useMemo(() => {
-    if (!selection || scatter.data?.mode !== 'raw') return null
-    const points = scatter.data.points.filter((x) => result === 'all' || x.is_error === (result === 'fail'))
-    return pointsIn(points, selection).length
-  }, [scatter.data, selection, result])
+  // 선택 건수 — 스캐터 머리말과 목록 제목이 같은 값을 쓴다
+  const count = useMemo(() => selectedCount(scatter.data, selection, result), [scatter.data, selection, result])
 
   return (
     <div className="tx-page">
@@ -62,9 +58,10 @@ function ServiceTransactions({ serviceName }: { serviceName: string }) {
         result={result}
         onResult={setResult}
         selection={selection}
+        count={count}
         onSelection={setSelection}
       />
-      <TransactionTable serviceName={serviceName} selection={selection} agentKey={agentKey} result={result} count={count} />
+      <TransactionTable serviceName={serviceName} selection={selection} agentKey={agentKey} result={result} count={count?.total ?? null} />
     </div>
   )
 }

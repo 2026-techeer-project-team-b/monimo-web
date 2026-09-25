@@ -41,3 +41,16 @@ export function pointsIn(points: ScatterPoint[], s: Selection): ScatterPoint[] {
     return t >= from && t < to && p.duration_ms >= s.minMs && p.duration_ms <= s.maxMs
   })
 }
+
+/** 결과 필터를 적용한 스캐터 점 */
+export const filterByResult = (points: ScatterPoint[], r: ResultFilter) =>
+  r === 'all' ? points : points.filter((x) => x.is_error === (r === 'fail'))
+
+/**
+ * 사각형 안의 건수 · 실패 건수. 점이 요청 하나씩일 때(mode raw)만 정확하므로, 격자로 접혔으면(bucketed) null
+ */
+export function selectedCount(scatter: { mode: string; points: ScatterPoint[] } | undefined, s: Selection | null, r: ResultFilter) {
+  if (!s || scatter?.mode !== 'raw') return null
+  const picked = pointsIn(filterByResult(scatter.points, r), s)
+  return { total: picked.length, failed: picked.filter((x) => x.is_error).length }
+}
