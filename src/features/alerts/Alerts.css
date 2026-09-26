@@ -1,0 +1,41 @@
+/* 경보 (S08). 색은 토큰만 */
+.al-page { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-events { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-empty { margin: 0; padding: var(--space-4); color: var(--color-text-tertiary); }
+.al-muted { color: var(--color-text-tertiary); }
+.al-crit { color: var(--color-status-crit-text); }
+.al-ok { color: var(--color-status-ok-text); }
+.al-right { text-align: right; }
+
+/* 요약 카드 */
+.al-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4); }
+.al-kpi { display: flex; flex-direction: column; gap: 6px; }
+.al-kpi p { margin: 0; }
+.al-kpi__row { display: flex; align-items: baseline; gap: 6px; }
+.al-kpi__row .ds-badge { margin-left: var(--space-2); align-self: center; }
+
+/* 필터 */
+.al-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-5); }
+.al-field { display: flex; flex-direction: column; gap: 4px; color: var(--color-text-secondary); }
+.al-chips { display: flex; gap: 6px; }
+.al-note { margin: 0 0 0 auto; max-width: 320px; color: var(--color-text-tertiary); text-align: right; }
+
+/* 표 */
+.al-title { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+.al-table .ds-table td { white-space: nowrap; }
+.al-table .ds-table td.al-rule { white-space: normal; min-width: 180px; }
+.al-table.is-loading .ds-table-card__table { opacity: 0.6; }
+
+/* 상세 드로어 */
+.al-detail { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-detail__head { display: flex; flex-direction: column; gap: 6px; }
+.al-detail__head h3 { margin: 0; }
+.al-detail__badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.al-fields { margin: 0; display: flex; flex-direction: column; }
+.al-fields > div { display: grid; grid-template-columns: 132px 1fr; gap: var(--space-3); padding: 10px 0; border-bottom: 1px solid var(--color-border-grid); }
+.al-fields dt { color: var(--color-text-secondary); }
+.al-fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.al-link { align-self: flex-start; color: var(--color-accent-strong); text-decoration: none; }
+.al-link:hover { text-decoration: underline; }
+.al-sent { display: flex; flex-direction: column; gap: var(--space-2); }
+.al-sent h3 { margin: 0; }
