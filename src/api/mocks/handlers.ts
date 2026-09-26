@@ -8,6 +8,7 @@ import { agentsHandlers } from './agents'
 import { alertsHandlers, channelsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
+import { metricsHandlers } from './metrics'
 import { serverMapHandlers } from './serverMap'
 import { statsHandlers } from './stats'
 import { traceDetailHandlers } from './traceDetail'
@@ -85,6 +86,7 @@ export const handlers = [
   ...rulesHandlers,
   ...channelsHandlers,
   ...agentsHandlers,
+  ...metricsHandlers,
   ...errorsHandlers,
   ...logsHandlers,
 ]
