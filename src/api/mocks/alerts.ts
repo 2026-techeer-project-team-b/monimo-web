@@ -251,6 +251,8 @@ export const rulesHandlers = [
     const b = (await request.json().catch(() => null)) as (AlertRuleBody & { application_uuid?: string; enabled?: boolean; channel_uuids?: string[] }) | null
     const invalid = invalidBody(b) ?? unknownChannel(b!.channel_uuids ?? [])
     if (invalid) return invalid
+    const ids = b!.channel_uuids ?? []
+    if (new Set(ids).size !== ids.length) return fail(409, 'RULE_CHANNEL_DUPLICATE', '같은 채널을 두 번 연결할 수 없습니다.')
     const app = APPLICATIONS.find((a) => a.application_uuid === b!.application_uuid)
     if (!app) return fail(400, 'INVALID_REQUEST', 'application_uuid 가 올바르지 않습니다.')
     const now = new Date().toISOString()
@@ -265,7 +267,7 @@ export const rulesHandlers = [
       window_sec: b!.window_sec,
       severity: b!.severity,
       enabled: b!.enabled !== false,
-      channels: [...new Set(b!.channel_uuids ?? [])],
+      channels: ids,
       created_at: now,
       updated_at: now,
     }
