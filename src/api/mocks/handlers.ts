@@ -6,6 +6,7 @@ import { API_BASE } from '../client'
 import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
 import { agentsHandlers } from './agents'
 import { alertsHandlers } from './alerts'
+import { errorsHandlers } from './errors'
 import { serverMapHandlers } from './serverMap'
 import { statsHandlers } from './stats'
 import { traceDetailHandlers } from './traceDetail'
@@ -90,4 +91,5 @@ export const handlers = [
   ...statsHandlers,
   ...alertsHandlers,
   ...agentsHandlers,
+  ...errorsHandlers,
 ]
