@@ -1,0 +1,18 @@
+/* 로그 검색 (S07). 색은 토큰만 */
+.lg-page { display: flex; flex-direction: column; gap: var(--space-4); }
+.lg-empty { margin: 0; padding: var(--space-4); color: var(--color-text-tertiary); }
+.lg-muted { color: var(--color-text-tertiary); }
+.lg-table.is-loading .ds-table-card__table { opacity: 0.6; }
+
+.lg-filters { display: flex; flex-direction: column; gap: var(--space-3); }
+.lg-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.lg-field { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; border: 0; color: var(--color-text-secondary); }
+.lg-field .ds-select { width: 240px; }
+.lg-levels legend { padding: 0; margin-bottom: 4px; }
+.lg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lg-grow { flex: 1; min-width: 200px; }
+.lg-grow2 { flex: 2; min-width: 240px; }
+.lg-actions { display: flex; gap: var(--space-2); }
+.lg-note { margin: 0 0 0 auto; color: var(--color-text-tertiary); text-align: right; max-width: 260px; }
+.lg-more { display: inline-flex; align-items: center; gap: var(--space-3); }
+.lg-error { color: var(--color-status-crit-text); }
