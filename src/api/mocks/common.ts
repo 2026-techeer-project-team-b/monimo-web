@@ -11,6 +11,18 @@ export const USERS = [
   { user_uuid: '0b0e6a6e-1f00-4c1a-9a01-000000000001', email: 'admin@monimo.io', name: '김승조', role: 'ADMIN', created_at: '2026-09-01T00:00:00Z' },
   { user_uuid: '0b0e6a6e-1f00-4c1a-9a01-000000000002', email: 'viewer@monimo.io', name: '이뷰어', role: 'VIEWER', created_at: '2026-09-01T00:00:00Z' },
 ] as const
+
+/** 감시 대상 서비스 5개 (GET /applications). 경보 규칙이 application_uuid 로 가리킨다 */
+export const APPLICATIONS = ['shop-gateway', 'shop-order', 'shop-payment', 'shop-inventory', 'shop-user'].map((name, i) => ({
+  application_uuid: `0b0e6a6e-2f00-4c1a-9a01-00000000000${i + 1}`,
+  name,
+  display_name: name,
+  description: '',
+  agent_count: 2,
+  created_at: '2026-09-01T00:00:00Z',
+  updated_at: '2026-09-01T00:00:00Z',
+}))
+
 export const PASSWORD = 'monimo2026'
 export const ACCESS_TTL_SEC = 300
 
@@ -47,4 +59,11 @@ export function timeRange(url: URL): { from: number; to: number; hours: number }
 export function seeded(text: string) {
   let s = [...text].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7)
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296
+}
+
+/** 관리자만 하는 변경(생성 · 수정 · 켜기/끄기)이면: 로그인 안 됐으면 401, VIEWER 면 403 FORBIDDEN, ADMIN 이면 null */
+export function notAdmin(request: Request) {
+  const user = currentUser(request)
+  if (!user) return fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.')
+  return user.role === 'ADMIN' ? null : fail(403, 'FORBIDDEN', '관리자(ADMIN)만 바꿀 수 있습니다.')
 }

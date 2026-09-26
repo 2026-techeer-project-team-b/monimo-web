@@ -17,6 +17,10 @@
   padding: var(--space-5);
 }
 
+/* 레이어 안의 막은 레이어가 이미 쌓임 순서를 정하므로 z-index 를 풀어 창(뒤에 오는 형제) 아래에 깔리게 한다.
+   풀지 않으면 막(200)이 z-index 없는 창을 덮어 창 전체가 흐려지고 클릭도 막에 먹힌다 */
+.ds-modal-layer > .ds-overlay { z-index: auto; }
+
 /* Figma Modal — 폭 600 · bg/surface · radius/md · Shadow/overlay */
 .ds-modal {
   position: relative;

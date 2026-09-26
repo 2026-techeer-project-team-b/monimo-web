@@ -86,9 +86,14 @@ function Body({ eventId, now }: { eventId: string; now: number }) {
         ))}
       </dl>
 
-      <Link className="al-link text-caption-12-medium" to={href('/server-map', { serviceName: e.service_name })}>
-        서버맵에서 보기 →
-      </Link>
+      <div className="al-links">
+        <Link className="al-link text-caption-12-medium" to={href('/server-map', { serviceName: e.service_name })}>
+          서버맵에서 보기 →
+        </Link>
+        <Link className="al-link text-caption-12-medium" to={href('/alerts', undefined, { tab: 'rules', rule: e.alert_rule_uuid })}>
+          규칙 보기 →
+        </Link>
+      </div>
 
       <section aria-labelledby="al-sent-title" className="al-sent">
         <h3 id="al-sent-title" className="text-section-15">알림 발송 이력</h3>
