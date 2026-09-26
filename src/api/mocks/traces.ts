@@ -30,6 +30,15 @@ const hex = (r: () => number, len: number) => Array.from({ length: len }, () => 
 // 같은 (서비스, 분) 은 늘 같은 결과라 한 번 만든 것은 담아 둔다. 긴 범위(7일 = 10,080분)를 새로고침마다 다시 만들지 않게
 const cache = new Map<string, Transaction[]>()
 
+/** 스캐터 · 목록에서 한 번 내보낸 요청을 trace_id 로 찾는다 (트레이스 상세 가짜 응답이 그 요청에 맞는 나무를 만들게) */
+export function findRequest(traceId: string): Transaction | undefined {
+  for (const list of cache.values()) {
+    const hit = list.find((p) => p.trace_id === traceId)
+    if (hit) return hit
+  }
+  return undefined
+}
+
 function minutePoints(service: string, minute: number): Transaction[] {
   const key = `${service}|${minute}`
   let hit = cache.get(key)

@@ -21,6 +21,7 @@ LABELS=(
   "size/XL:E11D21:변경 ≥500줄"
   "area/server-map:C5DEF5:서버맵 화면"
   "area/transactions:C5DEF5:트랜잭션 화면"
+  "area/trace-detail:C5DEF5:트레이스 상세 드로어"
   "area/inspector:C5DEF5:인스펙터 화면"
   "area/errors:C5DEF5:에러 화면"
   "area/logs:C5DEF5:로그 화면"

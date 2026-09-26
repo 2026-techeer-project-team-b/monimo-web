@@ -1,0 +1,54 @@
+/* 트레이스 상세 (S03, 드로어 본문). 색은 토큰만 */
+.td { display: flex; flex-direction: column; gap: var(--space-4); }
+.td-state { margin: 0; padding: var(--space-4) 0; color: var(--color-text-tertiary); }
+.td-muted { color: var(--color-text-tertiary); }
+.td-crit { color: var(--color-status-crit-text); }
+
+/* 요약 */
+.td-summary { display: flex; flex-direction: column; gap: var(--space-2); }
+.td-summary__line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }
+.td-sep { width: 1px; height: 12px; background: var(--color-border-default); }
+.td-iconbtn {
+  display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0;
+  border: 1px solid var(--color-border-default); border-radius: var(--radius-sm);
+  background: var(--color-bg-surface); color: var(--color-text-secondary); cursor: pointer;
+}
+.td-path { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.td-path li { display: inline-flex; align-items: center; gap: 6px; }
+.td-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px;
+  border-radius: var(--radius-full); background: var(--color-bg-surface-2); color: var(--color-text-primary);
+}
+.td-dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex-shrink: 0; display: inline-block; }
+
+/* 타임라인 카드 */
+.td-card { border: 1px solid var(--color-border-default); border-radius: var(--radius-md); padding: var(--space-4); }
+.td-card__head { display: flex; align-items: baseline; gap: var(--space-2); margin-bottom: var(--space-3); }
+.td-card__head h3 { margin: 0; }
+
+.td-timeline { --td-name: 44%; }
+.td-timeline__head, .td-row { display: grid; grid-template-columns: var(--td-name) 1fr; gap: var(--space-4); }
+.td-timeline__head { padding-bottom: 6px; border-bottom: 1px solid var(--color-border-default); color: var(--color-text-tertiary); }
+.td-axis { position: relative; height: 16px; margin-right: 72px; }
+.td-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.td-axis span:first-child { transform: none; }
+.td-axis .td-axis__end { left: auto; right: -72px; transform: none; color: var(--color-text-primary); font-weight: 600; }
+
+.td-rows { margin: 0; padding: 0; list-style: none; }
+.td-row { align-items: center; min-height: 34px; border-bottom: 1px solid var(--color-border-grid); }
+.td-row:last-child { border-bottom: 0; }
+.td-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.td-row__span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-primary); }
+.td-row.is-error .td-row__span { color: var(--color-status-crit-text); font-weight: 600; }
+.td-row__agent { flex-shrink: 0; max-width: 45%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-tertiary); }
+.td-toggle {
+  flex-shrink: 0; display: inline-grid; place-items: center; width: 18px; height: 18px; padding: 0;
+  border: 0; background: none; color: var(--color-text-tertiary); cursor: pointer;
+}
+span.td-toggle { cursor: default; }
+
+.td-row__bar { position: relative; height: 18px; margin-right: 72px; }
+.td-bar { position: absolute; top: 2px; height: 14px; border-radius: 2px; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; }
+.td-bar__label { position: absolute; top: 1px; white-space: nowrap; color: var(--color-text-tertiary); }
+.td-bar__label--in { position: static; padding-right: 6px; color: var(--color-text-on-dark); }
+.td-bar__err { position: absolute; top: 1px; display: inline-flex; color: var(--color-status-crit); }
