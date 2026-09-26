@@ -19,21 +19,19 @@ import './LogTable.css'
 
 const LEVEL_TONE: Record<LogLevel, Tone> = { ERROR: 'crit', WARN: 'warn', INFO: 'accent', DEBUG: 'muted', TRACE: 'muted' }
 
-/** 본문에서 검색어를 찾아 <mark> 로 감싼다 (대소문자 무시) */
+const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * 본문에서 검색어를 찾아 <mark> 로 감싼다 (대소문자 무시).
+ * 소문자로 바꾼 글자에서 찾은 위치로 원문을 자르면, 바꾸며 길이가 달라지는 글자(İ 등)가 앞에 있을 때 엉뚱한 곳이 칠해진다.
+ * 그래서 원문에 대소문자 무시 정규식을 바로 건다 (split 의 캡처 그룹 → 홀수 번째가 찾은 부분)
+ */
 function highlight(text: string, q: string) {
   const needle = q.trim()
   if (!needle) return text
-  const parts: (string | { hit: string })[] = []
-  const lower = text.toLowerCase()
-  const n = needle.toLowerCase()
-  let at = 0
-  for (let i = lower.indexOf(n); i !== -1; i = lower.indexOf(n, at)) {
-    if (i > at) parts.push(text.slice(at, i))
-    parts.push({ hit: text.slice(i, i + needle.length) })
-    at = i + needle.length
-  }
-  if (at < text.length) parts.push(text.slice(at))
-  return parts.map((p, i) => (typeof p === 'string' ? <Fragment key={i}>{p}</Fragment> : <mark key={i} className="log-mark">{p.hit}</mark>))
+  return text
+    .split(new RegExp(`(${escapeRegex(needle)})`, 'gi'))
+    .map((part, i) => (i % 2 === 1 ? <mark key={i} className="log-mark">{part}</mark> : <Fragment key={i}>{part}</Fragment>))
 }
 
 type Props = {
@@ -53,6 +51,7 @@ type Props = {
 export function LogTable({ rows, q = '', hideService, hideTrace }: Props) {
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set())
   const { open: openTrace } = useOpenTrace()
+  // 로그 줄에는 고유 id 가 없어 순번을 덧붙인다. 「더 보기」는 뒤에만 이어 붙이므로 앞 행의 순번(과 펼침 상태)은 바뀌지 않는다
   const keyOf = (l: LogLine, i: number) => `${l.ts}|${l.span_id}|${i}`
   const toggle = (k: string) =>
     setOpen((prev) => {

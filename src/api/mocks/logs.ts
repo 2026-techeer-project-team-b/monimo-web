@@ -99,7 +99,11 @@ export const logsHandlers = [
     const needle = (q.get('q') ?? '').toLowerCase()
 
     const rows = services
-      .flatMap((s) => [...requestsIn(s, range.from, range.to, agent).flatMap(requestLogs), ...(agent ? [] : batchLogs(s, range.from, range.to))])
+      .flatMap((s) => [
+        ...requestsIn(s, range.from, range.to, agent).flatMap(requestLogs),
+        // 배치 로그도 파드 필터를 따른다 (배치는 서비스의 첫 파드에서 돈다)
+        ...batchLogs(s, range.from, range.to).filter((l) => !agent || l.agent_key === agent),
+      ])
       .filter(
         (l) =>
           (!levels.length || levels.includes(l.level)) &&

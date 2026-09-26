@@ -59,9 +59,16 @@ export function LogsPage() {
         summary={`${rows.length.toLocaleString('en-US')}건 표시 · ts 역순 · limit ${LIMIT} · 커서 페이징`}
         pager={
           logs.hasNextPage ? (
-            <Button onClick={() => logs.fetchNextPage()} disabled={logs.isFetchingNextPage}>
-              {logs.isFetchingNextPage ? '불러오는 중…' : `더 보기 (${LIMIT}건)`}
-            </Button>
+            <span className="lg-more">
+              {logs.isFetchNextPageError ? (
+                <span className="text-caption-12 lg-error" role="alert">
+                  다음 로그를 불러오지 못했습니다. 다시 눌러 주세요.
+                </span>
+              ) : null}
+              <Button onClick={() => logs.fetchNextPage()} disabled={logs.isFetchingNextPage}>
+                {logs.isFetchingNextPage ? '불러오는 중…' : `더 보기 (${LIMIT}건)`}
+              </Button>
+            </span>
           ) : null
         }
       >
