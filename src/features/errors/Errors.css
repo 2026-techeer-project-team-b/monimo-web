@@ -1,0 +1,51 @@
+/* 에러 분석 (S06). 색은 토큰만 */
+.er-page { display: flex; flex-direction: column; gap: var(--space-4); }
+.er-empty { margin: 0; padding: var(--space-4) 0; color: var(--color-text-tertiary); }
+.er-muted { margin: 0; color: var(--color-text-tertiary); }
+.er-crit { color: var(--color-status-crit-text); }
+.er-warn { color: var(--color-status-warn-text); }
+.er-title { margin: 0; }
+
+/* 타임라인 카드 */
+.er-timeline__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.er-kpis { display: flex; gap: var(--space-5); margin: 0; text-align: right; }
+.er-kpis dt { color: var(--color-text-tertiary); }
+.er-kpis dd { margin: 2px 0 0; }
+.er-timeline__body { display: flex; gap: var(--space-4); align-items: flex-start; }
+.er-timeline__chart { flex: 1; min-width: 0; }
+.er-legend {
+  width: 248px; flex-shrink: 0; box-sizing: border-box; padding: var(--space-3);
+  border: 1px solid var(--color-border-default); border-radius: var(--radius-md);
+  display: flex; flex-direction: column; gap: var(--space-2);
+}
+.er-legend h3 { margin: 0; color: var(--color-text-secondary); }
+.er-legend ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.er-legend li { display: flex; align-items: center; gap: 6px; }
+.er-legend li > span { margin-left: auto; }
+.er-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.er-swatch--crit { background: var(--color-status-crit); }
+.er-swatch--warn { background: var(--color-status-warn); }
+.er-type {
+  min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  padding: 1px 4px; margin-left: -4px; border: 0; border-radius: var(--radius-sm);
+  background: none; color: var(--color-text-primary); text-align: left; cursor: pointer;
+}
+.er-type:hover { text-decoration: underline; }
+.er-type[aria-pressed='true'] { background: var(--color-accent-soft); color: var(--color-accent-strong); font-weight: 600; }
+.er-foot { text-align: center; }
+
+/* 필터 줄 */
+.er-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.er-field { display: flex; flex-direction: column; gap: 4px; color: var(--color-text-secondary); }
+.er-field .ds-select { width: 220px; }
+.er-field--grow { flex: 1; min-width: 220px; }
+.er-actions { display: flex; gap: var(--space-2); }
+
+/* 표 */
+.er-table .ds-table td { white-space: nowrap; }
+.er-table.is-loading .ds-table-card__table { opacity: 0.6; }
+.er-clip { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.er-table .ds-table td.er-message { white-space: normal; min-width: 180px; max-width: 260px; }
+/* 긴 메시지는 두 줄까지만 (전체는 title) */
+.er-table .ds-table td.er-message { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.er-linkbtn { padding: 0; border: 0; background: none; font: inherit; color: var(--color-text-secondary); text-decoration: underline; cursor: pointer; }

@@ -7,3 +7,13 @@ export { getHeatmap, getScatter, getTrace, listTransactions, type Heatmap, type 
 export { listUrlStats, type UrlStat, type UrlStatsQuery } from './stats'
 export { listAlertEvents, type AlertEvent, type AlertEventsQuery, type AlertState, type Severity } from './alerts'
 export { listAgents, type Agent, type AgentStatus, type AgentsQuery } from './agents'
+export {
+  getErrorTimeline,
+  listErrors,
+  type ErrorSpan,
+  type ErrorsQuery,
+  type ErrorTimeline,
+  type ErrorTimelinePoint,
+  type ErrorTimelineQuery,
+  type HttpStatusClass,
+} from './errors'

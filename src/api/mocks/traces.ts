@@ -7,6 +7,7 @@ import { API_BASE } from '../client'
 import type { HeatmapCell, ScatterPoint, Transaction } from '../traces'
 import { agentKeysOf } from './agents'
 import { ok, okPage, seeded, timeRange, unauthenticated } from './common'
+import { failureOf } from './failures'
 import { HOUR } from './serverMap'
 
 const MIN = 60_000
@@ -64,21 +65,23 @@ function makeMinute(service: string, minute: number): Transaction[] {
     const isError = r() < failRate
     const slow = bad && r() < 0.25
     const ms = isError ? 900 + r() * 1800 : slow ? base * 2 + r() * base * 6 : base * (0.15 + r() * 0.6)
+    const traceId = hex(r, 32)
     return {
-      trace_id: hex(r, 32),
+      trace_id: traceId,
       start_time: new Date(minute + Math.floor(r() * MIN)).toISOString(),
       duration_ms: Math.max(1, Math.round(ms)),
       service_name: service,
       agent_key: pods[Math.floor(r() * pods.length)] ?? `${service}-unknown`,
       span_name: spans[Math.floor(r() * spans.length)],
       is_error: isError,
-      http_status: isError ? (r() < 0.8 ? 500 : 504) : 200,
+      // 실패의 상태코드는 failures.ts 가 정한다 (에러 분석 · 트레이스 상세와 같은 값)
+      http_status: isError ? failureOf(service, traceId).http_status : 200,
     }
   })
 }
 
-/** [from, to) 안의 요청 전부 (시각 순) */
-function requestsIn(service: string, from: number, to: number, agentKey: string | null): Transaction[] {
+/** [from, to) 안의 요청 전부 (시각 순). 에러 분석 가짜 응답도 쓴다 */
+export function requestsIn(service: string, from: number, to: number, agentKey: string | null): Transaction[] {
   const out: Transaction[] = []
   for (let m = Math.floor(from / MIN) * MIN; m < to; m += MIN) {
     for (const p of minutePoints(service, m)) {

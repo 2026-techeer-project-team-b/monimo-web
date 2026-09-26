@@ -8,6 +8,7 @@ import { API_BASE } from '../client'
 import type { Span, Trace, Transaction } from '../traces'
 import { agentKeysOf } from './agents'
 import { fail, ok, seeded, unauthenticated } from './common'
+import { failureOf } from './failures'
 import { HOUR } from './serverMap'
 import { findRequest } from './traces'
 
@@ -137,10 +138,16 @@ function buildTrace(traceId: string, req: Transaction | undefined): Trace {
   const start = req ? Date.parse(req.start_time) : Date.now() - 20 * 60_000
   const ctx: Ctx = { r, spans: 0, errorLeaf: null }
   const root = serviceTree(ctx, service, spanName, start, durMs, failing, 0)
+  // 목록에 나온 실패 요청이면 상태코드 · 예외를 에러 분석 표와 같게 (failures.ts)
+  const known = req?.is_error ? failureOf(req.service_name, traceId) : null
+  if (known) {
+    root.http_status = known.http_status
+    root.attributes['http.response.status_code'] = String(known.http_status)
+  }
   if (ctx.errorLeaf) {
     const leaf = ctx.errorLeaf
-    const type = leaf.span_name.includes('pg-gateway') ? 'PaymentDeclinedException' : 'UpstreamServerException'
-    const message = leaf.span_name.includes('pg-gateway') ? 'card issuer declined (code=51)' : `${leaf.service_name} returned 500`
+    const type = known?.exception_type ?? (leaf.span_name.includes('pg-gateway') ? 'PaymentDeclinedException' : 'UpstreamServerException')
+    const message = known?.exception_message ?? (leaf.span_name.includes('pg-gateway') ? 'card issuer declined (code=51)' : `${leaf.service_name} returned 500`)
     leaf.attributes['error.type'] = type
     const at = Date.parse(leaf.start_time) + leaf.duration_ns / MS
     leaf.events.push(
