@@ -13,6 +13,7 @@
 .tx-filter .tx-filter__result { width: 100px; }
 .tx-scatter__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); color: var(--color-text-secondary); }
 .tx-scatter__meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.tx-scatter__meta .tx-legend { gap: 3px; }
 .tx-scatter__picked { margin-left: auto; color: var(--color-accent-strong); font-weight: 600; }
 .tx-scatter__hint { margin-left: auto; color: var(--color-text-tertiary); }
 .tx-dot { width: 8px; height: 8px; border-radius: var(--radius-full); display: inline-block; }
@@ -24,13 +25,11 @@
 }
 
 /* 요청 목록 */
-/* 표 위 조건 줄 — 표 테두리 안 맨 위 띠 */
-.tx-conds {
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--color-border-default);
-  color: var(--color-text-secondary);
-}
 /* 칸이 좁아도 파드 이름 · ID · 시각이 꺾이지 않게 (넘치면 표가 가로로 스크롤) */
 .tx-table .ds-table td { white-space: nowrap; }
 .tx-table.is-loading .ds-table-card__table { opacity: 0.6; }
+
+/* 히트맵 범례 */
+.tx-legend { display: inline-flex; align-items: center; gap: 3px; }
+.tx-swatch { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+.tx-strong { font-weight: 600; color: var(--color-text-primary); }

@@ -47,7 +47,8 @@ export const statsHandlers = [
         return { span_name, cnt: c, err_cnt: e, error_rate: c ? e / c : 0, p50_ms, p95_ms, p99_ms }
       })
       .sort((a, b) => b.cnt - a.cnt)
-    // 가짜 응답은 한 쪽이면 다 들어가는 크기라 커서는 쓰지 않는다
-    return okPage(rows.slice(0, limit), limit, rows.length > limit ? 'mock-next' : null)
+    // 커서는 건너뛸 건수
+    const offset = Number(url.searchParams.get('cursor')) || 0
+    return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)
   }),
 ]

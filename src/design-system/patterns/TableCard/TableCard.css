@@ -16,3 +16,9 @@
   display: inline-flex;
   gap: var(--space-2);
 }
+/* 탭 카드: 탭 줄 오른쪽에 액션 */
+.ds-table-card__tabs { display: flex; align-items: flex-end; gap: var(--space-3); }
+.ds-table-card__tabs > [role='tablist'] { flex: 1; min-width: 0; }
+.ds-table-card__tabs-actions { flex-shrink: 0; padding-bottom: var(--space-2); }
+/* 표 위 조건 줄 */
+.ds-table-card__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }

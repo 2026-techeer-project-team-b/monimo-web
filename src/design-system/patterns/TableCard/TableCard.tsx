@@ -24,8 +24,12 @@ export function CursorPager({ hasPrev, hasNext, onPrev, onNext, className }: Cur
 }
 
 export type TableCardProps = {
-  /** Section/15 카드 제목 */
-  title: ReactNode
+  /** Section/15 카드 제목. 탭(tabs)으로 표를 바꾸는 카드는 비운다 */
+  title?: ReactNode
+  /** 제목 자리에 놓는 탭 (05-B Tabs). 한 카드 안에서 표를 바꿔 보여 줄 때 */
+  tabs?: ReactNode
+  /** 표 바로 위 한 줄 (조회 조건 칩 등) */
+  toolbar?: ReactNode
   /** 제목 우측 액션 (내보내기 등) */
   actions?: ReactNode
   /** <Table> 하나. 테두리 · 반경은 여기서 감싼다 */
@@ -38,13 +42,20 @@ export type TableCardProps = {
 }
 
 /**
- * Figma 06 P2 카드 · 표 규칙 — 카드(제목 + 우측 액션) 안에 표, 아래에 건수 캡션과 커서 버튼.
+ * Figma 06 P2 카드 · 표 규칙 — 카드(제목 또는 탭 + 우측 액션) 안에 (조건 줄 +) 표, 아래에 건수 캡션과 커서 버튼.
  * 표 규칙: 헤더 surface-2 · 행 40 · 수치 우측 정렬 mono · ID mono · 선택 행 accent/soft (05-B Table 이 맡는다).
  * 시각은 formatTime, UUID 는 shortId 로 줄여 적는다.
  */
-export function TableCard({ title, actions, children, summary, pager, className }: TableCardProps) {
+export function TableCard({ title, tabs, toolbar, actions, children, summary, pager, className }: TableCardProps) {
   return (
-    <Card title={title} actions={actions} className={cx('ds-table-card', className)}>
+    <Card title={title} actions={tabs ? undefined : actions} className={cx('ds-table-card', className)}>
+      {tabs ? (
+        <div className="ds-table-card__tabs">
+          {tabs}
+          {actions ? <div className="ds-table-card__tabs-actions">{actions}</div> : null}
+        </div>
+      ) : null}
+      {toolbar ? <div className="ds-table-card__toolbar text-caption-12">{toolbar}</div> : null}
       <div className="ds-table-card__table">{children}</div>
       {summary || pager ? (
         <footer className="ds-table-card__footer">
