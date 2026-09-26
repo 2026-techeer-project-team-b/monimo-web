@@ -3,9 +3,9 @@
 // 화면 작업에서 필요한 엔드포인트는 화면별 파일(mocks/<화면>.ts)에 만들고 아래 handlers 에 펼쳐 넣는다.
 import { http, HttpResponse } from 'msw'
 import { API_BASE } from '../client'
-import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
+import { ACCESS_TTL_SEC, accessTokens, APPLICATIONS, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
 import { agentsHandlers } from './agents'
-import { alertsHandlers } from './alerts'
+import { alertsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
 import { serverMapHandlers } from './serverMap'
@@ -39,15 +39,6 @@ export const mockControls = {
 }
 
 // ── 감시 대상 서비스 (로그인 시안의 쇼핑몰 5개) ──
-const APPLICATIONS = ['shop-gateway', 'shop-order', 'shop-payment', 'shop-inventory', 'shop-user'].map((name, i) => ({
-  application_uuid: `0b0e6a6e-2f00-4c1a-9a01-00000000000${i + 1}`,
-  name,
-  display_name: name,
-  description: '',
-  agent_count: 2,
-  created_at: '2026-09-01T00:00:00Z',
-  updated_at: '2026-09-01T00:00:00Z',
-}))
 
 export const handlers = [
   http.post(`${API_BASE}/auth/login`, async ({ request }) => {
@@ -91,6 +82,7 @@ export const handlers = [
   ...traceDetailHandlers,
   ...statsHandlers,
   ...alertsHandlers,
+  ...rulesHandlers,
   ...agentsHandlers,
   ...errorsHandlers,
   ...logsHandlers,

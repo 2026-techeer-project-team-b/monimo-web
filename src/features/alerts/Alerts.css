@@ -7,6 +7,9 @@
 .al-ok { color: var(--color-status-ok-text); }
 .al-right { text-align: right; }
 
+/* 탭 줄 — 오른쪽에 「규칙 만들기」 */
+.al-tabs { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+
 /* 요약 카드 */
 .al-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4); }
 .al-kpi { display: flex; flex-direction: column; gap: 6px; }
@@ -34,7 +37,43 @@
 .al-fields > div { display: grid; grid-template-columns: 132px 1fr; gap: var(--space-3); padding: 10px 0; border-bottom: 1px solid var(--color-border-grid); }
 .al-fields dt { color: var(--color-text-secondary); }
 .al-fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.al-links { display: flex; gap: var(--space-4); }
 .al-link { align-self: flex-start; color: var(--color-accent-strong); text-decoration: none; }
 .al-link:hover { text-decoration: underline; }
 .al-sent { display: flex; flex-direction: column; gap: var(--space-2); }
 .al-sent h3 { margin: 0; }
+
+/* 규칙 표 */
+.al-lock { display: inline-flex; align-items: center; gap: 4px; }
+.al-table .ds-table tr.al-off td:not(:first-child) { color: var(--color-text-tertiary); }
+
+/* 규칙 모달 — 왼쪽 폼 · 오른쪽 미리보기와 채널 */
+.ds-modal.al-rule-modal { width: 820px; }
+.al-rule-modal__title { display: flex; flex-direction: column; gap: 2px; }
+.al-rule-modal__footer { display: flex; align-items: center; gap: var(--space-2); width: 100%; }
+.al-rule-modal__footer > span { margin-right: auto; }
+.al-rule-form { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--space-5); align-items: start; }
+.al-rule-form__error { grid-column: 1 / -1; }
+.al-rule-form fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.al-rule-form__fields { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-rule-form__fields .ds-field,
+.al-rule-form__fields .ds-input,
+.al-rule-form__fields .ds-select { width: 100%; }
+.al-rule-form__row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-4); align-items: start; }
+.al-rule-form__switch { display: flex; align-items: center; gap: var(--space-2); }
+.al-rule-form__switch .ds-switch { margin-left: auto; }
+.al-unit-input { display: flex; align-items: center; gap: var(--space-2); }
+.al-unit-input .ds-input { flex: 1; min-width: 0; }
+.ds-field--error .al-unit-input .ds-input { border-color: var(--color-status-crit); }
+.al-unit-input__unit { color: var(--color-text-secondary); min-width: 20px; }
+.al-rule-form__side { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-preview { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-bg-canvas); }
+.al-preview__text { margin: 0; padding: var(--space-3); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); background: var(--color-bg-surface); overflow-wrap: anywhere; }
+.al-channels { display: flex; flex-direction: column; gap: var(--space-2); }
+.al-channels__legend { display: flex; justify-content: space-between; width: 100%; padding: 0; margin-bottom: var(--space-2); color: var(--color-text-secondary); }
+.al-channel { display: flex; align-items: center; gap: var(--space-2); padding: 10px var(--space-3); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); }
+.al-channel .ds-checkbox { margin-right: auto; min-width: 0; }
+@media (max-width: 760px) {
+  .al-rule-form { grid-template-columns: minmax(0, 1fr); }
+  .al-rule-form__row { grid-template-columns: minmax(0, 1fr); }
+}
