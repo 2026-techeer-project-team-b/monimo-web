@@ -47,7 +47,8 @@ export function initialSpan(root: Span): Span {
   let best: { span: Span; depth: number } = { span: root, depth: -1 }
   const walk = (s: Span, depth: number) => {
     if (s.status_code === 'ERROR' && depth > best.depth) best = { span: s, depth }
-    s.children.forEach((c) => walk(c, depth + 1))
+    // 깊이가 같으면 먼저 시작한 쪽 (타임라인 순서와 같게)
+    ;[...s.children].sort((a, b) => a.start_time.localeCompare(b.start_time)).forEach((c) => walk(c, depth + 1))
   }
   walk(root, 0)
   return best.span

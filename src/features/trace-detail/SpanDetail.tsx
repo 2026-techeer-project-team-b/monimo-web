@@ -3,10 +3,10 @@ import type { Span } from '@/api'
 import { Badge, formatTime, httpStatusTone, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@/design-system'
 import { fmtMs, spanMs } from './tree'
 
-type Props = { span: Span; index: number }
+type Props = { id: string; span: Span; index: number }
 
 /** 고른 스팬 하나의 상세 — 기본 필드 · attributes · events(예외 등) */
-export function SpanDetail({ span, index }: Props) {
+export function SpanDetail({ id, span, index }: Props) {
   const error = span.status_code === 'ERROR'
   const attrs = Object.entries(span.attributes).sort(([a], [b]) => a.localeCompare(b))
   const fields: [string, ReactNode][] = [
@@ -21,11 +21,14 @@ export function SpanDetail({ span, index }: Props) {
   ]
 
   return (
-    <section className="td-card td-detail" aria-label="스팬 상세">
+    <section id={id} className="td-card td-detail" aria-label="스팬 상세">
       <header className="td-card__head">
         <h3 className="text-section-15">스팬 상세</h3>
         {error ? <Badge tone="crit">ERROR</Badge> : null}
-        <span className="td-detail__name text-mono-12" title={span.span_name}>{span.span_name}</span>
+        {/* 스팬을 고를 때마다 화면 낭독기가 새 스팬 이름을 읽는다 */}
+        <span className="td-detail__name text-mono-12" title={span.span_name} role="status" aria-live="polite">
+          {span.span_name}
+        </span>
         <span className="td-detail__index text-caption-12 td-muted">선택된 스팬 · {index}번째</span>
       </header>
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ApiError, getTrace, listApplications } from '@/api'
 import { Badge, formatTime, httpStatusTone, IconArrowRight, IconCopy, serviceColor, shortId } from '@/design-system'
@@ -24,6 +24,7 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
 
   // 고른 스팬. 고르기 전에는 실패가 시작된 스팬(없으면 루트)
   const [picked, setPicked] = useState<string | null>(null)
+  const detailId = useId()
   const spans = useMemo(() => (trace ? allSpans(trace.root) : []), [trace])
   const selectedId = picked ?? (trace ? initialSpan(trace.root).span_id : '')
   const selectedIndex = spans.findIndex((s) => s.span_id === selectedId)
@@ -96,10 +97,10 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
           <h3 className="text-section-15">스팬 트리 · 타임라인</h3>
           <span className="text-caption-12 td-muted">0 ms ~ {fmtMs(spanMs(root))} · {trace.span_count}개 스팬</span>
         </header>
-        <SpanTimeline root={root} selectedId={selectedId} onSelect={(s) => setPicked(s.span_id)} colorIndex={colorIndex} />
+        <SpanTimeline root={root} selectedId={selectedId} onSelect={(s) => setPicked(s.span_id)} detailId={detailId} colorIndex={colorIndex} />
       </section>
 
-      {selectedIndex >= 0 ? <SpanDetail span={spans[selectedIndex]} index={selectedIndex + 1} /> : null}
+      {selectedIndex >= 0 ? <SpanDetail id={detailId} span={spans[selectedIndex]} index={selectedIndex + 1} /> : null}
     </div>
   )
 }

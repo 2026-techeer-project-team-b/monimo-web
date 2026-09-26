@@ -8,12 +8,14 @@ type Props = {
   /** 고른 스팬 (상세 패널에 보이는 것) */
   selectedId: string
   onSelect: (span: Span) => void
+  /** 스팬 상세 영역 id (버튼이 무엇을 바꾸는지 보조기술에 알린다) */
+  detailId: string
   /** 서비스 이름 → 서비스 팔레트 순번 (서버맵과 같은 색) */
   colorIndex: (service: string) => number
 }
 
 /** 간트형 스팬 트리 — 왼쪽은 들여쓴 나무(접기 · 펼치기), 오른쪽은 루트 기준 시작 위치 · 길이 막대 */
-export function SpanTimeline({ root, selectedId, onSelect, colorIndex }: Props) {
+export function SpanTimeline({ root, selectedId, onSelect, detailId, colorIndex }: Props) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
   const toggle = (id: string) =>
     setCollapsed((prev) => {
@@ -72,6 +74,7 @@ export function SpanTimeline({ root, selectedId, onSelect, colorIndex }: Props) 
                   className={`td-row__span ${span.span_kind === 'CLIENT' && span.span_name.startsWith('JDBC') ? 'text-mono-12' : 'text-body-13'}`}
                   title={span.span_name}
                   aria-current={span.span_id === selectedId ? 'true' : undefined}
+                  aria-controls={detailId}
                   onClick={() => onSelect(span)}
                 >
                   {span.span_name}
