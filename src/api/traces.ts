@@ -1,4 +1,4 @@
-// 트레이스 (api-spec 5번 GET /traces/scatter · 26번 GET /traces/transactions, VIEWER+). 트랜잭션 화면 · 서버맵 미니 스캐터가 쓴다
+// 트레이스 (api-spec 5번 GET /traces/scatter · 9번 GET /traces/heatmap · 26번 GET /traces/transactions, VIEWER+). 트랜잭션 화면 · 서버맵 미니 스캐터가 쓴다
 import { api, type Page } from './client'
 
 export type ScatterPoint = {
@@ -59,4 +59,21 @@ export function listTransactions(q: TransactionsQuery, signal?: AbortSignal): Pr
     },
     signal,
   })
+}
+
+/** 히트맵 한 칸: 시각(step 단위) × 지연 구간 × 성공/실패 의 건수 */
+export type HeatmapCell = {
+  ts_min: string
+  /** 지연 구간 번호 = floor(응답시간 / bucket_width_ms) */
+  latency_bucket: number
+  is_error: boolean
+  cnt: number
+}
+
+export type Heatmap = { bucket_width_ms: number; step: number; cells: HeatmapCell[] }
+
+export type HeatmapQuery = { serviceName: string; from: string; to: string; step?: number }
+
+export function getHeatmap({ serviceName, from, to, step }: HeatmapQuery, signal?: AbortSignal): Promise<Heatmap> {
+  return api.get<Heatmap>('/traces/heatmap', { query: { service_name: serviceName, from, to, step }, signal })
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { listTransactions } from '@/api'
 import {
@@ -25,12 +25,12 @@ type Props = {
   selection: Selection | null
   agentKey: string
   result: ResultFilter
-  /** 스캐터에서 센 선택 영역 건수 (격자로 접힌 경우 null) */
-  count: number | null
+  /** 카드 위 탭 (요청 목록 · URL 통계) */
+  tabs: ReactNode
 }
 
 /** 선택 영역 요청 목록 — 느린 순 · 커서 페이징 */
-export function TransactionTable({ serviceName, selection, agentKey, result, count }: Props) {
+export function TransactionTable({ serviceName, selection, agentKey, result, tabs }: Props) {
   // 커서 기록. 조건이 바뀌면(key 가 달라지면) 첫 쪽부터
   const key = JSON.stringify([serviceName, selection, agentKey, result])
   const [pages, setPages] = useState<{ key: string; cursors: (string | null)[] }>({ key, cursors: [null] })
@@ -58,19 +58,29 @@ export function TransactionTable({ serviceName, selection, agentKey, result, cou
     placeholderData: keepPreviousData,
   })
 
-  const title = `선택 영역 요청 목록${count === null ? '' : ` (${count.toLocaleString('en-US')})`}`
-
   if (!selection) {
     return (
-      <TableCard title={title}>
-        <p className="tx-empty text-body-13" role="status">위 스캐터에서 영역을 드래그하면 그 안의 요청이 느린 순으로 나옵니다.</p>
+      <TableCard tabs={tabs}>
+        <p className="tx-empty text-body-13" role="status">위 차트(스캐터 · 히트맵)에서 영역을 드래그하면 그 안의 요청이 느린 순으로 나옵니다.</p>
       </TableCard>
     )
   }
 
   return (
     <TableCard
-      title={title}
+      tabs={tabs}
+      toolbar={
+        <>
+          <span>드래그 선택 조건</span>
+          <Badge className="text-mono-11">from {hm(selection.from)}</Badge>
+          <Badge className="text-mono-11">to {hm(selection.to)}</Badge>
+          <Badge className="text-mono-11">min_duration_ms {selection.minMs.toLocaleString('en-US')}</Badge>
+          <Badge className="text-mono-11">max_duration_ms {selection.maxMs.toLocaleString('en-US')}</Badge>
+          <Badge className="text-mono-11">service_name {serviceName}</Badge>
+          {agentKey ? <Badge className="text-mono-11">agent_key {agentKey}</Badge> : null}
+          {result !== 'all' ? <Badge className="text-mono-11">is_error {String(result === 'fail')}</Badge> : null}
+        </>
+      }
       className={isFetching ? 'tx-table is-loading' : 'tx-table'}
       summary={`느린 순 · limit ${LIMIT} · 커서 페이징`}
       pager={
@@ -82,16 +92,6 @@ export function TransactionTable({ serviceName, selection, agentKey, result, cou
         />
       }
     >
-      <div className="tx-conds text-caption-12">
-        <span>드래그 선택 조건</span>
-        <Badge className="text-mono-11">from {hm(selection.from)}</Badge>
-        <Badge className="text-mono-11">to {hm(selection.to)}</Badge>
-        <Badge className="text-mono-11">min_duration_ms {selection.minMs.toLocaleString('en-US')}</Badge>
-        <Badge className="text-mono-11">max_duration_ms {selection.maxMs.toLocaleString('en-US')}</Badge>
-        <Badge className="text-mono-11">service_name {serviceName}</Badge>
-        {agentKey ? <Badge className="text-mono-11">agent_key {agentKey}</Badge> : null}
-        {result !== 'all' ? <Badge className="text-mono-11">is_error {String(result === 'fail')}</Badge> : null}
-      </div>
       {isError && !data ? (
         <p className="tx-empty text-body-13" role="alert">요청 목록을 불러오지 못했습니다.</p>
       ) : data && data.items.length === 0 ? (

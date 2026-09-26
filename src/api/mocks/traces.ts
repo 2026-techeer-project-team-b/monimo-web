@@ -1,10 +1,10 @@
-// 트레이스 가짜 응답 (GET /traces/scatter · GET /traces/transactions).
+// 트레이스 가짜 응답 (GET /traces/scatter · GET /traces/heatmap · GET /traces/transactions).
 // 요청은 "분 단위 고정 씨앗" 으로 만든다: 같은 서비스 · 같은 분이면 언제 불러도 같은 요청이 나온다.
 // 그래서 스캐터(넓은 범위)에서 드래그한 사각형으로 목록(좁은 범위)을 불러도 같은 요청을 가리킨다.
 // 1분에 평균 1.2건. 10분 묶음 중 일부는 "나쁜 구간" 이라 실패 · 느린 요청이 몰린다 (시안처럼)
 import { http } from 'msw'
 import { API_BASE } from '../client'
-import type { ScatterPoint, Transaction } from '../traces'
+import type { HeatmapCell, ScatterPoint, Transaction } from '../traces'
 import { agentKeysOf } from './agents'
 import { ok, okPage, seeded, timeRange, unauthenticated } from './common'
 import { HOUR } from './serverMap'
@@ -98,6 +98,27 @@ export const tracesHandlers = [
     const shown = all.length > limit ? Array.from({ length: limit }, (_, i) => all[Math.floor(i * step)]) : all
     const points: ScatterPoint[] = shown.map(({ service_name: _s, ...p }) => p)
     return ok({ mode: all.length > limit ? 'bucketed' : 'raw', total_count: Math.round(node.cnt * range.hours), points })
+  }),
+
+  // 히트맵 = 같은 요청을 (step 초 × 50ms 구간 × 성공/실패) 칸으로 센 것. heatmap_1m 의 구간 폭(50ms)을 따른다
+  http.get(`${API_BASE}/traces/heatmap`, ({ request }) => {
+    const denied = unauthenticated(request)
+    if (denied) return denied
+    const url = new URL(request.url)
+    const range = timeRange(url)
+    if (range instanceof Response) return range
+    const step = Math.max(60, Math.round(Number(url.searchParams.get('step')) / 60) * 60 || 60)
+    const width = 50
+    const cells = new Map<string, HeatmapCell>()
+    for (const p of requestsIn(url.searchParams.get('service_name') ?? '', range.from, range.to, null)) {
+      const ts = Math.floor(Date.parse(p.start_time) / (step * 1000)) * step * 1000
+      const bucket = Math.floor(p.duration_ms / width)
+      const key = `${ts}|${bucket}|${p.is_error}`
+      const cell = cells.get(key)
+      if (cell) cell.cnt += 1
+      else cells.set(key, { ts_min: new Date(ts).toISOString(), latency_bucket: bucket, is_error: p.is_error, cnt: 1 })
+    }
+    return ok({ bucket_width_ms: width, step, cells: [...cells.values()] })
   }),
 
   // 드래그한 사각형 안의 요청. 느린 순, 커서는 건너뛸 건수
