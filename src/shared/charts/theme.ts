@@ -99,7 +99,8 @@ export function ensureTheme(): string {
       borderWidth: 1,
       padding: [8, 12],
       textStyle: { color: c.text, fontFamily: sans, fontSize: 12 },
-      extraCssText: 'box-shadow: var(--shadow-overlay); border-radius: var(--radius-sm);',
+      // ECharts 툴팁 기본 z-index(9999999)는 드로어 · 모달 위로 뜬다. 드로어(--layer-drawer 100) 바로 아래로 내린다
+      extraCssText: 'box-shadow: var(--shadow-overlay); border-radius: var(--radius-sm); z-index: calc(var(--layer-drawer) - 1);',
     },
     legend: { textStyle: { color: c.axisText, fontFamily: sans, fontSize: 12 } },
   })

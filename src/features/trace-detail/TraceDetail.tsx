@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ApiError, getTrace, listApplications } from '@/api'
 import { Badge, formatTime, httpStatusTone, IconArrowRight, IconCopy, serviceColor, shortId } from '@/design-system'
 import type { TraceBodyProps } from '@/shared/trace'
+import { SpanDetail } from './SpanDetail'
 import { SpanTimeline } from './SpanTimeline'
-import { fmtMs, spanMs } from './tree'
+import { allSpans, fmtMs, initialSpan, spanMs } from './tree'
 import './TraceDetail.css'
 
 /** 트레이스 상세 (S03) — 드로어 본문. 머리말(요약 · 서비스 경로)과 스팬 타임라인 트리 */
@@ -20,6 +21,12 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
   const apps = useQuery({ queryKey: ['applications'], queryFn: listApplications, staleTime: 5 * 60_000 })
   const names = (apps.data?.map((a) => a.name) ?? trace?.services ?? []).slice().sort()
   const colorIndex = (service: string) => Math.max(0, names.indexOf(service))
+
+  // 고른 스팬. 고르기 전에는 실패가 시작된 스팬(없으면 루트)
+  const [picked, setPicked] = useState<string | null>(null)
+  const spans = useMemo(() => (trace ? allSpans(trace.root) : []), [trace])
+  const selectedId = picked ?? (trace ? initialSpan(trace.root).span_id : '')
+  const selectedIndex = spans.findIndex((s) => s.span_id === selectedId)
 
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -89,8 +96,10 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
           <h3 className="text-section-15">스팬 트리 · 타임라인</h3>
           <span className="text-caption-12 td-muted">0 ms ~ {fmtMs(spanMs(root))} · {trace.span_count}개 스팬</span>
         </header>
-        <SpanTimeline root={root} colorIndex={colorIndex} />
+        <SpanTimeline root={root} selectedId={selectedId} onSelect={(s) => setPicked(s.span_id)} colorIndex={colorIndex} />
       </section>
+
+      {selectedIndex >= 0 ? <SpanDetail span={spans[selectedIndex]} index={selectedIndex + 1} /> : null}
     </div>
   )
 }

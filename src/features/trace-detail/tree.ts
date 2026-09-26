@@ -30,3 +30,25 @@ export function ticks(totalMs: number): number[] {
 
 /** 2,584.0 ms · 38.2 ms */
 export const fmtMs = (ms: number) => `${ms.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ms`
+
+/** 모든 스팬을 위에서 아래로 (접힘과 상관없이). 「N번째 스팬」 번호에 쓴다 */
+export function allSpans(root: Span): Span[] {
+  const out: Span[] = []
+  const walk = (s: Span) => {
+    out.push(s)
+    ;[...s.children].sort((a, b) => a.start_time.localeCompare(b.start_time)).forEach(walk)
+  }
+  walk(root)
+  return out
+}
+
+/** 처음 선택할 스팬: 실패가 시작된 곳(가장 깊은 에러 스팬). 에러가 없으면 루트 */
+export function initialSpan(root: Span): Span {
+  let best: { span: Span; depth: number } = { span: root, depth: -1 }
+  const walk = (s: Span, depth: number) => {
+    if (s.status_code === 'ERROR' && depth > best.depth) best = { span: s, depth }
+    s.children.forEach((c) => walk(c, depth + 1))
+  }
+  walk(root, 0)
+  return best.span
+}
