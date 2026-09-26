@@ -13,7 +13,11 @@ export const BANDS = [
   { label: '3000+', min: 3000, max: 3_600_000 },
 ] as const
 
-const bandOf = (ms: number) => BANDS.findIndex((b) => ms <= b.max)
+/** 응답시간이 드는 띠 번호. 마지막 띠(3000+)보다 길면 마지막 띠 */
+function bandOf(ms: number): number {
+  const i = BANDS.findIndex((b) => ms <= b.max)
+  return i === -1 ? BANDS.length - 1 : i
+}
 
 /** 히트맵 한 칸 [가로 번호, 세로 번호, 건수, 색 단계, 실패 건수] */
 export type GridCell = [number, number, number, number, number]
@@ -31,7 +35,8 @@ export function toGrid(h: Heatmap, from: string, to: string): Grid {
   for (let t = start; t < Date.parse(to); t += stepMs) xs.push(t)
   const sum = new Map<string, { cnt: number; err: number }>()
   for (const c of h.cells) {
-    const x = Math.round((Date.parse(c.ts_min) - start) / stepMs)
+    // 서버가 step 보다 잘게(1분) 줘도 제 칸에 들어가도록 내림
+    const x = Math.floor((Date.parse(c.ts_min) - start) / stepMs)
     if (x < 0 || x >= xs.length) continue
     const key = `${x}|${bandOf(c.latency_bucket * h.bucket_width_ms)}`
     const v = sum.get(key) ?? { cnt: 0, err: 0 }
@@ -39,7 +44,8 @@ export function toGrid(h: Heatmap, from: string, to: string): Grid {
     if (c.is_error) v.err += c.cnt
     sum.set(key, v)
   }
-  const max = Math.max(1, ...[...sum.values()].map((v) => v.cnt))
+  let max = 1
+  for (const v of sum.values()) max = Math.max(max, v.cnt)
   const cells = [...sum.entries()].map(([key, v]): GridCell => {
     const [x, y] = key.split('|').map(Number)
     return [x, y, v.cnt, heatmapStep(v.cnt, max, v.err > 0), v.err]
@@ -62,7 +68,7 @@ export function selectionToGrid(g: Grid, s: Selection): [[number, number], [numb
   const x = (t: number) => Math.min(g.xs.length - 1, Math.max(0, Math.floor((t - g.xs[0]) / g.stepMs)))
   return [
     [x(Date.parse(s.from)), x(Date.parse(s.to) - 1)],
-    [Math.max(0, bandOf(s.minMs)), Math.max(0, bandOf(s.maxMs))],
+    [bandOf(s.minMs), bandOf(s.maxMs)],
   ]
 }
 

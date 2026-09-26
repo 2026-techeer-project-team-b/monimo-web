@@ -19,7 +19,8 @@ type Props = { serviceName: string; from: string; to: string; agentKey: string; 
 
 /** URL 통계 탭 — URL(span_name) 별 호출 수 · 에러율 · 응답시간 백분위 */
 export function UrlStatsTable({ serviceName, from, to, agentKey, tabs }: Props) {
-  // 조건(서비스 · 파드)이 바뀌면 첫 쪽부터. 시간 창은 새로고침마다 바뀌므로 커서 기록을 지우는 조건에서 뺀다
+  // 조건(서비스 · 파드)이 바뀌면 첫 쪽부터. 시간 창은 자동 새로고침마다 바뀌므로 커서 기록을 지우는 조건에서 뺀다
+  // (새로고침마다 첫 쪽으로 튀지 않게). 그 사이 목록이 짧아져 쪽이 비면 「첫 쪽으로」를 보여 준다
   const key = JSON.stringify([serviceName, agentKey])
   const [pages, setPages] = useState<{ key: string; cursors: (string | null)[] }>({ key, cursors: [null] })
   const cursors = pages.key === key ? pages.cursors : [null]
@@ -59,6 +60,12 @@ export function UrlStatsTable({ serviceName, from, to, agentKey, tabs }: Props) 
         <p className="tx-empty text-body-13" role="alert">URL 통계를 불러오지 못했습니다.</p>
       ) : !data ? (
         <p className="tx-empty text-body-13" role="status">불러오는 중…</p>
+      ) : rows.length === 0 && cursors.length > 1 ? (
+        // 자동 새로고침으로 시간 창이 움직여 목록이 짧아지면 지금 쪽이 비어 버릴 수 있다
+        <p className="tx-empty text-body-13" role="status">
+          새로고침으로 목록이 바뀌어 이 쪽이 비었습니다.{' '}
+          <button type="button" className="tx-linkbtn" onClick={() => setPages({ key, cursors: [null] })}>첫 쪽으로</button>
+        </p>
       ) : rows.length === 0 ? (
         <p className="tx-empty text-body-13" role="status">이 시간 범위에 기록된 요청이 없습니다.</p>
       ) : (
