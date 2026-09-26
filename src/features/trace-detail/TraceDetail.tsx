@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ApiError, getTrace, listApplications } from '@/api'
 import { Badge, formatTime, httpStatusTone, IconArrowRight, IconCopy, serviceColor, shortId } from '@/design-system'
 import type { TraceBodyProps } from '@/shared/trace'
+import { LinkedLogs } from './LinkedLogs'
 import { SpanDetail } from './SpanDetail'
 import { SpanTimeline } from './SpanTimeline'
 import { allSpans, fmtMs, initialSpan, spanMs } from './tree'
@@ -101,6 +102,8 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
       </section>
 
       {selectedIndex >= 0 ? <SpanDetail id={detailId} span={spans[selectedIndex]} index={selectedIndex + 1} /> : null}
+
+      <LinkedLogs traceId={traceId} root={root} />
     </div>
   )
 }
