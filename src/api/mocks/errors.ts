@@ -47,7 +47,8 @@ export const errorsHandlers = [
     const rows = errorSpans(q.get('service_name') ?? '', range.from, range.to, q.get('agent_key'))
       .filter((e) => (!status || String(e.http_status) === status) && (!type || e.exception_type === type))
       .sort((a, b) => b.start_time.localeCompare(a.start_time))
-    const limit = Math.min(Number(q.get('limit')) || 50, 500)
+    const asked = Number(q.get('limit'))
+    const limit = q.has('limit') && Number.isFinite(asked) && asked >= 0 ? Math.min(asked, 500) : 50
     const offset = Number(q.get('cursor')) || 0
     return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)
   }),

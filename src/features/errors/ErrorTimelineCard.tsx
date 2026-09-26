@@ -68,13 +68,17 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
             className="er-timeline__chart"
             option={option}
             height={220}
-            aria-label={`시간대별 에러 막대: 총 ${view.total}건, 5xx ${view.classTotal['5xx']}건, 4xx ${view.classTotal['4xx']}건`}
+            aria-label={`시간대별 에러 막대: 총 ${view.total}건, 5xx ${view.classTotal['5xx']}건, 4xx ${view.classTotal['4xx']}건${view.classTotal.other ? `, 상태코드 없음 ${view.classTotal.other}건` : ''}`}
           />
           <aside className="er-legend" aria-label="에러 분류">
             <h3 className="text-caption-12-medium">http_status_class</h3>
             <ul>
               <li><i className="er-swatch er-swatch--crit" aria-hidden />5xx<span className="er-crit text-mono-12">{fmt(view.classTotal['5xx'])}</span></li>
               <li><i className="er-swatch er-swatch--warn" aria-hidden />4xx<span className="er-warn text-mono-12">{fmt(view.classTotal['4xx'])}</span></li>
+              {/* 상태코드 없이 실패한 스팬(내부 · gRPC 등). 막대의 회색 */}
+              {view.classTotal.other ? (
+                <li><i className="er-swatch er-swatch--other" aria-hidden />상태코드 없음<span className="text-mono-12">{fmt(view.classTotal.other)}</span></li>
+              ) : null}
             </ul>
             <h3 className="text-caption-12-medium">exception_type 상위 {TOP}</h3>
             {top.length === 0 ? (

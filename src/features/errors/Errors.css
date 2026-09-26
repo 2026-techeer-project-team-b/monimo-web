@@ -25,6 +25,7 @@
 .er-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 .er-swatch--crit { background: var(--color-status-crit); }
 .er-swatch--warn { background: var(--color-status-warn); }
+.er-swatch--other { background: var(--color-status-muted); }
 .er-type {
   min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   padding: 1px 4px; margin-left: -4px; border: 0; border-radius: var(--radius-sm);
