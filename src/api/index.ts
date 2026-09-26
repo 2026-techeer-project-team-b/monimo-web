@@ -17,3 +17,4 @@ export {
   type ErrorTimelineQuery,
   type HttpStatusClass,
 } from './errors'
+export { listLogs, LOG_LEVELS, type LogLevel, type LogLine, type LogsQuery } from './logs'
