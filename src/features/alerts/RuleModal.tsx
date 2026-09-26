@@ -17,6 +17,7 @@ import { useAuth } from '@/auth'
 import { Badge, Banner, Button, channelTypeTone, Checkbox, Field, Input, Modal, Segmented, Select, shortId, Switch } from '@/design-system'
 import { useServiceName } from '@/stores'
 import { UNIT } from './metric'
+import { errorText, SaveError } from './saveError'
 import {
   bodyOf,
   changesOf,
@@ -65,26 +66,6 @@ function Loader({ ruleId, onClose }: { ruleId: string; onClose: () => void }) {
       )}
     </Modal>
   )
-}
-
-/** 저장이 여러 문(규칙 값 · 채널 · 켜짐)으로 나뉘어, 중간에 실패하면 앞에서 저장된 것을 같이 알린다 */
-class SaveError extends Error {
-  done: string[]
-  constructor(cause: unknown, done: string[]) {
-    super('save failed', { cause })
-    this.done = done
-  }
-}
-
-function errorText(err: unknown): string {
-  const cause = err instanceof SaveError ? err.cause : err
-  const base =
-    cause instanceof ApiError
-      ? cause.code === 'FORBIDDEN'
-        ? '관리자(ADMIN)만 바꿀 수 있습니다.'
-        : `${cause.message} (${cause.code})`
-      : '저장하지 못했습니다.'
-  return err instanceof SaveError && err.done.length ? `${base} — ${err.done.join(' · ')}은(는) 이미 저장됐습니다.` : base
 }
 
 function Editor({ rule, apps, onClose }: { rule: AlertRule | null; apps: Application[]; onClose: () => void }) {

@@ -130,10 +130,54 @@ export function setAlertRuleChannels(uuid: string, channelUuids: string[]): Prom
   return api.put(`/alert-rules/${encodeURIComponent(uuid)}/channels`, { channel_uuids: channelUuids })
 }
 
-// ── 알림 채널 목록 (api-spec 42, VIEWER+). 규칙 모달의 채널 고르기가 쓴다. 채널 탭(5단계-3)이 넓힌다 ──
+// ── 알림 채널 (api-spec 42 목록 · 33 상세 · 37 등록 · 17 수정 · 7 켜기/끄기 · 19 테스트 발송, 변경 · 상세는 ADMIN) ──
 
-export type AlertChannel = AlertChannelRef & { enabled: boolean; created_at: string; updated_at: string }
+/** 테스트 발송 결과. 알림 발송 이력(NotifyResult)의 FAIL 과 달리 명세 19 · 50 번은 FAILED 다 */
+export type ChannelTestResult = 'SUCCESS' | 'FAILED'
+
+export type ChannelTest = {
+  alert_channel_uuid: string
+  type: ChannelType
+  result: ChannelTestResult
+  /** 채널이 돌려준 응답 (예: ok · 404 routing_key not found) */
+  response: string
+  tested_at: string
+}
+
+export type AlertChannel = AlertChannelRef & {
+  enabled: boolean
+  /** 종류별 설정(webhook_url · to 등). 비밀값은 서버가 가려서(••••) 준다 */
+  config: Record<string, string>
+  /** 마지막 테스트 발송 결과. 명세 42 번 응답에는 아직 없는 필드라 없을 수 있다 */
+  last_test?: Omit<ChannelTest, 'alert_channel_uuid' | 'type'> | null
+  created_at: string
+  updated_at: string
+}
 
 export function listAlertChannels(q: { type?: ChannelType; enabled?: boolean; cursor?: string | null; limit?: number } = {}, signal?: AbortSignal): Promise<Page<AlertChannel>> {
   return api.getPage<AlertChannel>('/alert-channels', { query: q, signal })
+}
+
+export function getAlertChannel(uuid: string, signal?: AbortSignal): Promise<AlertChannel> {
+  return api.get<AlertChannel>(`/alert-channels/${encodeURIComponent(uuid)}`, { signal })
+}
+
+/** 수정(17번)이 받는 값. config 의 비밀값은 새로 적을 때만 넣고, 빼면 서버가 이전 값을 그대로 둔다 */
+export type AlertChannelBody = Pick<AlertChannel, 'name' | 'type' | 'config'>
+
+export function createAlertChannel(body: AlertChannelBody & { enabled: boolean }): Promise<AlertChannel> {
+  return api.post<AlertChannel>('/alert-channels', body)
+}
+
+export function updateAlertChannel(uuid: string, body: AlertChannelBody): Promise<AlertChannel> {
+  return api.put<AlertChannel>(`/alert-channels/${encodeURIComponent(uuid)}`, body)
+}
+
+export function setAlertChannelEnabled(uuid: string, enabled: boolean): Promise<{ alert_channel_uuid: string; enabled: boolean; updated_at: string }> {
+  return api.patch(`/alert-channels/${encodeURIComponent(uuid)}/enabled`, { enabled })
+}
+
+/** 저장된 설정으로 시험 메시지를 한 번 실제로 보낸다. 실패도 200 으로 오고 result 가 FAILED */
+export function testAlertChannel(uuid: string): Promise<ChannelTest> {
+  return api.post<ChannelTest>(`/alert-channels/${encodeURIComponent(uuid)}/test`)
 }

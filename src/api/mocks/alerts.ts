@@ -4,7 +4,7 @@
 // 규칙 · 채널은 메모리 배열이라 고치면 새로고침 전까지 남는다 (경보 상세도 바뀐 규칙 이름 · 조건을 따라간다)
 import { http } from 'msw'
 import { API_BASE } from '../client'
-import type { AlertChannelRef, AlertEvent, AlertEventDetail, AlertNotification, AlertRule, AlertRuleBody, ChannelType, MetricKind, NotifyResult, Operator, Severity } from '../alerts'
+import type { AlertChannel, AlertChannelBody, AlertChannelRef, AlertEvent, AlertEventDetail, AlertNotification, AlertRule, AlertRuleBody, ChannelTestResult, ChannelType, MetricKind, NotifyResult, Operator, Severity } from '../alerts'
 import { APPLICATIONS, fail, notAdmin, ok, okPage, unauthenticated } from './common'
 
 const MIN = 60_000
@@ -27,20 +27,36 @@ export type MockRule = {
   updated_at: string
 }
 
-export type MockChannel = { alert_channel_uuid: string; name: string; type: ChannelType; enabled: boolean; created_at: string; updated_at: string }
+export type MockChannel = {
+  alert_channel_uuid: string
+  name: string
+  type: ChannelType
+  enabled: boolean
+  /** 가리지 않은 원래 값. 응답으로 나갈 때 비밀값은 maskConfig 로 가린다 */
+  config: Record<string, string>
+  last_test: { result: ChannelTestResult; response: string; tested_at: string } | null
+  created_at: string
+  updated_at: string
+}
 
-export const CHANNELS: MockChannel[] = [
-  { name: '#ops-alerts', type: 'SLACK' },
-  { name: 'oncall@monimo.io', type: 'EMAIL' },
-  { name: 'PagerDuty prod', type: 'PAGERDUTY' },
-  { name: 'Webhook n8n', type: 'WEBHOOK' },
-].map((c, i) => ({
+// 시안(AlertChannels.dc.html)의 채널 6개. 앞 4개는 규칙 · 알림 발송 이력이 순번으로 가리킨다
+export const CHANNELS: MockChannel[] = (
+  [
+    { name: '#ops-alerts', type: 'SLACK', config: { webhook_url: 'https://hooks.slack.com/services/T01/B02/ops9f3k', channel: '#ops-alerts' }, test: ['SUCCESS', 'ok', '2026-09-21T05:59:41Z'] },
+    { name: 'oncall@monimo.io', type: 'EMAIL', config: { to: 'oncall@monimo.io', subject_prefix: '[MONIMO]' }, test: ['SUCCESS', '250 2.0.0 OK', '2026-09-20T09:30:04Z'] },
+    { name: 'PagerDuty prod', type: 'PAGERDUTY', config: { routing_key: 'R02ab8c1d9e7f0K7' }, test: ['FAILED', '404 (routing_key not found)', '2026-09-20T02:10:11Z'], off: true },
+    { name: 'Webhook n8n', type: 'WEBHOOK', config: { url: 'https://n8n.monimo.io/webhook/alerts', method: 'POST' }, test: ['SUCCESS', '200 accepted', '2026-09-19T02:20:45Z'] },
+    { name: '#backend-oncall', type: 'SLACK', config: { webhook_url: 'https://hooks.slack.com/services/T01/B07/be2m1x', channel: '#backend-oncall' }, test: ['SUCCESS', 'ok', '2026-09-18T00:14:27Z'] },
+    { name: '플랫폼 팀 메일', type: 'EMAIL', config: { to: 'platform@monimo.io', subject_prefix: '[MONIMO]' }, test: ['SUCCESS', '250 2.0.0 OK', '2026-09-12T06:47:52Z'], off: true },
+  ] as { name: string; type: ChannelType; config: Record<string, string>; test: [ChannelTestResult, string, string]; off?: boolean }[]
+).map(({ test: [result, response, tested_at], off, ...c }, i) => ({
   ...c,
   alert_channel_uuid: `9d4e0a52-0000-4a00-9000-0000000000${String(i + 1).padStart(2, '0')}`,
-  enabled: true,
+  enabled: !off,
+  last_test: { result, response, tested_at },
   created_at: '2026-09-01T00:00:00Z',
   updated_at: '2026-09-01T00:00:00Z',
-}) as MockChannel)
+}))
 
 const appOf = (serviceName: string) => APPLICATIONS.find((a) => a.name === serviceName)!.application_uuid
 
@@ -322,13 +338,136 @@ export const rulesHandlers = [
     return ok({ alert_rule_uuid: r.alert_rule_uuid, channels: channelRefs(r.channels) })
   }),
 
-  // 채널 목록 (규칙 모달의 채널 고르기). type · enabled 로 거른다
+  // 채널 목록. type · enabled 로 거른다. 비밀값은 가려서 준다
   http.get(`${API_BASE}/alert-channels`, ({ request }) => {
     const denied = unauthenticated(request)
     if (denied) return denied
     const q = new URL(request.url).searchParams
     const enabled = q.get('enabled')
-    const rows = CHANNELS.filter((c) => (!q.get('type') || c.type === q.get('type')) && (enabled === null || String(c.enabled) === enabled))
-    return okPage(rows, Math.min(Number(q.get('limit')) || 50, 500))
+    const rows = CHANNELS.filter((c) => (!q.get('type') || c.type === q.get('type')) && (enabled === null || String(c.enabled) === enabled)).map(toChannel)
+    const limit = Math.min(Number(q.get('limit')) || 50, 500)
+    const offset = Number(q.get('cursor')) || 0
+    return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)
+  }),
+]
+
+// ── 채널 ──
+
+const CHANNEL_TYPES: ChannelType[] = ['SLACK', 'EMAIL', 'WEBHOOK', 'PAGERDUTY']
+/** 종류별 config 키. secret 은 응답에서 가린다 */
+const CONFIG_KEYS: Record<ChannelType, { key: string; required: boolean; secret?: boolean }[]> = {
+  SLACK: [{ key: 'webhook_url', required: true, secret: true }, { key: 'channel', required: false }],
+  EMAIL: [{ key: 'to', required: true }, { key: 'subject_prefix', required: false }],
+  WEBHOOK: [{ key: 'url', required: true }, { key: 'method', required: false }],
+  PAGERDUTY: [{ key: 'routing_key', required: true, secret: true }],
+}
+
+/** https://hooks.slack.com/services/T01/B02/ops9f3k → https://hooks.slack.com/••••/•••• , R02ab8c1d9e7f0K7 → R02••••••••K7 */
+function mask(v: string) {
+  const url = /^(https?:\/\/[^/]+)\//.exec(v)
+  if (url) return `${url[1]}/••••/••••`
+  return v.length <= 5 ? '••••' : `${v.slice(0, 3)}••••••••${v.slice(-2)}`
+}
+
+function maskConfig(c: MockChannel): Record<string, string> {
+  const secrets = new Set(CONFIG_KEYS[c.type].filter((k) => k.secret).map((k) => k.key))
+  return Object.fromEntries(Object.entries(c.config).map(([k, v]) => [k, secrets.has(k) ? mask(v) : v]))
+}
+
+const toChannel = (c: MockChannel): AlertChannel => ({ ...c, config: maskConfig(c) })
+const findChannel = (id: unknown) => CHANNELS.find((c) => c.alert_channel_uuid === id)
+const channelNotFound = () => fail(404, 'NOT_FOUND', '채널을 찾을 수 없습니다.')
+
+/**
+ * 등록 · 수정 본문 검사 후 저장할 config 를 만든다. 비밀값이 빠져 있으면 같은 종류일 때만 이전 값을 이어 쓴다.
+ * 틀리면 400 응답
+ */
+function channelConfig(b: Partial<AlertChannelBody> | null, before?: MockChannel): Record<string, string> | Response {
+  const bad = (msg: string) => fail(400, 'INVALID_REQUEST', msg)
+  if (!b) return bad('본문이 없습니다.')
+  const name = typeof b.name === 'string' ? b.name.trim() : ''
+  if (!name || name.length > 100) return bad('name 은 1~100자여야 합니다.')
+  if (!CHANNEL_TYPES.includes(b.type as ChannelType)) return bad('type 이 올바르지 않습니다.')
+  const type = b.type as ChannelType
+  const given = b.config && typeof b.config === 'object' ? b.config : {}
+  const out: Record<string, string> = {}
+  for (const { key, required, secret } of CONFIG_KEYS[type]) {
+    const v = typeof given[key] === 'string' ? given[key].trim() : ''
+    const kept = secret && before?.type === type ? before.config[key] : undefined
+    const value = v || kept || ''
+    if (required && !value) return bad(`config.${key} 가 필요합니다.`)
+    if (value) out[key] = value
+  }
+  if (type === 'EMAIL' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(out.to)) return bad('config.to 가 메일 주소가 아닙니다.')
+  if ((type === 'SLACK' || type === 'WEBHOOK') && !/^https?:\/\//.test(out.webhook_url ?? out.url)) return bad('주소는 http(s):// 로 시작해야 합니다.')
+  return out
+}
+
+export const channelsHandlers = [
+  // 상세는 ADMIN (명세 33번) — 수정 모달이 연다
+  http.get(`${API_BASE}/alert-channels/:uuid`, ({ request, params }) => {
+    const denied = notAdmin(request)
+    if (denied) return denied
+    const c = findChannel(params.uuid)
+    return c ? ok(toChannel(c)) : channelNotFound()
+  }),
+
+  http.post(`${API_BASE}/alert-channels`, async ({ request }) => {
+    const denied = notAdmin(request)
+    if (denied) return denied
+    const b = (await request.json().catch(() => null)) as (AlertChannelBody & { enabled?: boolean }) | null
+    const config = channelConfig(b)
+    if (config instanceof Response) return config
+    const now = new Date().toISOString()
+    const c: MockChannel = {
+      alert_channel_uuid: crypto.randomUUID(),
+      name: b!.name.trim(),
+      type: b!.type,
+      enabled: b!.enabled !== false,
+      config,
+      last_test: null,
+      created_at: now,
+      updated_at: now,
+    }
+    CHANNELS.push(c)
+    return ok(toChannel(c), 201)
+  }),
+
+  http.put(`${API_BASE}/alert-channels/:uuid`, async ({ request, params }) => {
+    const denied = notAdmin(request)
+    if (denied) return denied
+    const c = findChannel(params.uuid)
+    if (!c) return channelNotFound()
+    const b = (await request.json().catch(() => null)) as AlertChannelBody | null
+    const config = channelConfig(b, c)
+    if (config instanceof Response) return config
+    // 주소가 바뀌면 이전 테스트 결과는 더 이상 이 설정의 결과가 아니다
+    const changed = c.type !== b!.type || JSON.stringify(c.config) !== JSON.stringify(config)
+    Object.assign(c, { name: b!.name.trim(), type: b!.type, config, updated_at: new Date().toISOString(), last_test: changed ? null : c.last_test })
+    return ok(toChannel(c))
+  }),
+
+  http.patch(`${API_BASE}/alert-channels/:uuid/enabled`, async ({ request, params }) => {
+    const denied = notAdmin(request)
+    if (denied) return denied
+    const c = findChannel(params.uuid)
+    if (!c) return channelNotFound()
+    const b = (await request.json().catch(() => null)) as { enabled?: unknown } | null
+    if (typeof b?.enabled !== 'boolean') return fail(400, 'INVALID_REQUEST', 'enabled 는 true/false 여야 합니다.')
+    c.enabled = b.enabled
+    return ok({ alert_channel_uuid: c.alert_channel_uuid, enabled: c.enabled, updated_at: c.updated_at })
+  }),
+
+  // 테스트 발송: 알림 서비스(#50)가 대행해 보낸다. PagerDuty 의 가짜 routing_key 와 example 주소는 실패로 돌려준다
+  http.post(`${API_BASE}/alert-channels/:uuid/test`, async ({ request, params }) => {
+    const denied = notAdmin(request)
+    if (denied) return denied
+    const c = findChannel(params.uuid)
+    if (!c) return channelNotFound()
+    await new Promise((r) => setTimeout(r, 600))
+    const bad = c.type === 'PAGERDUTY' ? '404 (routing_key not found)' : Object.values(c.config).some((v) => v.includes('example')) ? '502 (host unreachable)' : null
+    const okResponse = { SLACK: 'ok', EMAIL: '250 2.0.0 OK', WEBHOOK: '200 accepted', PAGERDUTY: '202 accepted' }[c.type]
+    c.last_test = { result: bad ? 'FAILED' : 'SUCCESS', response: bad ?? okResponse, tested_at: new Date().toISOString() }
+    return ok({ alert_channel_uuid: c.alert_channel_uuid, type: c.type, ...c.last_test })
   }),
 ]

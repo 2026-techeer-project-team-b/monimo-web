@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw'
 import { API_BASE } from '../client'
 import { ACCESS_TTL_SEC, accessTokens, APPLICATIONS, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
 import { agentsHandlers } from './agents'
-import { alertsHandlers, rulesHandlers } from './alerts'
+import { alertsHandlers, channelsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
 import { serverMapHandlers } from './serverMap'
@@ -83,6 +83,7 @@ export const handlers = [
   ...statsHandlers,
   ...alertsHandlers,
   ...rulesHandlers,
+  ...channelsHandlers,
   ...agentsHandlers,
   ...errorsHandlers,
   ...logsHandlers,
