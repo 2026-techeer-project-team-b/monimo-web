@@ -5,7 +5,6 @@ import {
   alertStateTone,
   Badge,
   Card,
-  Chip,
   CursorPager,
   formatTime,
   Segmented,
@@ -17,20 +16,15 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-  type ChipTone,
 } from '@/design-system'
-import { useServiceName, useTimeWindow } from '@/stores'
+import { useFilters, useServiceName, useTimeWindow } from '@/stores'
 import { EventDrawer } from './EventDrawer'
 import { EventSummary } from './EventSummary'
 import { fmtDuration, fmtValue } from './metric'
 import { useAlertParams } from './useAlertParams'
 
 const LIMIT = 50
-const SEVERITIES: [Severity, ChipTone][] = [
-  ['CRITICAL', 'crit'],
-  ['WARNING', 'warn'],
-  ['INFO', 'default'],
-]
+const SEVERITIES: Severity[] = ['CRITICAL', 'WARNING', 'INFO']
 
 /** 「경보 이벤트」 탭 — 요약 카드 · 필터 · 이벤트 표 · 상세 드로어 */
 export function EventsTab() {
@@ -42,7 +36,9 @@ export function EventsTab() {
 
   // 발화 중은 기간과 상관없이 지금 울리는 것 전부, 해소는 상단바 시간 범위 안에 발화한 것
   const range = state === 'RESOLVED' ? { from, to } : {}
-  const key = JSON.stringify([serviceName, state, severity])
+  // 첫 쪽으로 돌아가는 조건. 해소 탭은 시간 범위 "설정"(1h → 24h 등)이 바뀔 때도 — 자동 새로고침으로 창이 조금씩 움직이는 것은 빼고
+  const rangeSetting = useFilters((s) => s.range)
+  const key = JSON.stringify([serviceName, state, severity, state === 'RESOLVED' ? rangeSetting : null])
   const [pages, setPages] = useState<{ key: string; cursors: (string | null)[] }>({ key, cursors: [null] })
   const cursors = pages.key === key ? pages.cursors : [null]
   const cursor = cursors[cursors.length - 1]
@@ -73,14 +69,14 @@ export function EventsTab() {
             />
           </div>
           <div className="al-field">
-            <span className="text-caption-12-medium">severity (하나 고르기)</span>
-            <div className="al-chips">
-              {SEVERITIES.map(([s, tone]) => (
-                <Chip key={s} tone={tone} selected={severity === s} onChange={(on) => setSeverity(on ? s : null)}>
-                  {s}
-                </Chip>
-              ))}
-            </div>
+            <span className="text-caption-12-medium">severity</span>
+            {/* 하나만 고르는 선택이라 radiogroup(Segmented) 으로 */}
+            <Segmented<Severity | 'ALL'>
+              aria-label="severity"
+              value={severity ?? 'ALL'}
+              onChange={(v) => setSeverity(v === 'ALL' ? null : v)}
+              options={[{ value: 'ALL', label: '전체' }, ...SEVERITIES.map((s) => ({ value: s, label: s }))]}
+            />
           </div>
           <p className="al-note text-caption-12">
             서비스는 상단바에서 고릅니다. {state === 'RESOLVED' ? '해소는 상단바 시간 범위 안에 발화한 것만 봅니다.' : '발화 중은 시간 범위와 상관없이 지금 울리는 것 전부입니다.'}

@@ -16,8 +16,8 @@ export const severityTone = (v: string) => pick({ CRITICAL: 'crit', WARNING: 'wa
 /** 파드 status — 인스펙터 파드 목록 · 플랫폼 상태 */
 export const podStatusTone = (v: string) => pick({ UP: 'ok', DOWN: 'crit', UNKNOWN: 'muted' }, v)
 
-/** 알림 발송 result — 경보 드로어의 발송 이력 */
-export const notifyResultTone = (v: string) => pick({ SUCCESS: 'ok', FAIL: 'crit' }, v)
+/** 알림 발송 result — 경보 드로어의 발송 이력 (FAIL). 채널 시험 발송(명세 19번)은 같은 뜻을 FAILED 로 적어 둘 다 빨강 */
+export const notifyResultTone = (v: string) => pick({ SUCCESS: 'ok', FAIL: 'crit', FAILED: 'crit' }, v)
 
 /** 채널 type (SLACK · EMAIL · WEBHOOK · PAGERDUTY) — 좋고 나쁨이 없는 분류라 항상 muted */
 export const channelTypeTone = (_v: string): Tone => 'muted'

@@ -17,7 +17,6 @@
 /* 필터 */
 .al-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-5); }
 .al-field { display: flex; flex-direction: column; gap: 4px; color: var(--color-text-secondary); }
-.al-chips { display: flex; gap: 6px; }
 .al-note { margin: 0 0 0 auto; max-width: 320px; color: var(--color-text-tertiary); text-align: right; }
 
 /* 표 */

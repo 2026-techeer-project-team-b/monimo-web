@@ -37,7 +37,7 @@ export function EventSummary({ serviceName, now }: Props) {
       <Card className="al-kpi">
         <span className="text-caption-12-medium al-muted">발화 중</span>
         <div className="al-kpi__row">
-          <span className={`text-number-28${f.length ? ' al-crit' : ''}`}>{firing.data ? f.length : '—'}</span>
+          <span className={`text-number-28${f.length ? ' al-crit' : ''}`}>{firing.data ? `${f.length}${firing.data.nextCursor ? '+' : ''}` : '—'}</span>
           <span className="text-caption-12">건</span>
           <Badge tone={f.length ? 'crit' : 'muted'}>FIRING</Badge>
         </div>
@@ -49,7 +49,7 @@ export function EventSummary({ serviceName, now }: Props) {
       <Card className="al-kpi">
         <span className="text-caption-12-medium al-muted">최근 24시간 해소</span>
         <div className="al-kpi__row">
-          <span className="text-number-28 al-ok">{resolved.data ? r.length : '—'}</span>
+          <span className="text-number-28 al-ok">{resolved.data ? `${r.length}${resolved.data.nextCursor ? '+' : ''}` : '—'}</span>
           <span className="text-caption-12">건</span>
           <Badge tone="ok">RESOLVED</Badge>
         </div>
