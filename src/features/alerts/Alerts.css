@@ -77,3 +77,32 @@
   .al-rule-form { grid-template-columns: minmax(0, 1fr); }
   .al-rule-form__row { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* 채널 카드 */
+.al-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.al-channel-grid { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: var(--space-4); }
+.al-channel-grid.is-loading { opacity: 0.6; }
+.al-channel-card { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; box-sizing: border-box; }
+.al-channel-card.is-off h3 { color: var(--color-text-tertiary); }
+.al-channel-card__head { display: flex; align-items: flex-start; gap: var(--space-2); }
+.al-channel-card__name { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-right: auto; min-width: 0; }
+.al-channel-card__name h3 { margin: 0; overflow-wrap: anywhere; }
+.al-channel-card__head .ds-switch { flex: none; }
+.al-config-list { margin: 0; padding: var(--space-3); display: flex; flex-direction: column; gap: 6px; border-radius: var(--radius-sm); background: var(--color-bg-canvas); }
+.al-config-list > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-3); }
+.al-config-list dd { margin: 0; overflow-wrap: anywhere; }
+.al-last-test { margin: 0; }
+.al-dot { display: inline-block; width: 8px; height: 8px; border-radius: var(--radius-full); background: currentColor; vertical-align: middle; }
+.al-channel-card__actions { display: flex; gap: var(--space-2); margin-top: auto; }
+
+/* 채널 모달 — 폭 600 기본 */
+.al-channel-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-channel-form fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.al-channel-form__fields { display: flex; flex-direction: column; gap: var(--space-4); }
+.al-channel-form__fields .ds-field,
+.al-channel-form__fields .ds-input,
+.al-channel-form__fields .ds-select { width: 100%; }
+.al-channel-form__types { display: flex; }
+.al-channel-form__types > * { flex: 1; justify-content: center; }
+.al-config { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); }
+@media (max-width: 760px) { .al-channel-grid { grid-template-columns: minmax(0, 1fr); } }
