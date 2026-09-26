@@ -5,12 +5,17 @@ import { flatten, fmtMs, spanMs, ticks } from './tree'
 
 type Props = {
   root: Span
+  /** 고른 스팬 (상세 패널에 보이는 것) */
+  selectedId: string
+  onSelect: (span: Span) => void
+  /** 스팬 상세 영역 id (버튼이 무엇을 바꾸는지 보조기술에 알린다) */
+  detailId: string
   /** 서비스 이름 → 서비스 팔레트 순번 (서버맵과 같은 색) */
   colorIndex: (service: string) => number
 }
 
 /** 간트형 스팬 트리 — 왼쪽은 들여쓴 나무(접기 · 펼치기), 오른쪽은 루트 기준 시작 위치 · 길이 막대 */
-export function SpanTimeline({ root, colorIndex }: Props) {
+export function SpanTimeline({ root, selectedId, onSelect, detailId, colorIndex }: Props) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
   const toggle = (id: string) =>
     setCollapsed((prev) => {
@@ -46,7 +51,7 @@ export function SpanTimeline({ root, colorIndex }: Props) {
           const width = total > 0 ? (spanMs(span) / total) * 100 : 0
           const color = serviceColor(colorIndex(span.service_name))
           return (
-            <li key={span.span_id} className={`td-row${error ? ' is-error' : ''}`}>
+            <li key={span.span_id} className={`td-row${error ? ' is-error' : ''}${span.span_id === selectedId ? ' is-selected' : ''}`}>
               <div className="td-row__name" style={{ paddingLeft: depth * 14 }}>
                 {hasChildren ? (
                   <button
@@ -63,9 +68,17 @@ export function SpanTimeline({ root, colorIndex }: Props) {
                 )}
                 <span className="td-sr">{depth + 1}단계</span>
                 <i className="td-dot" style={{ background: color }} aria-hidden />
-                <span className={`td-row__span ${span.span_kind === 'CLIENT' && span.span_name.startsWith('JDBC') ? 'text-mono-12' : 'text-body-13'}`} title={span.span_name}>
+                {/* 이름을 누르면(Enter · Space 도) 이 스팬의 상세가 아래에 나온다 */}
+                <button
+                  type="button"
+                  className={`td-row__span ${span.span_kind === 'CLIENT' && span.span_name.startsWith('JDBC') ? 'text-mono-12' : 'text-body-13'}`}
+                  title={span.span_name}
+                  aria-current={span.span_id === selectedId ? 'true' : undefined}
+                  aria-controls={detailId}
+                  onClick={() => onSelect(span)}
+                >
                   {span.span_name}
-                </span>
+                </button>
                 <span className="td-row__agent text-mono-11" title={`${span.service_name} · ${span.agent_key}`}>{span.agent_key}</span>
               </div>
               <div className="td-row__bar">

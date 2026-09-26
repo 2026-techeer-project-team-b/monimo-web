@@ -40,7 +40,13 @@
 .td-row { align-items: center; min-height: 34px; border-bottom: 1px solid var(--color-border-grid); }
 .td-row:last-child { border-bottom: 0; }
 .td-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.td-row__span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-primary); }
+.td-row__span {
+  flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-primary);
+  padding: 0; border: 0; background: none; text-align: left; cursor: pointer;
+}
+.td-row__span:hover { text-decoration: underline; }
+.td-row__span:focus-visible { outline: 2px solid var(--color-accent-default); outline-offset: 2px; border-radius: 2px; }
+.td-row.is-selected { background: var(--color-accent-soft); box-shadow: inset 3px 0 0 var(--color-accent-default); }
 .td-row.is-error .td-row__span { color: var(--color-status-crit-text); font-weight: 600; }
 .td-row__agent { flex-shrink: 0; max-width: 45%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-tertiary); }
 .td-toggle {
@@ -54,3 +60,13 @@ span.td-toggle { cursor: default; }
 .td-bar__label { position: absolute; top: 1px; white-space: nowrap; color: var(--color-text-tertiary); }
 .td-bar__label--in { position: static; padding-right: 6px; color: var(--color-text-on-dark); }
 .td-bar__err { position: absolute; top: 1px; display: inline-flex; color: var(--color-status-crit); }
+
+/* 스팬 상세 */
+.td-detail { display: flex; flex-direction: column; gap: var(--space-3); }
+.td-detail .td-card__head { margin-bottom: 0; flex-wrap: wrap; }
+.td-detail__name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-text-secondary); }
+.td-detail__index { margin-left: auto; }
+.td-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); margin: 0; }
+.td-fields dd { margin: 4px 0 0; overflow-wrap: anywhere; color: var(--color-text-primary); }
+.td-subhead { margin: var(--space-2) 0 0; color: var(--color-text-secondary); }
+.td-none { margin: 0; color: var(--color-text-tertiary); }

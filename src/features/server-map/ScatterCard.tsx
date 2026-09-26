@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { getScatter, type ScatterPoint } from '@/api'
 import { Badge, Card } from '@/design-system'
-import { chartColors, EChart, type ChartOption } from '@/shared'
+import { chartColors, EChart, useOpenTrace, type ChartOption } from '@/shared'
 import { useFilterHref, useTimeWindow } from '@/stores'
 import { CardNotice } from './CardNotice'
 import { fmtCount } from './model'
@@ -25,6 +25,18 @@ export function ScatterCard({ serviceName, notice }: { serviceName: string | nul
     placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[1] === serviceName ? prev : undefined),
   })
 
+  // 점을 누르면 그 요청의 트레이스 상세 드로어
+  const { open } = useOpenTrace()
+  const onEvents = useMemo(
+    () => ({
+      click: (e: unknown) => {
+        const point = (e as { data?: Dot }).data?.point
+        if (point) open(point.trace_id)
+      },
+    }),
+    [open],
+  )
+
   const option = useMemo<ChartOption | null>(() => {
     if (!data) return null
     const c = chartColors()
@@ -41,8 +53,8 @@ export function ScatterCard({ serviceName, notice }: { serviceName: string | nul
           `${p.data.point.span_name}<br/>${fmtCount(p.data.point.duration_ms)} ms · ${p.data.point.http_status ?? '-'}`,
       },
       series: [
-        { name: '성공', type: 'scatter', symbolSize: 5, itemStyle: { color: c.scatter.ok }, data: ok },
-        { name: '실패', type: 'scatter', symbolSize: 5, itemStyle: { color: c.scatter.fail }, data: fail },
+        { name: '성공', type: 'scatter', cursor: 'pointer', symbolSize: 5, itemStyle: { color: c.scatter.ok }, data: ok },
+        { name: '실패', type: 'scatter', cursor: 'pointer', symbolSize: 5, itemStyle: { color: c.scatter.fail }, data: fail },
       ],
     }
   }, [data, from, to])
@@ -71,7 +83,12 @@ export function ScatterCard({ serviceName, notice }: { serviceName: string | nul
         <CardNotice>이 시간 범위에 기록된 요청이 없습니다.</CardNotice>
       ) : option ? (
         <>
-          <EChart option={option} height={200} aria-label={`${serviceName} 응답시간 스캐터: 요청 ${data!.points.length}개 중 실패 ${data!.points.filter((p) => p.is_error).length}개`} />
+          <EChart
+            option={option}
+            height={200}
+            onEvents={onEvents}
+            aria-label={`${serviceName} 응답시간 스캐터: 요청 ${data!.points.length}개 중 실패 ${data!.points.filter((p) => p.is_error).length}개. 점을 누르면 트레이스 상세가 열립니다.`}
+          />
           <div className="sm-scatter__foot text-caption-12">
             <span className="sm-scatter__legend"><i className="sm-dot sm-dot--ok" aria-hidden />성공</span>
             <span className="sm-scatter__legend"><i className="sm-dot sm-dot--fail" aria-hidden />실패 (is_error)</span>

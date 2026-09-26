@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 
 /** 트레이스 드로어를 여는 주소 쿼리 이름. `?trace=<trace_id>` 가 있으면 어느 화면에서든 드로어가 열린다 */
@@ -13,9 +13,15 @@ export const TRACE_PARAM = 'trace'
  */
 export function useOpenTrace() {
   const [, setParams] = useSearchParams()
+  // react-router 의 setParams 는 주소가 바뀔 때마다 새 함수가 된다. ref 로 받아 open · close 를 늘 같은 함수로 유지한다
+  // (차트 onEvents 처럼 참조가 바뀌면 다시 연결하는 곳이 필터를 바꿀 때마다 다시 붙지 않게)
+  const setRef = useRef(setParams)
+  useEffect(() => {
+    setRef.current = setParams
+  })
   const set = useCallback(
     (traceId: string | null) =>
-      setParams(
+      setRef.current(
         (prev) => {
           const next = new URLSearchParams(prev)
           if (traceId) next.set(TRACE_PARAM, traceId)
@@ -24,7 +30,7 @@ export function useOpenTrace() {
         },
         { replace: true },
       ),
-    [setParams],
+    [],
   )
   const open = useCallback((traceId: string) => set(traceId), [set])
   const close = useCallback(() => set(null), [set])
