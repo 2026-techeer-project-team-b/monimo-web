@@ -3,7 +3,7 @@ export { login, logout, fetchMe, restoreSession, type Role, type User } from './
 export { onSessionExpired } from './tokens'
 export { listApplications, type Application } from './applications'
 export { getServerMap, type CalleeKind, type ServerMap, type ServerMapEdge, type ServerMapNode, type ServerMapQuery } from './serverMap'
-export { getHeatmap, getScatter, listTransactions, type Heatmap, type HeatmapCell, type HeatmapQuery, type Scatter, type ScatterPoint, type ScatterQuery, type Transaction, type TransactionsQuery } from './traces'
+export { getHeatmap, getScatter, getTrace, listTransactions, type Heatmap, type Span, type SpanEvent, type SpanKind, type SpanStatus, type Trace, type HeatmapCell, type HeatmapQuery, type Scatter, type ScatterPoint, type ScatterQuery, type Transaction, type TransactionsQuery } from './traces'
 export { listUrlStats, type UrlStat, type UrlStatsQuery } from './stats'
 export { listAlertEvents, type AlertEvent, type AlertEventsQuery, type AlertState, type Severity } from './alerts'
 export { listAgents, type Agent, type AgentStatus, type AgentsQuery } from './agents'

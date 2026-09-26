@@ -8,6 +8,7 @@ import { agentsHandlers } from './agents'
 import { alertsHandlers } from './alerts'
 import { serverMapHandlers } from './serverMap'
 import { statsHandlers } from './stats'
+import { traceDetailHandlers } from './traceDetail'
 import { tracesHandlers } from './traces'
 
 // refresh → user_uuid. 실제 서버처럼 새로고침 뒤에도 남도록 sessionStorage 에 둔다 (가짜 응답 전용)
@@ -84,6 +85,8 @@ export const handlers = [
 
   ...serverMapHandlers,
   ...tracesHandlers,
+  // /traces/:traceId 는 반드시 tracesHandlers(/traces/scatter 등) 뒤에
+  ...traceDetailHandlers,
   ...statsHandlers,
   ...alertsHandlers,
   ...agentsHandlers,

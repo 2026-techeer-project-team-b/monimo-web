@@ -15,6 +15,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/design-system'
+import { useOpenTrace, useOpenTraceId } from '@/shared'
 import { isErrorOf, type ResultFilter, type Selection } from './selection'
 
 const LIMIT = 50
@@ -31,6 +32,10 @@ type Props = {
 
 /** 선택 영역 요청 목록 — 느린 순 · 커서 페이징 */
 export function TransactionTable({ serviceName, selection, agentKey, result, tabs }: Props) {
+  // 행을 누르면(Enter · Space 도) 트레이스 상세 드로어가 열린다. 열린 행은 선택 표시
+  const { open } = useOpenTrace()
+  const openId = useOpenTraceId()
+
   // 커서 기록. 조건이 바뀌면(key 가 달라지면) 첫 쪽부터
   const key = JSON.stringify([serviceName, selection, agentKey, result])
   const [pages, setPages] = useState<{ key: string; cursors: (string | null)[] }>({ key, cursors: [null] })
@@ -112,7 +117,7 @@ export function TransactionTable({ serviceName, selection, agentKey, result, tab
           </TableHead>
           <TableBody>
             {(data?.items ?? []).map((t) => (
-              <TableRow key={t.trace_id}>
+              <TableRow key={t.trace_id} onClick={() => open(t.trace_id)} selected={openId === t.trace_id} aria-label={`${t.span_name} ${t.duration_ms}ms 트레이스 열기`}>
                 <TableCell type="mono">{formatTime(t.start_time)}</TableCell>
                 <TableCell>{t.service_name}</TableCell>
                 <TableCell type="mono">{t.span_name}</TableCell>

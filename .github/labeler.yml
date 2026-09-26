@@ -10,6 +10,11 @@ area/transactions:
     - any-glob-to-any-file:
       - 'src/features/transactions/**'
 
+area/trace-detail:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/features/trace-detail/**'
+
 area/inspector:
   - changed-files:
     - any-glob-to-any-file:

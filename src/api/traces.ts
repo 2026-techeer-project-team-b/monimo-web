@@ -1,4 +1,4 @@
-// 트레이스 (api-spec 5번 GET /traces/scatter · 9번 GET /traces/heatmap · 26번 GET /traces/transactions, VIEWER+). 트랜잭션 화면 · 서버맵 미니 스캐터가 쓴다
+// 트레이스 (api-spec 5번 GET /traces/scatter · 9번 GET /traces/heatmap · 14번 GET /traces/{traceId} · 26번 GET /traces/transactions, VIEWER+). 트랜잭션 화면 · 서버맵 미니 스캐터가 쓴다
 import { api, type Page } from './client'
 
 export type ScatterPoint = {
@@ -76,4 +76,41 @@ export type HeatmapQuery = { serviceName: string; from: string; to: string; step
 
 export function getHeatmap({ serviceName, from, to, step }: HeatmapQuery, signal?: AbortSignal): Promise<Heatmap> {
   return api.get<Heatmap>('/traces/heatmap', { query: { service_name: serviceName, from, to, step }, signal })
+}
+
+/** 스팬 종류 — 요청을 받은 쪽(SERVER) · 남을 부른 쪽(CLIENT) · 서비스 안(INTERNAL) 등 */
+export type SpanKind = 'INTERNAL' | 'SERVER' | 'CLIENT' | 'PRODUCER' | 'CONSUMER'
+export type SpanStatus = 'UNSET' | 'OK' | 'ERROR'
+
+/** 스팬 안에서 벌어진 일 (예외 등) */
+export type SpanEvent = { ts: string; name: string; attributes: Record<string, string> }
+
+/** 트레이스를 이루는 구간 하나. children 으로 부모-자식 나무를 이룬다 (erd spans) */
+export type Span = {
+  span_id: string
+  parent_span_id: string | null
+  service_name: string
+  agent_key: string
+  span_name: string
+  span_kind: SpanKind
+  start_time: string
+  duration_ns: number
+  status_code: SpanStatus
+  http_status: number | null
+  attributes: Record<string, string>
+  events: SpanEvent[]
+  children: Span[]
+}
+
+export type Trace = {
+  trace_id: string
+  span_count: number
+  /** 지나간 서비스 (처음 나온 순) */
+  services: string[]
+  root: Span
+}
+
+/** 트레이스 하나를 부모-자식 나무로. 보관 기간(93일)이 지났으면 404 SIGNAL_EXPIRED */
+export function getTrace(traceId: string, signal?: AbortSignal): Promise<Trace> {
+  return api.get<Trace>(`/traces/${encodeURIComponent(traceId)}`, { signal })
 }

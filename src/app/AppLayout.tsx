@@ -1,12 +1,17 @@
-import type { MouseEvent } from 'react'
+import { lazy, type MouseEvent } from 'react'
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router'
 import { AppShell, Sidebar, Topbar } from '@/design-system'
+// 차트(echarts)까지 딸려 오지 않게 묶음 입구(@/shared) 대신 trace 만 가져온다
+import { TraceDrawerHost } from '@/shared/trace'
 import { useFilterHref } from '@/stores'
 import { SCREENS, type ScreenMeta } from './screens'
 import { TopbarControls } from './TopbarControls'
 import { useAutoRefresh } from './useAutoRefresh'
 import { useFilterUrlSync } from './useFilterUrlSync'
 import { UserMenu } from './UserMenu'
+
+// 트레이스 상세 본문. 모듈 최상단에서 한 번만 만들어야 드로어가 열린 채 자동 새로고침해도 본문이 다시 마운트되지 않는다
+const TraceBody = lazy(() => import('@/features/trace-detail').then((m) => ({ default: m.TraceDetail })))
 
 /** 로그인 화면을 뺀 모든 화면의 틀 (06 P1). 사이드바 · 상단바 · 공통 상태 동기화는 여기서만 한다 */
 export function AppLayout() {
@@ -41,6 +46,7 @@ export function AppLayout() {
       }
     >
       <Outlet />
+      <TraceDrawerHost Body={TraceBody} />
     </AppShell>
   )
 }
