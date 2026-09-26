@@ -70,3 +70,10 @@ span.td-toggle { cursor: default; }
 .td-fields dd { margin: 4px 0 0; overflow-wrap: anywhere; color: var(--color-text-primary); }
 .td-subhead { margin: var(--space-2) 0 0; color: var(--color-text-secondary); }
 .td-none { margin: 0; color: var(--color-text-tertiary); }
+
+/* 연결 로그 */
+.td-logs { display: flex; flex-direction: column; gap: var(--space-3); }
+.td-logs .td-card__head { margin-bottom: 0; flex-wrap: wrap; }
+.td-logs__link { margin-left: auto; color: var(--color-accent-strong); text-decoration: none; }
+.td-logs__link:hover { text-decoration: underline; }
+.td-logs__table { overflow-x: auto; border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); }
