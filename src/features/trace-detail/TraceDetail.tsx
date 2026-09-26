@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ApiError, getTrace, listApplications } from '@/api'
 import { Badge, formatTime, httpStatusTone, IconArrowRight, IconCopy, serviceColor, shortId } from '@/design-system'
@@ -15,20 +15,24 @@ export function TraceDetail({ traceId }: TraceBodyProps) {
     // 트레이스는 한 번 쌓이면 바뀌지 않는다
     staleTime: Infinity,
   })
-  // 서비스 색은 서버맵과 같게: 전체 서비스를 이름순으로 세운 순번
-  const { data: apps } = useQuery({ queryKey: ['applications'], queryFn: listApplications, staleTime: 5 * 60_000 })
-  const names = (apps?.map((a) => a.name) ?? trace?.services ?? []).slice().sort()
+  // 서비스 색은 서버맵과 같게: 전체 서비스를 이름순으로 세운 순번. 목록을 받기 전에 그리면 색이 바뀌므로 기다린다
+  // (상단바가 이미 불러 둔 목록이라 보통 바로 온다. 실패하면 이 트레이스의 서비스만으로 정한다)
+  const apps = useQuery({ queryKey: ['applications'], queryFn: listApplications, staleTime: 5 * 60_000 })
+  const names = (apps.data?.map((a) => a.name) ?? trace?.services ?? []).slice().sort()
   const colorIndex = (service: string) => Math.max(0, names.indexOf(service))
 
   const [copied, setCopied] = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(timer.current), [])
   const copy = () => {
     void navigator.clipboard?.writeText(traceId).then(() => {
       setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => setCopied(false), 1500)
     })
   }
 
-  if (isPending) return <p className="td-state text-body-13" role="status">트레이스를 불러오는 중…</p>
+  if (isPending || apps.isPending) return <p className="td-state text-body-13" role="status">트레이스를 불러오는 중…</p>
   if (error || !trace) {
     const code = error instanceof ApiError ? error.code : ''
     return (

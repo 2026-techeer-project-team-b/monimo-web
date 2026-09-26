@@ -14,10 +14,10 @@ export function TraceDrawerHost({ Body }: { Body: ComponentType<TraceBodyProps> 
   const traceId = useOpenTraceId()
   const { close } = useOpenTrace()
   return (
-    <Drawer open={!!traceId} onClose={close} title="트레이스 상세" className="trace-drawer">
+    // 연 채로 다른 트레이스를 열면 드로어를 새로 연다 — 닫을 때 초점이 마지막으로 누른 행으로 돌아가게
+    <Drawer key={traceId ?? ''} open={!!traceId} onClose={close} title="트레이스 상세" className="trace-drawer">
       <Suspense fallback={<p className="trace-drawer__loading text-body-13">불러오는 중…</p>}>
-        {/* 다른 트레이스를 열면 본문 상태(펼침 · 선택)를 처음부터 */}
-        {traceId ? <Body key={traceId} traceId={traceId} /> : null}
+        {traceId ? <Body traceId={traceId} /> : null}
       </Suspense>
     </Drawer>
   )

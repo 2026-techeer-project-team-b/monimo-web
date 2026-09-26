@@ -22,7 +22,8 @@ export function SpanTimeline({ root, colorIndex }: Props) {
 
   const rootStart = Date.parse(root.start_time)
   const total = spanMs(root)
-  const pct = (ms: number) => `${Math.min(100, Math.max(0, (ms / total) * 100))}%`
+  // 루트가 0ms 여도 NaN% 가 되지 않게
+  const pct = (ms: number) => (total > 0 ? `${Math.min(100, Math.max(0, (ms / total) * 100))}%` : '0%')
   const rows = flatten(root, collapsed)
 
   return (
@@ -40,8 +41,9 @@ export function SpanTimeline({ root, colorIndex }: Props) {
         {rows.map(({ span, depth, hasChildren }) => {
           const error = span.status_code === 'ERROR'
           const open = !collapsed.has(span.span_id)
-          const offset = Date.parse(span.start_time) - rootStart
-          const width = (spanMs(span) / total) * 100
+          // 시계가 어긋나 루트보다 먼저 시작한 스팬은 0 에 붙인다 (막대 · 라벨 · 아이콘이 같은 자리를 쓰게)
+          const offset = Math.max(0, Date.parse(span.start_time) - rootStart)
+          const width = total > 0 ? (spanMs(span) / total) * 100 : 0
           const color = serviceColor(colorIndex(span.service_name))
           return (
             <li key={span.span_id} className={`td-row${error ? ' is-error' : ''}`}>
@@ -59,6 +61,7 @@ export function SpanTimeline({ root, colorIndex }: Props) {
                 ) : (
                   <span className="td-toggle" aria-hidden />
                 )}
+                <span className="td-sr">{depth + 1}단계</span>
                 <i className="td-dot" style={{ background: color }} aria-hidden />
                 <span className={`td-row__span ${span.span_kind === 'CLIENT' && span.span_name.startsWith('JDBC') ? 'text-mono-12' : 'text-body-13'}`} title={span.span_name}>
                   {span.span_name}
@@ -78,7 +81,7 @@ export function SpanTimeline({ root, colorIndex }: Props) {
                   </span>
                 ) : null}
                 {error ? (
-                  <span className="td-bar__err" style={{ left: `calc(${pct(offset)} - 16px)` }} aria-label="에러 스팬">
+                  <span className="td-bar__err" style={{ left: `calc(${pct(offset)} - 16px)` }} role="img" aria-label="에러 스팬">
                     <IconAlertCircle size={13} />
                   </span>
                 ) : null}

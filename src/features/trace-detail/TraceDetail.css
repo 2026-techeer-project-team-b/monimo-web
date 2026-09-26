@@ -2,6 +2,8 @@
 .td { display: flex; flex-direction: column; gap: var(--space-4); }
 .td-state { margin: 0; padding: var(--space-4) 0; color: var(--color-text-tertiary); }
 .td-muted { color: var(--color-text-tertiary); }
+/* 화면 낭독기에만 읽히는 글자 */
+.td-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .td-crit { color: var(--color-status-crit-text); }
 
 /* 요약 */
