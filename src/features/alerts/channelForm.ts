@@ -81,7 +81,12 @@ export function channelBodyOf(f: ChannelForm): AlertChannelBody {
 export function channelChangesOf(before: AlertChannel, f: ChannelForm) {
   const body = channelBodyOf(f)
   const configChanged =
-    CONFIG_FIELDS[f.type].some(({ key, secret }) => (secret ? key in body.config : (body.config[key] ?? '') !== (before.config[key] ?? ''))) ||
+    CONFIG_FIELDS[f.type].some(({ key, secret, options }) => {
+      if (secret) return key in body.config
+      // 고르기 칸(method)은 값이 없으면 첫 값(POST)과 같다 — 폼이 기본값을 채워도 바뀐 것으로 보지 않는다
+      const norm = (v: string | undefined) => v || options?.[0] || ''
+      return norm(body.config[key]) !== norm(before.config[key])
+    }) ||
     // 종류를 바꾸면 이전 종류의 칸이 사라지는 것도 바뀐 것이다
     before.type !== f.type
   return { channel: body.name !== before.name || configChanged, enabled: before.enabled !== f.enabled }

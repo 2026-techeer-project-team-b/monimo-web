@@ -21,7 +21,7 @@ type Props = {
   onClose: () => void
   /** 저장된 설정으로 시험 메시지 보내기 (결과는 화면 토스트가 보여 준다) */
   onTest: (c: AlertChannel) => void
-  /** 지금 테스트 중인 채널 uuid */
+  /** 지금 테스트 중인 채널 uuid. 카드 버튼과 같이 한 번에 하나만 보내도록 어떤 채널이든 진행 중이면 잠근다 */
   testingId: string | null
 }
 
@@ -109,7 +109,7 @@ function Editor({ channel, onClose, onTest, testingId }: Omit<Props, 'channelId'
       footer={
         <div className="al-rule-modal__footer">
           {channel ? (
-            <Button icon={<IconSend size={16} />} disabled={testing || save.isPending} onClick={() => onTest(channel)} title="저장된 설정으로 보냅니다">
+            <Button icon={<IconSend size={16} />} disabled={!!testingId || save.isPending} onClick={() => onTest(channel)} title="저장된 설정으로 보냅니다">
               {testing ? '보내는 중…' : '테스트 발송'}
             </Button>
           ) : null}
@@ -182,7 +182,7 @@ function Editor({ channel, onClose, onTest, testingId }: Omit<Props, 'channelId'
                       id={fid}
                       className={field.key === 'channel' ? undefined : 'text-mono-12'}
                       type={field.secret ? 'password' : field.key === 'to' ? 'email' : 'text'}
-                      autoComplete="off"
+                      autoComplete={field.secret ? 'new-password' : 'off'}
                       value={form.config[field.key] ?? ''}
                       placeholder={kept ? channel!.config[field.key] : field.placeholder}
                       aria-invalid={!!err[field.key]}
