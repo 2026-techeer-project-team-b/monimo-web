@@ -5,7 +5,7 @@
 import { http } from 'msw'
 import { API_BASE } from '../client'
 import type { CanaryEvent, CanaryFreshness, PlatformService } from '../platform'
-import { fail, ok, okPage, unauthenticated } from './common'
+import { ok, okPage, timeRange, unauthenticated } from './common'
 
 const SEC = 1000
 const MIN = 60 * SEC
@@ -88,12 +88,12 @@ export const platformHandlers = [
   http.get(`${API_BASE}/platform/canary/events`, ({ request }) => {
     const denied = unauthenticated(request)
     if (denied) return denied
-    const q = new URL(request.url).searchParams
-    const now = Date.now()
-    const to = Date.parse(q.get('to') ?? '') || now
-    const from = Date.parse(q.get('from') ?? '') || to - 60 * MIN
-    if (from >= to) return fail(422, 'UNPROCESSABLE', 'from 은 to 보다 앞이어야 합니다.')
-    const rows = events(from, Math.min(to, now))
+    // 다른 시간 범위 문과 같은 규칙 — from · to 가 없거나 from ≥ to 면 422
+    const url = new URL(request.url)
+    const range = timeRange(url)
+    if (range instanceof Response) return range
+    const q = url.searchParams
+    const rows = events(range.from, Math.min(range.to, Date.now()))
     const limit = Math.min(Number(q.get('limit')) || 50, 500)
     const offset = Number(q.get('cursor')) || 0
     return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)

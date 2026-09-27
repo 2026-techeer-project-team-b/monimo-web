@@ -188,8 +188,9 @@ export function PlatformPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((e) => (
-                    <TableRow key={`${e.ts}-${e.kind}`} className={e.kind === 'FRESH' ? undefined : 'pf-row-alert'}>
+                  {rows.map((e, i) => (
+                    // 이벤트에 고유 id 가 없어 시각 · 종류가 겹칠 수 있으니 순번을 섞는다
+                    <TableRow key={`${e.ts}-${e.kind}-${i}`} className={e.kind === 'FRESH' ? undefined : 'pf-row-alert'}>
                       <TableCell type="mono">{hhmmss(e.ts)}</TableCell>
                       <TableCell type="badge">
                         <Badge tone={KIND_TONE[e.kind]}>{e.kind}</Badge>
