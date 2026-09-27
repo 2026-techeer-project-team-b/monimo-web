@@ -20,3 +20,17 @@ export type AgentsQuery = { serviceName?: string | null; status?: AgentStatus; c
 export function listAgents({ serviceName, status, cursor, limit }: AgentsQuery = {}, signal?: AbortSignal): Promise<Page<Agent>> {
   return api.getPage<Agent>('/agents', { query: { service_name: serviceName, status, cursor, limit }, signal })
 }
+
+/** 파드 하나의 상세 (27번) — 목록 필드 + 서비스 uuid · 처음 본 시각 · 마지막 갱신 */
+export type AgentDetail = Agent & { application_uuid: string; first_seen_at: string; updated_at: string }
+
+export function getAgent(uuid: string, signal?: AbortSignal): Promise<AgentDetail> {
+  return api.get<AgentDetail>(`/agents/${encodeURIComponent(uuid)}`, { signal })
+}
+
+/** 지금 스레드 수 (21번) — jvm.thread.count 의 가장 최근 1분 값. 신호가 끊긴 파드면 ts_min 이 오래됐다 */
+export type ActiveThreads = { agent_uuid: string; agent_key: string; service_name: string; metric_name: string; ts_min: string; last_v: number }
+
+export function getActiveThreads(uuid: string, signal?: AbortSignal): Promise<ActiveThreads> {
+  return api.get<ActiveThreads>(`/agents/${encodeURIComponent(uuid)}/active-threads`, { signal })
+}

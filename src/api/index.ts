@@ -40,7 +40,17 @@ export {
   type Operator,
   type Severity,
 } from './alerts'
-export { listAgents, type Agent, type AgentStatus, type AgentsQuery } from './agents'
+export { getActiveThreads, getAgent, listAgents, type ActiveThreads, type Agent, type AgentDetail, type AgentStatus, type AgentsQuery } from './agents'
+export {
+  getMetricSeries,
+  listMetricNames,
+  type MetricName,
+  type MetricPoint,
+  type MetricSeries,
+  type MetricSeriesLine,
+  type MetricSeriesQuery,
+  type MetricSource,
+} from './metrics'
 export {
   getErrorTimeline,
   listErrors,
