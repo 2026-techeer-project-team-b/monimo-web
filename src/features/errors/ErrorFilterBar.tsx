@@ -50,7 +50,7 @@ function Form({ filters, agents, onApply }: Props) {
         </label>
         <div className="er-actions">
           <Button type="submit" variant="primary">검색</Button>
-          <Button onClick={() => onApply({ agentKey: '', httpStatus: '', exceptionType: '' })}>초기화</Button>
+          <Button onClick={() => onApply({ agentKey: '', httpStatus: '', exceptionType: '', at: '' })}>초기화</Button>
         </div>
       </form>
     </Card>

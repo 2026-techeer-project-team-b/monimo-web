@@ -15,10 +15,14 @@ type Props = {
   /** 지금 표에 걸린 예외 타입 (강조 표시) */
   exceptionType: string
   onExceptionType: (type: string) => void
+  /** 막대를 눌러 고른 칸의 시작 시각(ms). 없으면 null */
+  selectedAt: number | null
+  /** 막대 클릭 — 그 칸 시작 시각. 같은 칸을 다시 누르면 null(풀기) */
+  onBar: (at: number | null) => void
 }
 
 /** 시간대별 에러 건수 — 상태코드 대역으로 쌓은 막대, 합계, 예외 타입 상위 */
-export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, onExceptionType }: Props) {
+export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, onExceptionType, selectedAt, onBar }: Props) {
   const view = useMemo(() => (timeline ? toView(timeline, from, to) : null), [timeline, from, to])
 
   const option = useMemo<ChartOption | null>(() => {
@@ -35,10 +39,23 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
         stack: 'errors',
         barCategoryGap: '20%',
         itemStyle: { color: color[c] },
-        data: view.byClass[c],
+        // 고른 칸이 있으면 나머지 칸은 흐리게
+        data: view.byClass[c].map((v, i) => ({ value: v, itemStyle: { opacity: selectedAt === null || view.xs[i] === selectedAt ? 1 : 0.3 } })),
       })),
     }
-  }, [view])
+  }, [view, selectedAt])
+
+  // 막대(칸)를 누르면 표를 그 칸 시간으로 좁힌다
+  const onEvents = useMemo(
+    () => ({
+      click: (e: unknown) => {
+        const i = (e as { dataIndex?: number }).dataIndex
+        const x = i === undefined ? undefined : view?.xs[i]
+        if (x !== undefined) onBar(x === selectedAt ? null : x)
+      },
+    }),
+    [view, selectedAt, onBar],
+  )
 
   const top = view?.types.slice(0, TOP) ?? []
   const rest = view?.types.slice(TOP) ?? []
@@ -48,7 +65,7 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
       <div className="er-timeline__head">
         <div>
           <h2 className="text-section-15 er-title">시간대별 에러 건수</h2>
-          <p className="text-caption-12 er-muted">상태코드 대역으로 쌓고, 예외 타입은 오른쪽에서 고른다 · {formatTime(from).slice(0, 5)} ~ {formatTime(to).slice(0, 5)}</p>
+          <p className="text-caption-12 er-muted">상태코드 대역으로 쌓고, 예외 타입은 오른쪽에서 고른다 · 막대를 누르면 표가 그 시간 칸만 보인다 · {formatTime(from).slice(0, 5)} ~ {formatTime(to).slice(0, 5)}</p>
         </div>
         {view ? (
           <dl className="er-kpis">
@@ -68,6 +85,7 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
             className="er-timeline__chart"
             option={option}
             height={220}
+            onEvents={onEvents}
             aria-label={`시간대별 에러 막대: 총 ${view.total}건, 5xx ${view.classTotal['5xx']}건, 4xx ${view.classTotal['4xx']}건${view.classTotal.other ? `, 상태코드 없음 ${view.classTotal.other}건` : ''}`}
           />
           <aside className="er-legend" aria-label="에러 분류">
