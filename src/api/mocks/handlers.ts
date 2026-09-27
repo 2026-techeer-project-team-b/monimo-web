@@ -9,6 +9,7 @@ import { alertsHandlers, channelsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
 import { metricsHandlers } from './metrics'
+import { threadDumpsHandlers } from './threadDumps'
 import { serverMapHandlers } from './serverMap'
 import { statsHandlers } from './stats'
 import { traceDetailHandlers } from './traceDetail'
@@ -87,6 +88,7 @@ export const handlers = [
   ...channelsHandlers,
   ...agentsHandlers,
   ...metricsHandlers,
+  ...threadDumpsHandlers,
   ...errorsHandlers,
   ...logsHandlers,
 ]

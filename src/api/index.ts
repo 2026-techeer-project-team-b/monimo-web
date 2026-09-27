@@ -51,6 +51,7 @@ export {
   type MetricSeriesQuery,
   type MetricSource,
 } from './metrics'
+export { getThreadDump, listThreadDumps, requestThreadDump, type ThreadDump, type ThreadDumpMeta, type ThreadDumpsQuery } from './threadDumps'
 export {
   getErrorTimeline,
   listErrors,
