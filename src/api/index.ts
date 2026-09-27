@@ -1,7 +1,17 @@
 export { api, ApiError, API_BASE, type Page, type RequestOptions } from './client'
 export { login, logout, fetchMe, restoreSession, type Role, type User } from './auth'
 export { onSessionExpired } from './tokens'
-export { listApplications, type Application } from './applications'
+export {
+  createApplication,
+  deleteApplication,
+  getApplication,
+  getApplicationConfig,
+  listApplications,
+  putApplicationConfig,
+  updateApplication,
+  type Application,
+  type ApplicationConfig,
+} from './applications'
 export { getServerMap, type CalleeKind, type ServerMap, type ServerMapEdge, type ServerMapNode, type ServerMapQuery } from './serverMap'
 export { getHeatmap, getScatter, getTrace, listTransactions, type Heatmap, type Span, type SpanEvent, type SpanKind, type SpanStatus, type Trace, type HeatmapCell, type HeatmapQuery, type Scatter, type ScatterPoint, type ScatterQuery, type Transaction, type TransactionsQuery } from './traces'
 export { listUrlStats, type UrlStat, type UrlStatsQuery } from './stats'
