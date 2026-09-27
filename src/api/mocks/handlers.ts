@@ -1,10 +1,11 @@
 // 가짜 응답 목록 (MSW). VITE_API_MOCK=true 로 개발 서버를 켰을 때만 쓴다.
 // 응답 모양은 백엔드 명세(monimo-backend docs/design/web-v2/api-spec.md §0)를 따른다: { data } · { error: { code, message } }
 // 화면 작업에서 필요한 엔드포인트는 화면별 파일(mocks/<화면>.ts)에 만들고 아래 handlers 에 펼쳐 넣는다.
-import { http, HttpResponse } from 'msw'
+import { http } from 'msw'
 import { API_BASE } from '../client'
-import { ACCESS_TTL_SEC, accessTokens, APPLICATIONS, currentUser, fail, issueAccess, ok, PASSWORD, reqId, unauthenticated, USERS } from './common'
+import { ACCESS_TTL_SEC, accessTokens, currentUser, fail, issueAccess, ok, PASSWORD, unauthenticated, USERS } from './common'
 import { agentsHandlers } from './agents'
+import { applicationsHandlers } from './applications'
 import { alertsHandlers, channelsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
@@ -67,17 +68,12 @@ export const handlers = [
     return ok({ result: 'LOGGED_OUT' })
   }),
 
-  http.get(`${API_BASE}/applications`, ({ request }) => {
-    const denied = unauthenticated(request)
-    if (denied) return denied
-    return HttpResponse.json({ data: APPLICATIONS, page: { next_cursor: null, limit: 50 } }, { headers: { 'X-Request-Id': reqId() } })
-  }),
-
   http.get(`${API_BASE}/auth/me`, ({ request }) => {
     const user = currentUser(request)
     return user ? ok(user) : fail(401, 'UNAUTHENTICATED', '로그인이 필요합니다.')
   }),
 
+  ...applicationsHandlers,
   ...serverMapHandlers,
   ...tracesHandlers,
   // /traces/:traceId 는 반드시 tracesHandlers(/traces/scatter 등) 뒤에
