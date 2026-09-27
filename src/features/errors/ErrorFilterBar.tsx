@@ -18,7 +18,8 @@ function Form({ filters, agents, onApply }: Props) {
   const [draft, setDraft] = useState(filters)
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    onApply({ ...draft, exceptionType: draft.exceptionType.trim() })
+    // 막대 칸은 폼이 들고 있던 옛 값이 아니라 지금 주소 값을 그대로 둔다
+    onApply({ ...draft, exceptionType: draft.exceptionType.trim(), at: filters.at })
   }
   return (
     <Card>
