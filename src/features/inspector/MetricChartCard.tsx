@@ -22,8 +22,10 @@ export function MetricChartCard({ ui, serviceName, agentKey, from, to, onRemove 
     queryFn: ({ signal }) => getMetricSeries({ serviceName, agentKey, metricName: ui.metric, from, to }, signal),
     placeholderData: keepPreviousData,
   })
-  // 파드를 바꾼 직후 이전 파드의 값이 잠깐 남아 보이지 않게, 같은 파드 응답일 때만 쓴다
-  const data = q.data && q.data.series.every((s) => s.agent_key === agentKey) ? q.data : undefined
+  // 파드를 바꾼 직후 이전 파드의 값이 잠깐 남아 보이지 않게, 같은 파드 응답일 때만 쓴다.
+  // 이전 응답이 빈 줄(신호 없는 파드)이면 누구 것인지 알 수 없으니 자리 채움 데이터일 때는 버린다
+  const samePod = q.data?.series.every((s) => s.agent_key === agentKey) && !(q.isPlaceholderData && q.data.series.length === 0)
+  const data = samePod ? q.data : undefined
   const lines = useMemo(() => (data ? toView(data, ui) : []), [data, ui])
   const option = useMemo(() => (lines.length ? optionOf(lines, ui, Date.parse(from), Date.parse(to)) : null), [lines, ui, from, to])
   const current = currentOf(lines)

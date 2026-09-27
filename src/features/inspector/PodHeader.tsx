@@ -7,7 +7,15 @@ import { useTimeWindow } from '@/stores'
 const stamp = (iso: string) => `${new Date(iso).toLocaleDateString('sv-SE')} ${formatTime(iso).slice(0, 8)}`
 
 /** 고른 파드의 머리 — 호스트 · JVM · 버전 · 처음 본 시각, 지금 스레드 수, 스레드 덤프 요청 */
-export function PodHeader({ agentId }: { agentId: string }) {
+type Props = {
+  agentId: string
+  /** 「스레드 덤프 요청」 — 요청 모달 열기 (ADMIN) */
+  onRequestDump: (agent: { agent_uuid: string; agent_key: string }) => void
+  /** 「덤프 이력」 — 덤프 탭을 이 파드로 좁혀 열기 */
+  onShowDumps: (agentKey: string) => void
+}
+
+export function PodHeader({ agentId, onRequestDump, onShowDumps }: Props) {
   const agent = useQuery({ queryKey: ['agent', agentId], queryFn: ({ signal }) => getAgent(agentId, signal) })
   // 스레드 수는 자주 바뀌니 파드를 볼 동안 30초마다 다시 읽는다
   const threads = useQuery({ queryKey: ['agent', agentId, 'active-threads'], queryFn: ({ signal }) => getActiveThreads(agentId, signal), refetchInterval: 30_000, retry: false })
@@ -62,15 +70,22 @@ export function PodHeader({ agentId }: { agentId: string }) {
         </span>
         {stale ? <span className="text-caption-12 in-warn">{formatTime(t!.ts_min).slice(0, 5)} 이후 신호 없음</span> : null}
       </div>
-      <AdminOnly>
-        <div className="in-head__dump">
-          {/* 요청 모달 · 덤프 탭은 6단계-2 에서 연결한다 */}
-          <Button variant="primary" disabled title="다음 작업(6단계-2)에서 연결합니다">
+      <div className="in-head__dump">
+        <AdminOnly>
+          <Button
+            variant="primary"
+            disabled={a.status !== 'UP'}
+            title={a.status === 'UP' ? '지금 이 파드의 스레드 덤프를 뜬다' : `파드가 ${a.status} 상태라 덤프를 뜰 수 없습니다`}
+            onClick={() => onRequestDump(a)}
+          >
             스레드 덤프 요청
           </Button>
-          <span className="text-mono-11 in-muted">POST …/thread-dumps</span>
-        </div>
-      </AdminOnly>
+        </AdminOnly>
+        <button type="button" className="in-link text-caption-12-medium" onClick={() => onShowDumps(a.agent_key)}>
+          덤프 이력 →
+        </button>
+        <span className="text-mono-11 in-muted">GET /thread-dumps</span>
+      </div>
     </Card>
   )
 }
