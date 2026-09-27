@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { ApiError, getThreadDump, listAgents, listThreadDumps, type ThreadDump } from '@/api'
 import { useAuth } from '@/auth'
@@ -145,13 +145,17 @@ export function DumpsTab({ dumpId, dumpAgent, period, onOpen, onAgent, onPeriod,
   )
 }
 
+/** 「복사됨」 표시를 2초 보여 준다. 다시 누르면 2초를 새로 세고, 사라질 때 타이머를 정리한다 */
 function useCopied() {
   const [copied, setCopied] = useState<string | null>(null)
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(timer.current), [])
   const copy = (key: string, text: string) =>
     navigator.clipboard.writeText(text).then(
       () => {
+        clearTimeout(timer.current)
         setCopied(key)
-        setTimeout(() => setCopied((c) => (c === key ? null : c)), 2000)
+        timer.current = setTimeout(() => setCopied(null), 2000)
       },
       () => setCopied(null),
     )
