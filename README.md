@@ -146,7 +146,7 @@ const c = chartColors()
 | `/settings` | 설정 — 감시 대상 서비스 · 샘플링률(낙관적 잠금) · 에이전트 부착 · 계정 | `app` | `features/settings` |
 | `/platform` | 플랫폼 상태 — 카나리 신선도 · 우리 서비스 6개 · 카나리 이벤트 (+ 모든 화면 사이드바 파수꾼 카드) | — | `features/platform` |
 | (모든 화면) | 트레이스 상세 드로어 — 스팬 트리 · 타임라인 · 스팬 상세 · 연결 로그 | `trace` | `features/trace-detail` · `shared/trace` |
-| `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `next` | `features/login` |
+| `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `next` `expired` | `features/login` |
 | `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | — | `app/DesignSystemPreview.tsx` |
 
 화면 규칙

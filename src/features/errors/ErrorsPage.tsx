@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { getErrorTimeline, listAgents } from '@/api'
 import { Button, Card, formatTime } from '@/design-system'
@@ -39,11 +39,18 @@ function ServiceErrors({ serviceName }: { serviceName: string }) {
     staleTime: 5 * 60_000,
   })
 
-  // 막대로 고른 칸. 시간 범위를 바꿔 칸이 창 밖으로 나갔으면 무시한다
-  const atMs = Number(filters.at) || null
-  const at = atMs !== null && atMs >= Math.floor(Date.parse(from) / (step * 1000)) * step * 1000 && atMs < Date.parse(to) ? atMs : null
+  // 막대로 고른 칸. 시간 범위를 바꿔 칸이 창 밖으로 나갔거나, 칸 크기(step)가 바뀌어 칸 경계와 어긋나면 무시한다
+  const stepMs = step * 1000
+  const gridStart = Math.floor(Date.parse(from) / stepMs) * stepMs
+  const atMs = filters.at ? Number(filters.at) : NaN
+  const at = Number.isFinite(atMs) && atMs >= gridStart && atMs < Date.parse(to) && (atMs - gridStart) % stepMs === 0 ? atMs : null
+  // 무시된 칸은 주소에서도 지운다 — 남겨 두면 나중에 시간 범위가 다시 그 칸을 덮을 때 누르지도 않은 선택이 되살아난다
+  const staleAt = !!filters.at && at === null && !!timeline.data
+  useEffect(() => {
+    if (staleAt) setFilters({ at: '' })
+  }, [staleAt, setFilters])
   const tableFrom = at === null ? from : new Date(at).toISOString()
-  const tableTo = at === null ? to : new Date(Math.min(at + step * 1000, Date.parse(to))).toISOString()
+  const tableTo = at === null ? to : new Date(Math.min(at + stepMs, Date.parse(to))).toISOString()
 
   // 표 제목의 건수: 타임라인에는 파드 · 상태코드가 없어서, 그 필터가 걸리면 세지 않는다
   const total = useMemo(() => {
@@ -80,7 +87,7 @@ function ServiceErrors({ serviceName }: { serviceName: string }) {
           <Button onClick={() => setFilters({ at: '' })}>전체 구간 보기</Button>
         </div>
       ) : null}
-      <ErrorTable serviceName={serviceName} from={tableFrom} to={tableTo} filters={filters} total={total} />
+      <ErrorTable serviceName={serviceName} from={tableFrom} to={tableTo} filters={{ ...filters, at: at === null ? '' : String(at) }} total={total} />
     </div>
   )
 }

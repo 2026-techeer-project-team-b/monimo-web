@@ -9,8 +9,9 @@ type Props = { filters: ErrorFilters; agents: Agent[]; onApply: (f: ErrorFilters
 
 /** 실패 스팬 표 필터. 고른 값은 「검색」을 눌러야 걸린다 (예외 타입을 치는 도중에 매번 부르지 않게) */
 export function ErrorFilterBar({ filters, agents, onApply }: Props) {
-  // 주소의 필터가 바뀌면(예외 타입 클릭 · 초기화) 입력칸도 따라가게, 주소 값을 key 로 다시 만든다
-  return <Form key={JSON.stringify(filters)} filters={filters} agents={agents} onApply={onApply} />
+  // 적용된 값이 바뀌면 입력칸을 맞춘다. 막대 칸(at)은 이 폼의 값이 아니라서 빼야, 막대를 눌러도 치던 글자가 지워지지 않는다
+  const { at: _at, ...applied } = filters
+  return <Form key={JSON.stringify(applied)} filters={filters} agents={agents} onApply={onApply} />
 }
 
 function Form({ filters, agents, onApply }: Props) {
