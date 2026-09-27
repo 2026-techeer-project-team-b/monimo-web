@@ -14,6 +14,7 @@ export function AgentAttachCard({ serviceName }: { serviceName: string }) {
     '     -jar app.jar',
   ].join('\n')
   const [copied, setCopied] = useState(false)
+  const [failed, setFailed] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
 
@@ -24,11 +25,15 @@ export function AgentAttachCard({ serviceName }: { serviceName: string }) {
         <Button
           icon={<IconCopy size={14} />}
           onClick={() =>
-            navigator.clipboard.writeText(cmd).then(() => {
-              clearTimeout(timer.current)
-              setCopied(true)
-              timer.current = setTimeout(() => setCopied(false), 2000)
-            })
+            navigator.clipboard.writeText(cmd).then(
+              () => {
+                clearTimeout(timer.current)
+                setCopied(true)
+                timer.current = setTimeout(() => setCopied(false), 2000)
+              },
+              // 권한이 없거나 보안 연결(https)이 아니면 복사가 막힌다 — 명령을 직접 골라 복사하도록 안내
+              () => setFailed(true),
+            )
           }
         >
           {copied ? '복사됨' : '복사'}
@@ -37,6 +42,11 @@ export function AgentAttachCard({ serviceName }: { serviceName: string }) {
     >
       <div className="st-attach">
         <CodeBlock aria-label="에이전트 부착 명령">{cmd}</CodeBlock>
+        {failed ? (
+          <span className="text-caption-12 st-crit" role="alert">
+            복사하지 못했습니다. 명령을 직접 골라 복사하세요.
+          </span>
+        ) : null}
         <span className="text-caption-12 st-muted">Java 17 + Spring Boot 3.x · mTLS 인증서 필요</span>
       </div>
     </Card>

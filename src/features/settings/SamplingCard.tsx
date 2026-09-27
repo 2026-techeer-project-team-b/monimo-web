@@ -74,7 +74,9 @@ export function SamplingCard({ appId }: { appId: string }) {
         >
           다른 사용자가 먼저 바꿨습니다 (<span className="text-mono-12-strong">CONFIG_VERSION_CONFLICT</span>) — 새로고침으로 최신 판을 받은 뒤 다시 적용하세요.
         </Banner>
-      ) : save.isError ? (
+      ) : null}
+      {q.isError ? <Banner tone="crit">최신 설정을 다시 받지 못했습니다. 잠시 뒤 다시 시도하세요.</Banner> : null}
+      {conflict ? null : save.isError ? (
         <Banner tone="crit">
           {save.error instanceof ApiError ? (save.error.code === 'FORBIDDEN' ? '관리자(ADMIN)만 바꿀 수 있습니다.' : `${save.error.message} (${save.error.code})`) : '적용하지 못했습니다.'}
         </Banner>
@@ -92,7 +94,7 @@ export function SamplingCard({ appId }: { appId: string }) {
           <span>
             <span className="text-number-28">{fmtPct(current)} %</span> <span className="st-version text-mono-12-strong">v{c.version}</span>
           </span>
-          {appliedVersion === c.version && !changed ? <span className="text-caption-12 st-ok" role="status">v{c.version} 로 적용했습니다 · 30초 안에 수집기가 읽어 갑니다</span> : null}
+          {appliedVersion === c.version && !changed && !save.isError ? <span className="text-caption-12 st-ok" role="status">v{c.version} 로 적용했습니다 · 30초 안에 수집기가 읽어 갑니다</span> : null}
         </div>
       </div>
 
@@ -130,7 +132,14 @@ export function SamplingCard({ appId }: { appId: string }) {
         {isAdmin ? (
           <span className="st-sampling__actions">
             <span className="text-mono-11 st-muted">적용 시 expected_version={c.version} 동봉</span>
-            <Button onClick={() => setDraft(null)} disabled={draft === null || save.isPending}>
+            <Button
+              onClick={() => {
+                // 오류 · 충돌 안내도 같이 걷는다 (남겨 두면 "적용했습니다" 와 함께 보여 헷갈린다)
+                save.reset()
+                setDraft(null)
+              }}
+              disabled={(draft === null && !save.isError) || save.isPending}
+            >
               되돌리기
             </Button>
             <Button variant="primary" disabled={!changed || save.isPending || !!conflict} onClick={() => save.mutate({ rate: pct / 100, version: c.version })}>
