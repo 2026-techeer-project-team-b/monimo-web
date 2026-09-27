@@ -1,0 +1,54 @@
+/* 플랫폼 상태 (S10). 색은 토큰만 */
+.pf-page { display: flex; flex-direction: column; gap: var(--space-4); }
+.pf-muted { color: var(--color-text-tertiary); }
+.pf-warn { color: var(--color-status-warn-text); }
+.pf-crit { color: var(--color-status-crit-text); }
+.pf-empty { margin: 0; padding: var(--space-4); color: var(--color-text-tertiary); }
+.pf-title { display: inline-flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
+
+/* 상단 판정 */
+.pf-hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-5); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-surface); }
+.pf-hero.is-ok { background: var(--color-status-ok-soft); border-color: color-mix(in srgb, var(--color-status-ok) 40%, transparent); }
+.pf-hero.is-crit { background: var(--color-status-crit-soft); border-color: color-mix(in srgb, var(--color-status-crit) 40%, transparent); }
+.pf-hero__main { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.pf-hero__main h2 { margin: 0 0 4px; }
+.pf-hero__dot { width: 18px; height: 18px; flex: none; }
+.pf-kpis { margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-5); }
+.pf-kpis > div { display: flex; flex-direction: column; gap: 2px; padding-left: var(--space-4); border-left: 1px solid var(--color-border-default); }
+.pf-kpis dt { color: var(--color-text-secondary); }
+.pf-kpis dd { margin: 0; }
+
+/* 관통 경로 */
+.pf-path__steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: var(--space-3); }
+.pf-step { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.pf-step__box { display: flex; flex-direction: column; gap: 4px; padding: 10px var(--space-3); border: 1px solid var(--color-border-default); border-radius: var(--radius-sm); background: var(--color-bg-surface); }
+.pf-step.is-outside .pf-step__box { border-style: dashed; border-color: var(--color-status-warn); background: var(--color-status-warn-soft); }
+.pf-step.is-last .pf-step__box { border-color: var(--color-accent-default); background: var(--color-accent-soft); }
+.pf-step__name { display: inline-flex; align-items: center; gap: 6px; }
+.pf-step:not(.is-last)::after { content: '›'; position: absolute; top: 14px; right: calc(var(--space-3) * -0.8); color: var(--color-text-tertiary); }
+.pf-path__foot { margin: var(--space-3) 0 0; }
+
+/* 우리 서비스 */
+.pf-services { display: flex; flex-direction: column; gap: var(--space-3); }
+.pf-services__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.pf-services__head h2 { margin: 0; }
+.pf-services__grid { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-4); }
+.pf-svc { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; box-sizing: border-box; }
+.pf-svc.is-down { border-color: var(--color-status-warn); }
+.pf-svc__head { display: flex; align-items: center; gap: var(--space-2); }
+.pf-svc__head .ds-status-badge { margin-left: auto; }
+.pf-svc__deps { display: flex; flex-wrap: wrap; gap: 6px; }
+.pf-svc__foot { display: flex; justify-content: space-between; margin-top: auto; padding-top: var(--space-3); border-top: 1px solid var(--color-border-grid); }
+
+/* 이벤트 · 파수꾼 자신 */
+.pf-bottom { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); gap: var(--space-4); align-items: start; }
+.pf-events__scroll { max-height: 420px; overflow: auto; }
+.pf-events .ds-table td { white-space: nowrap; }
+.pf-row-alert td { background: var(--color-status-warn-soft); }
+.pf-self { display: flex; flex-direction: column; gap: var(--space-3); }
+.pf-self__list { margin: 0; display: flex; flex-direction: column; }
+.pf-self__list > div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: var(--space-3); padding: 10px 0; border-bottom: 1px solid var(--color-border-grid); }
+.pf-self__list dt { color: var(--color-text-secondary); }
+.pf-self__list dd { margin: 0; }
+
+@media (max-width: 960px) { .pf-bottom { grid-template-columns: minmax(0, 1fr); } }

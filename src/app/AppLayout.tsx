@@ -8,6 +8,7 @@ import { SCREENS, type ScreenMeta } from './screens'
 import { TopbarControls } from './TopbarControls'
 import { useAutoRefresh } from './useAutoRefresh'
 import { useFilterUrlSync } from './useFilterUrlSync'
+import { WatchdogCard } from './WatchdogCard'
 import { UserMenu } from './UserMenu'
 
 // 트레이스 상세 본문. 모듈 최상단에서 한 번만 만들어야 드로어가 열린 채 자동 새로고침해도 본문이 다시 마운트되지 않는다
@@ -37,7 +38,7 @@ export function AppLayout() {
 
   return (
     <AppShell
-      sidebar={<Sidebar items={items} activeKey={activeKey} onSelect={onSelect} />}
+      sidebar={<Sidebar items={items} activeKey={activeKey} onSelect={onSelect} footer={<WatchdogCard />} />}
       topbar={
         <Topbar title={meta?.title ?? ''} subtitle={meta?.subtitle}>
           <TopbarControls />
