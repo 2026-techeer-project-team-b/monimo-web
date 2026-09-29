@@ -3,7 +3,7 @@
 모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
 
 - 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · ECharts · React Flow · MSW(가짜 응답)
-- 상태: 디자인 시스템 · 앱 기반(경로 · 셸 · API 클라이언트) · 로그인 · 권한 · 상단바 공통 상태 완료 · 화면은 빈 페이지
+- 상태: **3단계 완료** — 화면 8개를 가짜 응답(MSW)으로 모두 만들었다. 다음은 4단계(실서버 연결 · 보안). 플랫폼 상태 화면은 명세에 아직 없는 제안 문 3개에 기댄다 (아래 「가짜 응답」)
 
 ## 폴더 구성
 
@@ -54,14 +54,28 @@ npm run build    # 타입 검사 + 빌드
 
 `/api` 로 시작하는 요청은 개발 서버가 `localhost:8080`(api-server)으로 넘긴다.
 
-백엔드 없이 화면을 만들 때는 가짜 응답을 켠다. 응답은 `src/api/mocks/handlers.ts` 에 추가한다 (개발 서버에서만 동작, 빌드 결과물에는 안 들어감).
+### 가짜 응답 (MSW)
+
+백엔드 없이 화면을 볼 때는 가짜 응답을 켠다. 개발 서버에서만 동작하고 빌드 결과물에는 안 들어간다.
 
 ```bash
 VITE_API_MOCK=true npm run dev
 ```
 
-가짜 응답의 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER).
-브라우저 콘솔에서 `__monimoMock.expireAccess()` 는 토큰 만료(자동 재발급 시험), `__monimoMock.revokeRefresh()` 는 세션 만료를 흉내 낸다.
+- 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER)
+- 응답은 `src/api/mocks/<도메인>.ts` 에 있고 `handlers.ts` 가 모은다. 같은 분이면 같은 값이 나오도록 정해진 난수로 만들어, 화면끼리 숫자가 맞는다 (서버맵 빨간 점 = 트랜잭션 목록 = 트레이스 상세 예외 = 에러 표 = ERROR 로그).
+- 만들기 · 수정(규칙 · 채널 · 서비스 · 샘플링률 · 덤프)은 메모리에 남고 **새로고침하면 처음으로 돌아간다**.
+- 일부러 넣어 둔 장면: 설정에서 shop-order 샘플링률을 처음 적용하면 "다른 사용자가 먼저 바꾼" 409 충돌 · 인스펙터 `shop-order-7d9f4-z9k1w` 는 덤프가 6초 걸려 timeout 5000 이면 503 · 플랫폼 상태는 매시 54분대 STALE
+
+브라우저 콘솔에서 흐름을 시험할 수 있다.
+
+| 명령 | 하는 일 |
+|---|---|
+| `__monimoMock.expireAccess()` | access 토큰 만료 → 다음 요청이 401 → 자동 재발급 |
+| `__monimoMock.revokeRefresh()` | refresh 토큰도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
+| `__monimoMock.canaryStale(true)` | 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리 늦음)로. `false` 면 원래대로 |
+
+⚠️ **제안 문**: 플랫폼 상태가 부르는 `GET /platform/canary` · `/platform/services` · `/platform/canary/events` 는 백엔드 명세(api-spec)에 아직 없다 (api-map.md 하단 제안 #51~#53). 4단계 전에 확정이 필요하다.
 
 ## 상단바 공통 상태 (서비스 · 시간 범위 · 새로고침)
 
@@ -118,20 +132,22 @@ const c = chartColors()
 
 ## 화면 경로
 
-화면 하나 = `src/features/<폴더>/` 하나 = 경로 하나. 경로 · 메뉴 · 상단바 제목은 `src/app/routes.tsx` 한 곳에서 정한다. 화면 코드는 경로별로 따로 내려받는다.
+화면 하나 = `src/features/<폴더>/` 하나 = 경로 하나. 메뉴 · 상단바 제목은 `src/app/screens.tsx`, 경로는 `src/app/routes.tsx` 에서 정한다. 화면 코드는 경로별로 따로 내려받는다.
+화면마다 고른 값(탭 · 필터 · 열린 상세)도 주소에 둬서, 새로고침하거나 링크를 공유해도 같은 화면이 열린다.
 
-| 경로 | 화면 | 폴더 |
-|---|---|---|
-| `/server-map` (첫 화면) | 서버맵 | `features/server-map` |
-| `/transactions` | 트랜잭션 (스캐터 · 목록 · 콜트리 드로어) | `features/transactions` |
-| `/inspector` | 인스펙터 | `features/inspector` |
-| `/errors` | 에러 | `features/errors` |
-| `/logs` | 로그 | `features/logs` |
-| `/alerts` | 경보 (이벤트 · 규칙 · 채널) | `features/alerts` |
-| `/settings` | 설정 | `features/settings` |
-| `/platform` | 플랫폼 상태 | `features/platform` |
-| `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `features/login` |
-| `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | `app/DesignSystemPreview.tsx` |
+| 경로 | 화면 | 주소에 두는 값 | 폴더 |
+|---|---|---|---|
+| `/server-map` (첫 화면) | 서버맵 — 서비스 그래프 · 고른 노드의 호출 수 · 응답시간 스캐터 · 상위 URL · 발화 중 경보 띠 | `service` | `features/server-map` |
+| `/transactions` | 트랜잭션 — 스캐터/히트맵 드래그 → 목록 · URL 통계 | `tab` | `features/transactions` |
+| `/inspector` | 인스펙터 — 파드 목록 · CPU/힙/GC/스레드 차트 · 지표 추가 · **스레드 덤프 탭**(요청 모달 · 스레드 표 · 스택) | `agent` `status` `m` `tab=dumps` `dump` `dagent` `period` | `features/inspector` |
+| `/errors` | 에러 — 시간대별 에러 막대(누르면 표가 그 칸만) · 실패 스팬 표 | `agent` `status` `exception` `at` | `features/errors` |
+| `/logs` | 로그 — 레벨 · 로거 · trace_id · 검색어 · 더 보기 | `agent` `level` `logger` `trace_id` `q` | `features/logs` |
+| `/alerts` | 경보 — 이벤트(상세 드로어 · 발송 이력) · 규칙(켜기/끄기 · 만들기/수정) · 채널(테스트 발송) | `tab` `state` `severity` `event` `enabled` `rule` `type` `channel` | `features/alerts` |
+| `/settings` | 설정 — 감시 대상 서비스 · 샘플링률(낙관적 잠금) · 에이전트 부착 · 계정 | `app` | `features/settings` |
+| `/platform` | 플랫폼 상태 — 카나리 신선도 · 우리 서비스 6개 · 카나리 이벤트 (+ 모든 화면 사이드바 파수꾼 카드) | — | `features/platform` |
+| (모든 화면) | 트레이스 상세 드로어 — 스팬 트리 · 타임라인 · 스팬 상세 · 연결 로그 | `trace` | `features/trace-detail` · `shared/trace` |
+| `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `next` `expired` | `features/login` |
+| `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | — | `app/DesignSystemPreview.tsx` |
 
 화면 규칙
 
@@ -147,6 +163,7 @@ const c = chartColors()
 |---|---|
 | `VITE_API_BASE` | API 주소 앞부분 (기본 `/api/v1`) |
 | `VITE_API_MOCK` | `true` 면 개발 서버에서 가짜 응답 사용 (기본 `false`) |
+| `VITE_COLLECTOR_ENDPOINT` | 설정 화면 「에이전트 부착」 명령에 보이는 수집기 OTLP 주소 (기본 `https://collector.monimo.dev:4317`) |
 
 ## 포트
 
