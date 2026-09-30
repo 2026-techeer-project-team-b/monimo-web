@@ -17,18 +17,25 @@ import { statsHandlers } from './stats'
 import { traceDetailHandlers } from './traceDetail'
 import { tracesHandlers } from './traces'
 
-// refresh → user_uuid. 실제 서버처럼 새로고침 뒤에도 남도록 sessionStorage 에 둔다 (가짜 응답 전용)
+// refresh → user_uuid. 실제 서버처럼 새로고침 뒤에도 남도록 sessionStorage 에 둔다 (가짜 응답 전용).
+// 테스트(Node)에는 sessionStorage 가 없어서 메모리 Map 을 대신 쓴다
 const MOCK_REFRESH_KEY = 'monimo.mock.refresh_tokens'
+const memory = new Map<string, string>()
+const store = {
+  getItem: (k: string) => (typeof sessionStorage === 'undefined' ? (memory.get(k) ?? null) : sessionStorage.getItem(k)),
+  setItem: (k: string, v: string) => (typeof sessionStorage === 'undefined' ? void memory.set(k, v) : sessionStorage.setItem(k, v)),
+  removeItem: (k: string) => (typeof sessionStorage === 'undefined' ? void memory.delete(k) : sessionStorage.removeItem(k)),
+}
 const refreshTokens = {
-  read: (): Record<string, string> => JSON.parse(sessionStorage.getItem(MOCK_REFRESH_KEY) ?? '{}'),
+  read: (): Record<string, string> => JSON.parse(store.getItem(MOCK_REFRESH_KEY) ?? '{}'),
   get: (token: string) => refreshTokens.read()[token],
-  set: (token: string, userUuid: string) => sessionStorage.setItem(MOCK_REFRESH_KEY, JSON.stringify({ ...refreshTokens.read(), [token]: userUuid })),
+  set: (token: string, userUuid: string) => store.setItem(MOCK_REFRESH_KEY, JSON.stringify({ ...refreshTokens.read(), [token]: userUuid })),
   delete: (token: string) => {
     const all = refreshTokens.read()
     delete all[token]
-    sessionStorage.setItem(MOCK_REFRESH_KEY, JSON.stringify(all))
+    store.setItem(MOCK_REFRESH_KEY, JSON.stringify(all))
   },
-  clear: () => sessionStorage.removeItem(MOCK_REFRESH_KEY),
+  clear: () => store.removeItem(MOCK_REFRESH_KEY),
 }
 
 /** 개발 중 흐름 시험용 (브라우저 콘솔에서 __monimoMock.expireAccess() 등) */

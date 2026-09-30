@@ -12,7 +12,7 @@ type Props = {
 
 const short = (iso?: string) => (iso ? `${new Date(iso).toLocaleDateString('sv-SE').slice(5)} ${formatTime(iso).slice(0, 5)}` : '—')
 
-/** 왼쪽 감시 대상 서비스 표 — 누르면 오른쪽이 그 서비스로 바뀐다 */
+/** 왼쪽 감시 대상 서비스 표 — 누르면 오른쪽이 그 서비스로 바뀐다. 파드 수는 목록 응답에 없어 상세에서 보여 준다 */
 export function ServiceTable({ apps, isError, selectedId, onSelect, onCreate }: Props) {
   return (
     <TableCard
@@ -42,7 +42,6 @@ export function ServiceTable({ apps, isError, selectedId, onSelect, onCreate }: 
             <TableRow>
               <TableHeaderCell>name</TableHeaderCell>
               <TableHeaderCell>표시명</TableHeaderCell>
-              <TableHeaderCell align="right">파드</TableHeaderCell>
               <TableHeaderCell align="right">수정</TableHeaderCell>
             </TableRow>
           </TableHead>
@@ -51,7 +50,6 @@ export function ServiceTable({ apps, isError, selectedId, onSelect, onCreate }: 
               <TableRow key={a.application_uuid} onClick={() => onSelect(a.application_uuid)} selected={a.application_uuid === selectedId} aria-label={`${a.name} 설정 보기`}>
                 <TableCell type="mono">{a.name}</TableCell>
                 <TableCell>{a.display_name || <span className="st-muted">—</span>}</TableCell>
-                <TableCell type="number">{a.agent_count ?? '—'}</TableCell>
                 <TableCell type="mono" className="st-right st-muted">
                   {short(a.updated_at)}
                 </TableCell>

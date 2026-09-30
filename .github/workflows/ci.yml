@@ -26,5 +26,7 @@ jobs:
       - run: npm ci
       - name: 코드 검사 (design-system 경계 포함)
         run: npm run lint
+      - name: 테스트 (계산 로직 + 가짜 응답 ↔ 명세 계약)
+        run: npm test
       - name: 타입 검사 + 빌드
         run: npm run build
