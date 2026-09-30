@@ -49,6 +49,7 @@ src/
 npm install
 npm run dev      # http://localhost:5173
 npm run lint     # 코드 검사 (design-system 경계 포함)
+npm test         # 테스트 (아래 「테스트」)
 npm run build    # 타입 검사 + 빌드
 ```
 
@@ -76,6 +77,19 @@ VITE_API_MOCK=true npm run dev
 | `__monimoMock.canaryStale(true)` | 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리 늦음)로. `false` 면 원래대로 |
 
 ⚠️ **제안 문**: 플랫폼 상태가 부르는 `GET /platform/canary` · `/platform/services` · `/platform/canary/events` 는 백엔드 명세(api-spec)에 아직 없다 (api-map.md 하단 제안 #51~#53). 4단계 전에 확정이 필요하다.
+
+## 테스트
+
+`npm test` 는 브라우저 없이 Node 에서 돈다 (vitest). CI 에서도 PR 마다 돈다. 두 종류가 있다.
+
+| 종류 | 파일 | 확인하는 것 |
+|---|---|---|
+| 계약 테스트 | `src/api/contract.test.ts` | 화면이 쓰는 API 함수를 가짜 응답에 실제로 보내 보고, 돌아온 값에 api-spec 「응답 주요 필드」의 이름이 다 있는지. 오류 코드(401 · 403 · 409 · 422 · 503)도 명세대로 오는지 |
+| 계산 테스트 | `src/features/**/<이름>.test.ts` | 화면 안의 순수 계산: 스레드 덤프 읽기, 규칙 · 채널 입력 검사, 에러 막대 모으기, 드래그 선택, 지표 단위 |
+
+- 명세가 바뀌면 계약 테스트의 필드 목록부터 고친다. 가짜 응답이 따라오지 않으면 테스트가 깨져서 바로 보인다.
+- 명세에 없는 값(이슈 #60 의 프론트 가정)은 테스트 이름에 「가정」 이라고 적어 두었다. 백엔드 답이 오면 그 줄을 먼저 본다.
+- 실서버로 바꿀 때는 같은 필드 목록을 실서버 응답에 대 보면 된다.
 
 ## 상단바 공통 상태 (서비스 · 시간 범위 · 새로고침)
 
