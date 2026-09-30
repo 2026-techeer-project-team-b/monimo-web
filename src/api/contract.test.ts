@@ -97,12 +97,13 @@ describe('인증', () => {
 })
 
 describe('서비스 · 설정', () => {
-  it('GET /applications 목록과 상세', async () => {
+  it('GET /applications 목록과 상세 (파드 수는 상세에만)', async () => {
     const apps = await listApplications()
     expect(apps.length).toBeGreaterThan(0)
-    const fields = ['application_uuid', 'name', 'display_name', 'description', 'created_at', 'updated_at', 'agent_count']
+    const fields = ['application_uuid', 'name', 'display_name', 'description', 'created_at', 'updated_at']
     expect(missing(apps[0], fields)).toEqual([])
-    expect(missing(await getApplication(apps[0].application_uuid), fields)).toEqual([])
+    expect(apps[0]).not.toHaveProperty('agent_count')
+    expect(missing(await getApplication(apps[0].application_uuid), [...fields, 'agent_count'])).toEqual([])
   })
 
   it('GET /applications/{uuid}/config', async () => {
@@ -122,18 +123,25 @@ describe('서비스 · 설정', () => {
     expect(next.sampling_rate).toBe(0.2)
   })
 
-  it('서비스 등록 · 이름 중복 409 APPLICATION_NAME_TAKEN · 제외', async () => {
+  it('서비스 등록은 설정(샘플링 1 %, v1)을 같이 만들고, 이름이 겹치면 409 APPLICATION_NAME_TAKEN', async () => {
     await expectApiError(createApplication({ name: SERVICE, display_name: '', description: '' }), 409, 'APPLICATION_NAME_TAKEN')
-    const a = await createApplication({ name: 'contract-test-svc', display_name: '계약', description: '' })
+    const a = await createApplication({ name: 'contract-test-svc', display_name: '', description: '' })
     expect(a.name).toBe('contract-test-svc')
+    // 빈 표시명은 null 로 저장된다
+    expect(a.display_name).toBeNull()
+    const c = await getApplicationConfig(a.application_uuid)
+    expect({ rate: c.sampling_rate, version: c.version }).toEqual({ rate: 0.01, version: 1 })
+    await deleteApplication(a.application_uuid)
+  })
+
+  it('제외는 논리 삭제 — 딸린 규칙이 있어도 되고, 목록 · 조회에서 빠지고, 같은 이름은 다시 못 쓴다', async () => {
+    const a = await createApplication({ name: 'contract-test-del', display_name: '', description: '' })
     const del = await deleteApplication(a.application_uuid)
     expect(missing(del, ['application_uuid', 'result'])).toEqual([])
     expect(del.result).toBe('DELETED')
-  })
-
-  it('딸린 규칙이 있는 서비스는 제외하면 409 CONFLICT (가정: #60 서비스 제외 조건)', async () => {
-    const app = (await listApplications()).find((a) => a.name === SERVICE)!
-    await expectApiError(deleteApplication(app.application_uuid), 409, 'CONFLICT')
+    expect((await listApplications()).some((x) => x.application_uuid === a.application_uuid)).toBe(false)
+    await expectApiError(getApplication(a.application_uuid), 404, 'NOT_FOUND')
+    await expectApiError(createApplication({ name: 'contract-test-del', display_name: '', description: '' }), 409, 'APPLICATION_NAME_TAKEN')
   })
 })
 

@@ -34,7 +34,7 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
   const nameError = app
     ? null
     : taken
-      ? '이미 사용 중인 이름입니다 (409 APPLICATION_NAME_TAKEN)'
+      ? `${(save.error as ApiError).message} (409 APPLICATION_NAME_TAKEN)`
       : showErrors && !NAME.test(name.trim())
         ? '영문 소문자로 시작하고 소문자 · 숫자 · - 만 써서 3~100자로 적으세요.'
         : null
@@ -104,7 +104,7 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
   )
 }
 
-/** 감시 대상에서 제외(38번) 확인 모달. 딸린 규칙 · 바꾼 설정이 있으면 409 로 막힌다 */
+/** 감시 대상에서 제외 확인 모달. 논리 삭제라 규칙 · 파드 · 이력은 남고 목록 · 조회에서만 빠진다 */
 export function AppDeleteModal({ app, onClose, onDeleted }: { app: Application; onClose: () => void; onDeleted: () => void }) {
   const qc = useQueryClient()
   const { serviceName, setServiceName } = useFilters()
@@ -137,10 +137,10 @@ export function AppDeleteModal({ app, onClose, onDeleted }: { app: Application; 
         <p className="text-body-13">
           <span className="text-mono-12-strong">{app.name}</span> 을(를) 감시 대상에서 뺍니다. 서비스 목록 · 상단바에서 사라지고, 이미 쌓인 신호는 보관 기간까지 남습니다.
         </p>
-        <p className="text-caption-12 st-muted">딸린 경보 규칙이나 바꾼 설정이 있으면 409 CONFLICT 로 막힙니다. 규칙을 먼저 정리하세요.</p>
+        <p className="text-caption-12 st-muted">딸린 경보 규칙 · 파드 기록 · 설정은 지우지 않고 그대로 둡니다. 같은 이름으로는 다시 등록할 수 없습니다.</p>
         {del.isError ? (
           <Banner tone="crit">
-            {e?.code === 'CONFLICT' ? `${e.message} (409 CONFLICT)` : e?.code === 'FORBIDDEN' ? '관리자(ADMIN)만 제외할 수 있습니다.' : e ? `${e.message} (${e.code})` : '제외하지 못했습니다.'}
+            {e?.code === 'FORBIDDEN' ? '관리자(ADMIN)만 제외할 수 있습니다.' : e ? `${e.message} (${e.code})` : '제외하지 못했습니다.'}
           </Banner>
         ) : null}
       </div>

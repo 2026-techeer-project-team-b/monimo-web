@@ -5,8 +5,10 @@ export type Application = {
   application_uuid: string
   /** 명세의 service_name 과 같은 글자. 바뀌지 않는다 */
   name: string
-  display_name: string
-  description?: string
+  /** 비워 두면 null (백엔드는 빈 글자를 null 로 저장한다) */
+  display_name: string | null
+  description?: string | null
+  /** 상세(GET /applications/{uuid})에만 있다. 목록에는 없다 */
   agent_count?: number
   created_at?: string
   updated_at?: string
@@ -22,7 +24,7 @@ export function getApplication(uuid: string, signal?: AbortSignal): Promise<Appl
   return api.get<Application>(`/applications/${encodeURIComponent(uuid)}`, { signal })
 }
 
-/** 등록(13번). name 은 수집기가 받는 otel.service.name 과 같은 글자여야 하고, 겹치면 409 APPLICATION_NAME_TAKEN */
+/** 등록. name 은 수집기가 받는 otel.service.name 과 같은 글자여야 하고, 겹치면(제외한 서비스 이름 포함) 409 APPLICATION_NAME_TAKEN. 설정 한 줄(샘플링 1 %, v1)이 같이 생긴다 */
 export function createApplication(body: { name: string; display_name: string; description: string }): Promise<Application> {
   return api.post<Application>('/applications', body)
 }
@@ -32,7 +34,7 @@ export function updateApplication(uuid: string, body: { display_name: string; de
   return api.patch<Application>(`/applications/${encodeURIComponent(uuid)}`, body)
 }
 
-/** 감시 대상에서 제외(38번). 딸린 규칙 · 설정이 있으면 409 CONFLICT */
+/** 감시 대상에서 제외. 논리 삭제라 규칙 · 파드 · 이력은 남고, 이후 목록 · 조회에서 빠진다. 같은 이름으로 다시 등록할 수 없다 */
 export function deleteApplication(uuid: string): Promise<{ application_uuid: string; result: 'DELETED' }> {
   return api.delete(`/applications/${encodeURIComponent(uuid)}`)
 }

@@ -41,7 +41,7 @@ export function ServiceDetail({ appId, onEdit, onDelete }: Props) {
             <Button variant="danger" onClick={onDelete}>
               감시 대상에서 제외
             </Button>
-            <span className="text-caption-12 st-muted">딸린 규칙 · 설정이 있으면 409 CONFLICT</span>
+            <span className="text-caption-12 st-muted">규칙 · 파드 · 이력은 남고 목록에서만 빠집니다</span>
           </div>
         </AdminOnly>
       </header>
