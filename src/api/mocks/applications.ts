@@ -56,6 +56,7 @@ export const applicationsHandlers = [
     if (denied) return denied
     const b = (await request.json().catch(() => null)) as { name?: unknown; display_name?: unknown; description?: unknown } | null
     const name = typeof b?.name === 'string' ? b.name.trim() : ''
+    // 백엔드 구현(#36)은 글자 수만 본다. 형식(영문 소문자 · 숫자 · -)은 화면(AppModals)이 먼저 막는다
     if (!name || name.length > 100) return fail(400, 'INVALID_REQUEST', 'name 은 1자 이상 100자 이하여야 합니다.')
     const existing = APPLICATIONS.find((a) => a.name === name)
     if (existing) return fail(409, 'APPLICATION_NAME_TAKEN', DELETED.has(existing.application_uuid) ? '감시 대상에서 제외된 서비스 이름입니다.' : '이미 사용 중인 이름입니다.')
@@ -99,6 +100,7 @@ export const applicationsHandlers = [
   http.get(`${API_BASE}/applications/:uuid/config`, ({ request, params }) => {
     const denied = unauthenticated(request)
     if (denied) return denied
+    // 백엔드 #36 에는 설정 문이 아직 없다. 명세의 "제외하면 조회에서 빠진다"를 따라 제외한 서비스의 설정도 404 로 둔다
     const c = find(params.uuid) && CONFIGS.get(String(params.uuid))
     return c ? ok(c) : notFound()
   }),
