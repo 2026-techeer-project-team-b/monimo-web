@@ -89,6 +89,8 @@ npm run build                    # 타입 검사 + 빌드
 
 화면별로 주소에 두는 값은 README 「화면 경로」 표에 있다.
 
+README 「AI 와 일한 방법」 절과 `docs/prompts/`(프롬프트 로그 — 코드와 같은 PR 에)를 두었다. 하네스 정본은 backend `docs/harness/README.md` 한 곳이고 여기서는 링크만 한다.
+
 ## 6. 지금 막혀 있는 것
 
 | 무엇 | 누가 풀어야 하나 | 안 풀면 |
