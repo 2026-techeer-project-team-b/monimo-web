@@ -56,11 +56,12 @@ npm run build                    # 타입 검사 + 빌드
 ## 3. 작업 흐름
 
 1. 이슈를 먼저 만든다. 라벨은 `area/<화면>` (labeler 가 PR 에도 붙인다).
-2. **브랜치는 항상 `origin/main` 에서 새로 판다.** `feat/<이슈번호>-<설명>` · `fix/…` · `docs/…`. 앞 PR 위에 쌓지 않는다. 스쿼시 머지라 쌓은 PR 의 커밋이 main 에 안 들어간 적이 있다 (#15 → #16).
+2. **브랜치는 항상 `origin/develop` 에서 새로 판다.** `feat/<이슈번호>-<설명>` · `fix/…` · `docs/…`. 앞 PR 위에 쌓지 않는다. 스쿼시 머지라 쌓은 PR 의 커밋이 main 에 안 들어간 적이 있다 (#15 → #16).
 3. 커밋은 `<타입>(<범위>): <요약> (#이슈)`. 타입은 feat · fix · docs · chore · refactor · test (PR 제목 접두어로 `type/*` 라벨이 붙는다).
 4. 확인: `npm run lint` · `npm test` · `npm run build` · 첫 화면 번들 · 가짜 응답으로 브라우저에서 ADMIN 과 VIEWER 둘 다.
 5. PR 본문에 무엇을 · 왜 · 어떻게 확인했는지(실제 수치), 명세와 다르게 정한 것, `closes #번호`.
-6. CI(`build` 안에 lint · test · build, 라벨 3종) 통과 뒤 스쿼시 머지. main 직접 push 는 막혀 있다.
+6. CI(`build` 안에 lint · test · build, 라벨 3종) 통과 뒤 스쿼시 머지. PR 의 base 는 `develop`(기본 브랜치)이고, `main` 은 배포 단위로 `develop` 에서 한 번에 올린다 (그때는 머지 커밋).
+7. `main` · `develop` 직접 push 는 막혀 있다.
 
 ## 4. 담당
 
