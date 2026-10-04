@@ -201,4 +201,4 @@ const c = chartColors()
 
 ## AI 와 일한 방법 (승조가 만든 부분)
 
-화면 담당은 4명 공동이지만, 지금까지의 코드(`#1` ~ `#66`, 2026-09-22 ~ 10-03)는 승조(`@SeungJo-02`)가 AI(Claude Code)와 함께 만들었다. 규칙은 [`AGENTS.md`](AGENTS.md), 절차 · 역할 분담 · 토큰 기준값 · AI 가 틀린 것과 잡은 방법은 `monimo-backend` 의 [`docs/harness/`](https://github.com/2026-techeer-project-team-b/monimo-backend/blob/HEAD/docs/harness/README.md)(정본, 한 곳에만 둔다), 이 레포에서 무엇을 어떻게 물었는지는 [`docs/prompts/`](docs/prompts/README.md) 에 있다. 다른 팀원이 작업을 시작하면 그 방식은 각자 적는다.
+화면 담당은 4명 공동이지만, 지금까지의 코드(`#1` ~ `#66`, 2026-09-22 ~ 10-03)는 승조(`@SeungJo-02`)가 AI(Claude Code)와 함께 만들었다. 규칙은 [`AGENTS.md`](AGENTS.md), 절차 · 역할 분담 · 토큰 기준값 · AI 가 틀린 것과 잡은 방법은 `monimo-backend` 의 [`docs/seungjo/harness.md`](https://github.com/2026-techeer-project-team-b/monimo-backend/blob/HEAD/docs/seungjo/harness.md)(정본, 한 곳에만 둔다), 이 레포에서 무엇을 어떻게 물었는지는 [`docs/prompts/`](docs/prompts/README.md) 에 있다. 다른 팀원이 작업을 시작하면 그 방식은 각자 적는다.
