@@ -46,7 +46,8 @@ import {
   setAlertRuleEnabled,
   testAlertChannel,
 } from '@/api'
-import { login, logout } from './auth'
+import { login, logout, restoreSession } from './auth'
+import { tokens } from './tokens'
 import { PASSWORD } from './mocks/common'
 import { handlers } from './mocks/handlers'
 
@@ -83,11 +84,22 @@ afterAll(async () => {
 })
 
 describe('인증', () => {
-  it('로그인은 access · refresh 토큰과 사용자를 준다 (POST /auth/login)', async () => {
+  it('로그인은 access 토큰과 사용자를 주고 refresh 는 쿠키로 심는다 (POST /auth/login)', async () => {
     await logout()
     const user = await login('admin@monimo.io', PASSWORD)
     expect(missing(user, ['user_uuid', 'email', 'name', 'role'])).toEqual([])
     expect(user.role).toBe('ADMIN')
+  })
+
+  it('access 가 사라져도 refresh 쿠키로 되살린다 (POST /auth/refresh 본문 없음)', async () => {
+    tokens.setAccess(null)
+    expect(await restoreSession()).toMatchObject({ email: 'admin@monimo.io' })
+  })
+
+  it('로그아웃하면 쿠키가 지워져 되살릴 수 없다', async () => {
+    await logout()
+    expect(await restoreSession()).toBeNull()
+    await login('admin@monimo.io', PASSWORD)
   })
 
   it('틀린 비밀번호는 401 UNAUTHENTICATED', async () => {

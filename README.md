@@ -73,7 +73,7 @@ VITE_API_MOCK=true npm run dev
 | 명령 | 하는 일 |
 |---|---|
 | `__monimoMock.expireAccess()` | access 토큰 만료 → 다음 요청이 401 → 자동 재발급 |
-| `__monimoMock.revokeRefresh()` | refresh 토큰도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
+| `__monimoMock.revokeRefresh()` | refresh 쿠키도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
 | `__monimoMock.canaryStale(true)` | 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리 늦음)로. `false` 면 원래대로 |
 
 ⚠️ **제안 문**: 플랫폼 상태가 부르는 `GET /platform/canary` · `/platform/services` · `/platform/canary/events` 는 백엔드 명세(api-spec)에 아직 없다 (api-map.md 하단 제안 #51~#53). 4단계 전에 확정이 필요하다.
@@ -138,7 +138,7 @@ const c = chartColors()
 
 백엔드 명세(monimo-backend `docs/design/web-v2/api-spec.md` §0)를 따른다.
 
-- `/login` 에서 로그인하면 access 토큰은 메모리, refresh 토큰은 localStorage 에 둔다. 모든 요청에 `Authorization: Bearer` 가 붙는다.
+- `/login` 에서 로그인하면 access 토큰은 메모리에 두고, refresh 토큰은 서버가 httpOnly 쿠키(`monimo_refresh`)로 심는다 — 화면은 갖지 않는다. 모든 요청에 `Authorization: Bearer` 가 붙고, 쿠키는 재발급 · 로그아웃에만 붙는다(같은 출처여야 한다. 개발은 vite 프록시).
 - 요청이 401 이면 refresh 로 한 번 재발급하고 다시 보낸다 (동시에 여러 개여도 재발급은 1번). 재발급도 실패하면 로그인 화면으로 가며 "세션 만료" 배너가 뜬다.
 - 로그인하지 않고 화면 주소로 들어오면 `/login?next=<원래 주소>` 로 가고, 로그인 뒤 원래 주소로 돌아온다.
 - 화면에서 역할은 `useAuth()` 의 `isAdmin`, ADMIN 전용 버튼은 `<AdminOnly>` 로 감싼다. **이건 화면을 가리는 편의 기능이고, 실제로 막는 것은 API 서버다.**
