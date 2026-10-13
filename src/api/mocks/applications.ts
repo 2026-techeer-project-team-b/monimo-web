@@ -7,7 +7,7 @@ import { http } from 'msw'
 import { API_BASE } from '../client'
 import type { Application, ApplicationConfig } from '../applications'
 import { AGENTS } from './agents'
-import { APPLICATIONS, currentUser, fail, notAdmin, ok, okPage, unauthenticated } from './common'
+import { APPLICATIONS, currentUser, fail, notAdmin, ok, okPage, unauthenticated, USERS } from './common'
 
 const CONFIGS = new Map<string, ApplicationConfig>(
   APPLICATIONS.map((a, i) => [
@@ -16,7 +16,7 @@ const CONFIGS = new Map<string, ApplicationConfig>(
       application_config_uuid: `c0f1a000-0000-4a00-9000-00000000000${i + 1}`,
       sampling_rate: [0.05, 0.01, 0.1, 0.02, 0.05][i],
       version: [3, 7, 2, 1, 4][i],
-      updated_by: i === 3 ? null : 'seungjo@monimo.io',
+      updated_by: i === 3 ? null : { user_uuid: USERS[0].user_uuid, name: USERS[0].name },
       updated_at: a.updated_at,
     },
   ]),
@@ -117,10 +117,10 @@ export const applicationsHandlers = [
     if (typeof b?.expected_version !== 'number') return fail(400, 'INVALID_REQUEST', 'expected_version 이 필요합니다.')
     if (a.name === 'shop-order' && !raced) {
       raced = true
-      Object.assign(c, { sampling_rate: 0.02, version: c.version + 1, updated_by: 'jihoon@monimo.io', updated_at: new Date().toISOString() })
+      Object.assign(c, { sampling_rate: 0.02, version: c.version + 1, updated_by: { user_uuid: '0b0e6a6e-1f00-4c1a-9a01-000000000003', name: '박지훈' }, updated_at: new Date().toISOString() })
     }
     if (b.expected_version !== c.version) return fail(409, 'CONFIG_VERSION_CONFLICT', `다른 사용자가 먼저 바꿨습니다. 현재 v${c.version}`)
-    Object.assign(c, { sampling_rate: Math.round(rate * 10000) / 10000, version: c.version + 1, updated_by: currentUser(request)!.email, updated_at: new Date().toISOString() })
+    Object.assign(c, { sampling_rate: Math.round(rate * 10000) / 10000, version: c.version + 1, updated_by: { user_uuid: currentUser(request)!.user_uuid, name: currentUser(request)!.name }, updated_at: new Date().toISOString() })
     return ok(c)
   }),
 ]

@@ -110,6 +110,8 @@ describe('서비스 · 설정', () => {
     const [app] = await listApplications()
     const c = await getApplicationConfig(app.application_uuid)
     expect(missing(c, ['application_config_uuid', 'sampling_rate', 'version', 'updated_by', 'updated_at'])).toEqual([])
+    // updated_by 는 메일이 아니라 { user_uuid, name } 객체이거나 null (backend ApplicationConfigDtos)
+    if (c.updated_by) expect(missing(c.updated_by, ['user_uuid', 'name'])).toEqual([])
     expect(c.sampling_rate).toBeGreaterThanOrEqual(0)
     expect(c.sampling_rate).toBeLessThanOrEqual(1)
   })
@@ -258,23 +260,23 @@ describe('경보', () => {
     expect(second.items[0].alert_event_uuid).not.toBe(first.items[0].alert_event_uuid)
   })
 
-  it('GET /alert-rules · 상세 · 켜기/끄기 (목록의 channels[] 는 가정)', async () => {
+  it('GET /alert-rules · 상세 · 켜기/끄기 (channels[] 는 상세에만)', async () => {
     const rule = (await listAlertRules()).items[0]
-    const fields = ['alert_rule_uuid', 'application_uuid', 'service_name', 'name', 'metric_kind', 'operator', 'threshold', 'window_sec', 'severity', 'enabled', 'channels']
+    const fields = ['alert_rule_uuid', 'application_uuid', 'service_name', 'name', 'metric_kind', 'operator', 'threshold', 'window_sec', 'severity', 'enabled']
     expect(missing(rule, fields)).toEqual([])
-    expect(missing(await getAlertRule(rule.alert_rule_uuid), fields)).toEqual([])
+    expect(rule).not.toHaveProperty('channels')
+    expect(missing(await getAlertRule(rule.alert_rule_uuid), [...fields, 'channels'])).toEqual([])
     const r = await setAlertRuleEnabled(rule.alert_rule_uuid, !rule.enabled)
     expect(missing(r, ['alert_rule_uuid', 'enabled', 'updated_at'])).toEqual([])
     expect(r.enabled).toBe(!rule.enabled)
     await setAlertRuleEnabled(rule.alert_rule_uuid, rule.enabled)
   })
 
-  it('GET /alert-channels · 테스트 발송 (목록의 config · last_test 는 가정)', async () => {
+  it('GET /alert-channels · 테스트 발송 (config 는 상세에만, 비밀값은 가려서)', async () => {
     const ch = (await listAlertChannels()).items
-    expect(missing(ch[0], ['alert_channel_uuid', 'name', 'type', 'enabled', 'config'])).toEqual([])
-    // 비밀값은 가려서 온다
+    expect(missing(ch[0], ['alert_channel_uuid', 'name', 'type', 'enabled'])).toEqual([])
+    expect(ch[0]).not.toHaveProperty('config')
     const slack = ch.find((c) => c.type === 'SLACK')!
-    expect(slack.config.webhook_url).toContain('••••')
     expect((await getAlertChannel(slack.alert_channel_uuid)).config.webhook_url).toContain('••••')
     const t = await testAlertChannel(slack.alert_channel_uuid)
     expect(missing(t, ['alert_channel_uuid', 'type', 'result', 'response', 'tested_at'])).toEqual([])
