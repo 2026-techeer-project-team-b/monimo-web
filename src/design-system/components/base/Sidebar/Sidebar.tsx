@@ -78,9 +78,9 @@ export type SidebarStatusCardProps = {
   /** Micro/11 제목. 예: 파수꾼 · 카나리 */
   title: string
   tone: Tone
-  /** Mono/12 값. 예: 12초 전 */
+  /** Mono/12 값. 예: 63초 전 */
   value: string
-  /** Caption/12 보조. 예: 정상 (기준 60초) */
+  /** Caption/12 보조. 예: 정상 (기준 180초) */
   caption?: string
 }
 

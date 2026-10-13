@@ -160,8 +160,11 @@ export function DistributionPanel(p: Props) {
           <span className="tx-scatter__hint">차트를 드래그해 사각형으로 긁으면 그 안의 요청이 아래 표에 나옵니다.</span>
         )}
       </div>
-      {view === 'scatter' && scatter?.mode === 'bucketed' ? (
-        <p className="tx-note text-caption-12">점이 많아 서버가 격자로 접었습니다(mode bucketed). 범위를 좁히거나 히트맵으로 보면 빠짐없이 셉니다.</p>
+      {view === 'scatter' ? (
+        <p className="tx-note text-caption-12">
+          limit 기본 5,000 · 최대 20,000 — 넘으면 서버가 격자로 접어 mode 가 bucketed 로 바뀝니다 · 점 1개 = 서비스가 받은 요청 1건(SERVER·CONSUMER 스팬) 이라 손님 요청 하나가 여러 점이 된다 (ADR #52) · GET /traces/scatter
+          {scatter?.mode === 'bucketed' ? ' · 범위를 좁히거나 히트맵으로 보면 빠짐없이 셉니다.' : ''}
+        </p>
       ) : null}
       {failed && !data ? (
         <p className="tx-empty text-body-13" role="alert">응답시간 분포를 불러오지 못했습니다.</p>

@@ -24,7 +24,7 @@ const KIND_TONE: Record<CanaryEventKind, Tone> = { FRESH: 'ok', STALE: 'crit', D
 
 /** 카나리가 지나가는 길 — 각 단계가 무엇을 확인하는지. 단계별 통과 시각을 주는 문은 아직 없다 */
 const PATH: { name: string; sub: string; note?: string; outside?: boolean }[] = [
-  { name: '파수꾼', sub: 'AWS Lambda', note: '30초마다 발사', outside: true },
+  { name: '파수꾼', sub: 'AWS Lambda', note: '1분마다 발사 · 이전 주기 카나리를 본다', outside: true },
   { name: '쇼핑몰 주문 API', sub: 'POST /orders', note: 'tracestate monimon=canary' },
   { name: 'OTel Agent', sub: 'shop-order 파드', note: '실제 요청과 같은 경로로 기록' },
   { name: '수집기', sub: 'gRPC 4317 · mTLS', note: '1% 샘플링 예외(전량 통과)' },
@@ -112,6 +112,7 @@ export function PlatformPage() {
         <p className="text-caption-12 pf-muted pf-path__foot">
           판정은 서비스마다 뛰는 하트비트가 아니라, 실제로 끝까지 관통한 카나리의 신선도(age_sec ≤ threshold_sec)입니다.
           {c && !c.fresh ? ' 어느 단계에서 막혔는지는 단계별 통과 시각 문이 없어 이 화면에서 짚을 수 없습니다 — 아래 우리 서비스 준비 상태를 먼저 보세요.' : ''}
+          {' '}24시간 안에 카나리가 없으면 fresh=false 로 옵니다.
         </p>
       </Card>
 
@@ -120,7 +121,9 @@ export function PlatformPage() {
           <h2 id="pf-services-title" className="text-section-15">
             우리 서비스 {services.data ? `${services.data.length}개` : ''}
           </h2>
-          <span className="text-caption-12 pf-muted">판정 기준 /readyz — 의존 저장소까지 닿아야 준비 완료 · GET /platform/services</span>
+          <span className="text-caption-12 pf-muted">
+            판정 GET /actuator/health/readiness (관리 포트 +10000) · 수집기·적재·API 는 저장소 미포함, 탐지·알림은 PG 포함 · GET /platform/services (제안 #52)
+          </span>
         </header>
         {services.isError && !services.data ? (
           <Card>
@@ -155,6 +158,22 @@ export function PlatformPage() {
                 </Card>
               </li>
             ))}
+            <li key="watchdog-lambda">
+              <Card className="pf-svc">
+                <div className="pf-svc__head">
+                  <StatusDot tone="muted" />
+                  <span className="text-mono-12-strong">파수꾼 (Lambda)</span>
+                  <StatusBadge tone="muted">외부</StatusBadge>
+                </div>
+                <div className="pf-svc__deps">
+                  <Badge tone="muted">Healthchecks.io 핑</Badge>
+                </div>
+                <div className="pf-svc__foot text-caption-12">
+                  <span>HTTP 없음</span>
+                  <span className="pf-muted">Healthchecks.io 핑 {c?.dms_last_ping_at ? hhmmss(c.dms_last_ping_at) : '—'}</span>
+                </div>
+              </Card>
+            </li>
           </ul>
         )}
       </section>
@@ -212,11 +231,11 @@ export function PlatformPage() {
           <dl className="pf-self__list">
             <div>
               <dt className="text-caption-12-medium">실행 위치</dt>
-              <dd className="text-body-13">AWS Lambda — 감시 대상 클러스터 바깥에서 돈다</dd>
+              <dd className="text-body-13">AWS Lambda — 감시 대상 클러스터 바깥에서 돈다 · 열어 둔 HTTP 포트 없음</dd>
             </div>
             <div>
               <dt className="text-caption-12-medium">주기</dt>
-              <dd className="text-body-13">30초</dd>
+              <dd className="text-body-13">1분 (EventBridge) · 발사 뒤 기다리지 않고 이전 주기 카나리를 본다</dd>
             </div>
             <div>
               <dt className="text-caption-12-medium">알림 경로</dt>
@@ -224,7 +243,7 @@ export function PlatformPage() {
             </div>
             <div>
               <dt className="text-caption-12-medium">Dead Man's Switch</dt>
-              <dd className="text-body-13">Healthchecks.io — 파수꾼이 죽으면 외부가 알린다</dd>
+              <dd className="text-body-13">Healthchecks.io — 매 주기 핑, 끊기면 외부가 알린다</dd>
             </div>
           </dl>
           <Banner tone="info">Dead Man's Switch 업체는 구현 때 다시 정합니다. 자체 호스팅으로 바꾸면 "외부가 우리를 본다"는 성질이 사라집니다.</Banner>

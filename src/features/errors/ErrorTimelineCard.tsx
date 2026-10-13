@@ -65,7 +65,7 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
       <div className="er-timeline__head">
         <div>
           <h2 className="text-section-15 er-title">시간대별 에러 건수</h2>
-          <p className="text-caption-12 er-muted">상태코드 대역으로 쌓고, 예외 타입은 오른쪽에서 고른다 · 막대를 누르면 표가 그 시간 칸만 보인다 · {formatTime(from).slice(0, 5)} ~ {formatTime(to).slice(0, 5)}</p>
+          <p className="text-caption-12 er-muted">상태코드 대역으로 쌓고, 예외 타입은 오른쪽에서 견준다 · SERVER 와 CLIENT 에러 스팬을 모두 센다(같은 실패가 두 줄로 보일 수 있다) · 1 % 샘플 · {formatTime(from).slice(0, 5)} ~ {formatTime(to).slice(0, 5)}</p>
         </div>
         {view ? (
           <dl className="er-kpis">
@@ -126,7 +126,7 @@ export function ErrorTimelineCard({ timeline, isError, from, to, exceptionType, 
           </aside>
         </div>
       )}
-      {view ? <p className="text-caption-12 er-muted er-foot">step {timeline!.step}초 · GET /errors/timeline</p> : null}
+      {view ? <p className="text-caption-12 er-muted er-foot">step {timeline!.step}초 (60의 배수) · GET /errors/timeline</p> : null}
     </Card>
   )
 }

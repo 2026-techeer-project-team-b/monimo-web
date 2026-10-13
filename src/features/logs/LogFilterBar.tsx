@@ -3,7 +3,9 @@ import { LOG_LEVELS, type Agent, type LogLevel } from '@/api'
 import { Button, Card, Chip, Input, Select, type ChipTone } from '@/design-system'
 import { EMPTY, type LogFilters } from './useLogFilters'
 
-const LEVEL_TONE: Partial<Record<LogLevel, ChipTone>> = { WARN: 'warn', ERROR: 'crit' }
+const LEVEL_TONE: Partial<Record<LogLevel, ChipTone>> = { WARN: 'warn', ERROR: 'crit', FATAL: 'crit' }
+// 등급 모름('')도 고를 수 있게 끝에 하나 더 둔다 — Chip 에 muted tone 이 없어 선택 안 한 default 모양을 그대로 쓴다
+const LEVEL_CHIPS = [...LOG_LEVELS, ''] as const
 
 type Props = { filters: LogFilters; agents: Agent[]; showAgents: boolean; onApply: (f: LogFilters) => void }
 
@@ -19,8 +21,8 @@ function Form({ filters, agents, showAgents, onApply }: Props) {
     e.preventDefault()
     onApply({ ...d, logger: d.logger.trim(), traceId: d.traceId.trim(), q: d.q.trim() })
   }
-  const toggleLevel = (lv: LogLevel, on: boolean) =>
-    setD({ ...d, levels: on ? LOG_LEVELS.filter((x) => x === lv || d.levels.includes(x)) : d.levels.filter((x) => x !== lv) })
+  const toggleLevel = (lv: LogLevel | '', on: boolean) =>
+    setD({ ...d, levels: on ? LEVEL_CHIPS.filter((x) => x === lv || d.levels.includes(x)) : d.levels.filter((x) => x !== lv) })
 
   return (
     <Card>
@@ -42,9 +44,9 @@ function Form({ filters, agents, showAgents, onApply }: Props) {
           <fieldset className="lg-field lg-levels">
             <legend className="text-caption-12-medium">level (여러 개 선택, 비우면 전체)</legend>
             <div className="lg-chips">
-              {LOG_LEVELS.map((lv) => (
-                <Chip key={lv} tone={LEVEL_TONE[lv] ?? 'default'} selected={d.levels.includes(lv)} onChange={(on) => toggleLevel(lv, on)}>
-                  {lv}
+              {LEVEL_CHIPS.map((lv) => (
+                <Chip key={lv || 'NONE'} tone={(lv && LEVEL_TONE[lv]) || 'default'} selected={d.levels.includes(lv)} onChange={(on) => toggleLevel(lv, on)}>
+                  {lv || '(없음)'}
                 </Chip>
               ))}
             </div>

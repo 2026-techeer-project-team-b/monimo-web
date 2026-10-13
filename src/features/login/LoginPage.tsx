@@ -116,7 +116,7 @@ export function LoginPage() {
             </div>
           </div>
           <p className="login__note text-caption-12-medium">
-            세션이 만료되면 자동으로 재발급합니다 (<span className="text-mono-11">POST /auth/refresh</span>). 재발급도 실패하면 이 화면으로 돌아옵니다.
+            세션이 만료되면 자동으로 재발급합니다 (<span className="text-mono-11">POST /auth/refresh — refresh 토큰은 httpOnly 쿠키로 받고 쓸 때마다 새것으로 바뀝니다</span>). 재발급도 실패하면 이 화면으로 돌아옵니다.
           </p>
         </div>
       </div>

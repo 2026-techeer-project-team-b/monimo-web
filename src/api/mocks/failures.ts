@@ -29,10 +29,6 @@ const CATALOG: Record<string, Row[]> = {
     [3, 500, 'SQLTimeoutException', 'Statement cancelled due to timeout (stock_reserve)'],
     [2, 409, 'OutOfStockException', 'sku 88213 has 0 left'],
   ],
-  'shop-user': [
-    [3, 401, 'HttpClientErrorException', '401 Unauthorized: session not found'],
-    [1, 404, 'UserNotFoundException', 'user 51920 not found'],
-  ],
 }
 const FALLBACK: Row[] = [[1, 500, 'RuntimeException', 'unexpected error']]
 

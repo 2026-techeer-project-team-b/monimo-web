@@ -15,7 +15,7 @@ export function SpanDetail({ id, span, index }: Props) {
     ['agent_key', span.agent_key],
     ['span_kind', span.span_kind],
     ['status_code', <span key="status" className={error ? 'td-crit' : undefined}>{span.status_code}</span>],
-    ['http.status_code', span.http_status == null ? '—' : <Badge key="http" tone={httpStatusTone(span.http_status)} className="text-mono-11">{span.http_status}</Badge>],
+    ['http.response.status_code', span.http_status == null ? '—' : <Badge key="http" tone={httpStatusTone(span.http_status)} className="text-mono-11">{span.http_status}</Badge>],
     ['duration_ns', `${span.duration_ns.toLocaleString('en-US')} (${fmtMs(spanMs(span))})`],
     ['start_time', formatTime(span.start_time)],
   ]

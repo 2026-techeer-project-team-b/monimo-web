@@ -288,7 +288,7 @@ describe('플랫폼 상태 (제안 문 #51~#53 · 명세 미확정)', () => {
   it('GET /platform/canary · services · canary/events', async () => {
     expect(missing(await getCanary(), ['service_name', 'last_signal_at', 'age_sec', 'threshold_sec', 'fresh'])).toEqual([])
     const svc = await listPlatformServices()
-    expect(svc).toHaveLength(6)
+    expect(svc).toHaveLength(5)
     expect(missing(svc[0], ['service_name', 'ready', 'deps', 'pod_count', 'checked_at'])).toEqual([])
     const ev = await listCanaryEvents({ from, to })
     expect(missing(ev.items[0], ['ts', 'kind', 'age_sec', 'threshold_sec', 'action'])).toEqual([])

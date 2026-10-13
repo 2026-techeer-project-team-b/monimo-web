@@ -1,7 +1,8 @@
 // 플랫폼 상태 (S10 · 사이드바 파수꾼 카드).
 // ⚠️ 제안 문 — 명세에 아직 없다 (api-map.md 하단 #51~#53 · review-1.md F1~F4). 백엔드 확정 뒤 필드 이름이 바뀔 수 있다.
 //   #51 GET /platform/canary        — 내부 문 #4(/internal/canary/freshness)를 화면용(VIEWER+)으로 다시 연 것 + Dead Man's Switch 마지막 핑
-//   #52 GET /platform/services      — API 서버가 우리 서비스 6개의 /readyz 를 대신 훑어 한 번에 준다
+//   #52 GET /platform/services      — API 서버가 우리 서비스 5개의 /actuator/health/readiness(관리 포트 = 업무 포트 + 10000;
+//                                     수집기·적재·API 는 저장소를 보지 않고 탐지·알림은 PG 까지 본다)를 대신 훑어 한 번에 준다
 //   #53 GET /platform/canary/events — 파수꾼 판정 이력 (근거 표 canary_events 도 ERD 에 아직 없다)
 import { api, type Page } from './client'
 
@@ -20,7 +21,7 @@ export function getCanary(signal?: AbortSignal): Promise<CanaryFreshness> {
   return api.get<CanaryFreshness>('/platform/canary', { signal })
 }
 
-/** 우리 서비스 하나의 준비 상태 — /readyz 가 의존 저장소까지 닿아야 ready */
+/** 우리 서비스 하나의 준비 상태 — /actuator/health/readiness 가 UP 이면 ready (탐지·알림은 PG 까지 닿아야 UP) */
 export type PlatformService = {
   service_name: string
   ready: boolean

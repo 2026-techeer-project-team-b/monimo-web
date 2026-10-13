@@ -1,6 +1,7 @@
 // 플랫폼 상태 가짜 응답 — ⚠️ 제안 문 #51~#53 (명세 미확정, src/api/platform.ts 머리 주석 참고).
-// 파수꾼이 30초마다 카나리를 쏘고 약 12초 뒤 조회 가능해진다고 보고, 지금 시각으로 신선도를 계산한다.
-// 매시 54분대 1분은 파이프라인이 밀린 것처럼 STALE(74초), 53분에는 Dead Man's Switch 핑이 한 번 빠진다.
+// 파수꾼(Lambda)은 EventBridge 로 1분마다 돈다. 카나리를 쏘고 기다리지 않은 채 직전 주기에 쏜 카나리를 조회하므로
+// 정상일 때 나이는 60~69초, 기준은 180초(MONIMO_CANARY_THRESHOLD_SEC 기본값). 지금 시각으로 신선도를 계산한다.
+// 매시 54분대 1분은 파이프라인이 밀린 것처럼 STALE(214초), 53분에는 Dead Man's Switch 핑이 한 번 빠진다.
 // 콘솔에서 __monimoMock.canaryStale(true) 로 언제든 STALE 로 바꿀 수 있다
 import { http } from 'msw'
 import { API_BASE } from '../client'
@@ -9,8 +10,8 @@ import { ok, okPage, timeRange, unauthenticated } from './common'
 
 const SEC = 1000
 const MIN = 60 * SEC
-const THRESHOLD = 60
-const PERIOD = 30 * SEC
+const THRESHOLD = 180
+const PERIOD = 60 * SEC
 
 let forcedStale = false
 export const setCanaryStale = (on: boolean) => {
@@ -21,12 +22,13 @@ const staleWindow = (t: number) => new Date(t).getUTCMinutes() === 54
 
 /** 시각 t 에 본 카나리 나이(초) */
 function ageAt(t: number): number {
-  if (staleWindow(t)) return 74
-  return 9 + Math.floor((t % PERIOD) / SEC) % 6
+  if (staleWindow(t)) return 214
+  // 직전 주기(60초 전)에 쏜 카나리 + 적재까지 0~9초
+  return 60 + (Math.floor((t % PERIOD) / SEC) % 10)
 }
 
 function freshness(now: number): CanaryFreshness {
-  const age = forcedStale ? 95 : ageAt(now)
+  const age = forcedStale ? 250 : ageAt(now)
   return {
     service_name: 'shop-order',
     last_signal_at: new Date(now - age * SEC).toISOString(),
@@ -38,6 +40,7 @@ function freshness(now: number): CanaryFreshness {
   }
 }
 
+// 파수꾼(monimo-watchdog)은 HTTP 문이 없는 Lambda 라 이 목록에 없다. 화면이 파수꾼 카드를 따로 그린다
 function services(now: number): PlatformService[] {
   const rows: [string, boolean, string[], number, number, string?][] = [
     ['monimo-api', true, ['PostgreSQL', 'ClickHouse'], 3, 2],
@@ -45,7 +48,6 @@ function services(now: number): PlatformService[] {
     ['monimo-ingest', true, ['Kafka', 'ClickHouse'], 2, 3],
     ['monimo-detector', true, ['PostgreSQL'], 2, 2],
     ['monimo-notifier', false, ['PostgreSQL'], 2, 4, '알림 실패 2건'],
-    ['monimo-watchdog', true, ['외부 웹훅 도달'], 1, 0],
   ]
   return rows.map(([service_name, ready, deps, pod_count, agoSec, note]) => ({
     service_name,
@@ -58,9 +60,9 @@ function services(now: number): PlatformService[] {
   }))
 }
 
-/** 90초마다 판정 한 줄. STALE 이면 Slack 직접 발송, 매시 53분에는 DMS_MISSED 한 줄 */
+/** 1분마다 판정 한 줄(파수꾼 한 번 = 판정 한 번). STALE 이면 Slack 직접 발송, 매시 53분에는 DMS_MISSED 한 줄 */
 function events(from: number, to: number): CanaryEvent[] {
-  const step = 90 * SEC
+  const step = 60 * SEC
   const out: CanaryEvent[] = []
   for (let t = Math.floor(to / step) * step; t >= from && out.length < 2000; t -= step) {
     const age = ageAt(t)
