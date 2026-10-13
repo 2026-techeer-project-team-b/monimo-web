@@ -103,11 +103,16 @@ function Body({ agent, onClose, onDone }: Props & { agent: NonNullable<Props['ag
 
         <ol className="in-steps" aria-label="진행 단계">
           <StepItem n={1} state={s1} title="API 서버 접수" desc={sentAt ? `${formatTime(sentAt).slice(0, 8)} · 요청자 ${user?.email ?? ''}` : '요청을 누르면 시작합니다'} />
-          <StepItem n={2} state={s2} title="수집기 팬아웃" desc="POST /internal/thread-dump · 수집기 전체에 동시에 묻는다" />
-          <StepItem n={3} state={s3} title="Extension 덤프 회수" desc="파드를 든 수집기 한 대가 덤프를 떠서 같은 길로 되돌려 보낸다" />
+          <StepItem
+            n={2}
+            state={s2}
+            title="수집기 팬아웃 중"
+            desc="POST /internal/thread-dump · MONIMO_COLLECTOR_URLS 의 수집기 전부에 동시 질의 (수집기는 어느 파드가 어디 붙었는지 모른다)"
+          />
+          <StepItem n={3} state={s3} title="Extension 덤프 회수" desc="파드의 폴링을 쥔 수집기 한 대만 200 으로 덤프를 되돌린다 · 전부 503 이면 1회 재시도" />
         </ol>
 
-        <p className="text-caption-12 in-muted">파드를 든 수집기가 없으면 503 AGENT_NOT_REACHABLE, 시간 초과면 503 THREAD_DUMP_TIMEOUT</p>
+        <p className="text-caption-12 in-muted">200 이 한 대도 없으면 503 AGENT_NOT_REACHABLE, 한 대라도 시간 초과면 503 THREAD_DUMP_TIMEOUT</p>
 
         {lastFail ? (
           <Banner tone="crit">

@@ -14,7 +14,7 @@ export type Application = {
   updated_at?: string
 }
 
-/** 서비스 전체 (상한 5~6개라 한 쪽이면 다 온다) */
+/** 서비스 전체 (상한 4~5개라 한 쪽이면 다 온다) */
 export async function listApplications(): Promise<Application[]> {
   const page = await api.getPage<Application>('/applications', { query: { limit: 500 } })
   return page.items

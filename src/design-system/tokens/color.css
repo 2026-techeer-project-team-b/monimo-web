@@ -104,7 +104,7 @@
   --color-service-3: var(--orange-600); /* shop-inventory */
   --color-service-4: var(--purple-600); /* 예비 · 6번째 노드 */
   --color-service-5: var(--pink-600);   /* shop-payment */
-  --color-service-6: var(--olive-600);  /* shop-user */
+  --color-service-6: var(--olive-600);  /* 예비 (5번째 쇼핑몰 서비스) */
 }
 
 /*

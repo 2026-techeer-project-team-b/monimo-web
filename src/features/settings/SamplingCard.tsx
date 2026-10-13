@@ -127,7 +127,9 @@ export function SamplingCard({ appId }: { appId: string }) {
 
       <footer className="st-sampling__foot">
         <span className="text-caption-12 st-muted">
-          {changed ? `트레이스 100건 중 약 ${fmtPct(pct)}건을 남깁니다 (지금 ${fmtPct(current)}건)` : '값을 바꾸면 여기에 영향이 나옵니다'}
+          {changed
+            ? `트레이스 100건 중 약 ${fmtPct(pct)}건을 남깁니다 (지금 ${fmtPct(current)}건) · 서비스별 비율 중 최댓값만 수집기가 쓴다 (ADR #53)`
+            : `트레이스 100건 중 약 ${fmtPct(current)}건 저장 · 서비스별 비율 중 최댓값만 수집기가 쓴다 (ADR #53)`}
         </span>
         {isAdmin ? (
           <span className="st-sampling__actions">

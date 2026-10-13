@@ -1,7 +1,7 @@
 // 로그 검색 (api-spec 35번 GET /logs, VIEWER+). 로그 화면 · 트레이스 드로어 연결 로그가 쓴다
 import { api, type Page } from './client'
 
-export const LOG_LEVELS = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'] as const
+export const LOG_LEVELS = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'] as const
 export type LogLevel = (typeof LOG_LEVELS)[number]
 
 export type LogLine = {
@@ -9,7 +9,8 @@ export type LogLine = {
   ts: string
   service_name: string
   agent_key: string
-  level: LogLevel
+  /** 닫힌 집합 TRACE~FATAL. 등급을 알 수 없으면 빈 글자 (ADR #59) */
+  level: LogLevel | ''
   /** 기록한 클래스 */
   logger: string
   thread: string
@@ -26,8 +27,8 @@ export type LogsQuery = {
   from: string
   to: string
   agentKey?: string
-  /** 여러 개면 쉼표로 이어 보낸다 (명세는 level? 하나만 적혀 있어 백엔드 확인 필요) */
-  levels?: LogLevel[]
+  /** 여러 개면 쉼표로 이어 보낸다. 대소문자 무관, 닫힌 집합(TRACE~FATAL) 밖이면 400, 등급 모름은 '' (ADR #59) */
+  levels?: (LogLevel | '')[]
   logger?: string
   traceId?: string
   /** 본문 검색어 */

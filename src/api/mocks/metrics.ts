@@ -22,7 +22,8 @@ type Def = {
 const DEFS: Record<string, Def> = {
   'jvm.cpu.recent_utilization': { lines: [{}], value: (r, w, s) => Math.min(0.98, 0.3 + w * 0.08 + r * 0.06 + (s ? 0.2 : 0)), spread: 0.25 },
   'jvm.memory.used{heap}': { lines: [{ 'jvm.memory.type': 'heap' }], value: (r, w, s) => (1150 + w * 180 + r * 90 + (s ? 250 : 0)) * MB, spread: 0.12 },
-  'jvm.gc.duration': { lines: [{}], value: (r, _w, s) => (s ? 88 + r * 20 : 22 + r * 28), spread: 0.3 },
+  // 백엔드는 히스토그램을 .count · .sum · .min · .max 로 펴서 저장한다. GC 시간은 합(.sum)
+  'jvm.gc.duration.sum': { lines: [{}], value: (r, _w, s) => (s ? 88 + r * 20 : 22 + r * 28), spread: 0.3 },
   'jvm.thread.count': { lines: [{}], value: (r, w) => Math.round(128 + w * 14 + r * 6), spread: 0.05 },
   'process.cpu.utilization': { lines: [{}], value: (r, w) => 0.34 + w * 0.08 + r * 0.05, spread: 0.2 },
   'jvm.memory.used{non_heap}': { lines: [{ 'jvm.memory.type': 'non_heap' }], value: (r, w) => (182 + w * 6 + r * 3) * MB, spread: 0.02 },

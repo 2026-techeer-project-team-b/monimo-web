@@ -26,10 +26,6 @@ const HOUR: Record<string, Row[]> = {
     ['GET /api/v1/stock/{sku}', 6300, 3, 21, 70, 140],
     ['POST /api/v1/stock/reserve', 2920, 11, 55, 180, 350],
   ],
-  'shop-user': [
-    ['GET /api/v1/users/{userId}', 4210, 2, 12, 34, 70],
-    ['GET /api/v1/users/me', 1930, 1, 10, 30, 62],
-  ],
 }
 
 export const statsHandlers = [
