@@ -86,7 +86,7 @@ export function PlatformPage() {
           </div>
           <div>
             <dt className="text-caption-12-medium">Dead Man's Switch 마지막 핑</dt>
-            <dd className={`text-number-28${dmsAgo !== null && dmsAgo > 150 ? ' pf-warn' : ''}`}>{dmsAgo === null ? '—' : `${dmsAgo}초 전`}</dd>
+            <dd className={`text-number-28${dmsAgo !== null && dmsAgo > 90 ? ' pf-warn' : ''}`}>{dmsAgo === null ? '—' : `${dmsAgo}초 전`}</dd>
             <span className="text-caption-12 pf-muted">파수꾼 자신이 살아 있는지</span>
           </div>
         </dl>
