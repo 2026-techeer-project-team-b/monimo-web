@@ -7,7 +7,8 @@ export type Role = 'ADMIN' | 'VIEWER'
 export type User = {
   user_uuid: string
   email: string
-  name: string
+  /** 서버가 이름 없이 만든 계정이면 null */
+  name: string | null
   role: Role
   created_at?: string
 }

@@ -17,8 +17,8 @@ export function UserMenu() {
   return (
     <div className="user-menu" ref={rootRef}>
       <button ref={triggerRef} type="button" className="user-menu__chip" aria-expanded={open} aria-controls={panelId} onClick={toggle}>
-        <span aria-hidden className="user-menu__avatar text-caption-12-medium">{user.name.slice(0, 1)}</span>
-        <span className="user-menu__name text-body-13">{user.name}</span>
+        <span aria-hidden className="user-menu__avatar text-caption-12-medium">{(user.name ?? user.email).slice(0, 1)}</span>
+        <span className="user-menu__name text-body-13">{user.name ?? user.email}</span>
         <Badge tone="accent">{user.role}</Badge>
       </button>
       {open ? (

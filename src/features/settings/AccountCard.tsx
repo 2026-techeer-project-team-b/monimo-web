@@ -8,11 +8,11 @@ export function AccountCard() {
   return (
     <Card className="st-account">
       <span className="st-avatar text-section-15" aria-hidden>
-        {user.name.slice(0, 1)}
+        {(user.name ?? user.email).slice(0, 1)}
       </span>
       <div className="st-account__text">
         <div className="st-account__name">
-          <span className="text-section-15">{user.name}</span>
+          <span className="text-section-15">{user.name ?? user.email}</span>
           <Badge tone="accent">{user.role}</Badge>
         </div>
         <span className="text-mono-12">{user.email}</span>
