@@ -58,7 +58,7 @@ export function PodList({ agents, isError, status, onStatus, selectedId, onSelec
                   <span className="text-mono-12-strong">{a.agent_key}</span>
                   <span className="text-caption-12 in-muted">
                     {showService ? `${a.service_name} · ` : ''}
-                    {a.hostname}
+                    {a.hostname ?? '—'}
                     {a.status === 'UP' ? '' : ` · ${a.status}`}
                   </span>
                 </span>

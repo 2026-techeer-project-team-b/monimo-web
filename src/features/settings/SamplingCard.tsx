@@ -86,7 +86,7 @@ export function SamplingCard({ appId }: { appId: string }) {
         <div>
           <span className="text-caption-12-medium st-muted">updated_by · updated_at</span>
           <div className="text-mono-12">
-            {c.updated_by ?? '처음 만든 값'} · {stamp(c.updated_at)}
+            {c.updated_by?.name ?? '처음 만든 값'} · {stamp(c.updated_at)}
           </div>
         </div>
         <div className="st-sampling__current">

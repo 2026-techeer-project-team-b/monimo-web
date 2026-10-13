@@ -1,9 +1,9 @@
 # monimo-web
 
-모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
+모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정)
 
 - 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · ECharts · React Flow · MSW(가짜 응답)
-- 상태: **3단계 완료** — 화면 8개를 가짜 응답(MSW)으로 모두 만들었다. 다음은 4단계(실서버 연결 · 보안). 플랫폼 상태 화면은 명세에 아직 없는 제안 문 3개에 기댄다 (아래 「가짜 응답」)
+- 상태: **3단계 완료** — 화면 7개를 가짜 응답(MSW)으로 모두 만들었다. 다음은 4단계(실서버 연결 · 보안). 플랫폼 상태 화면(제안 문 3개)은 받지 않기로 해 뺐다 (#75)
 
 ## 폴더 구성
 
@@ -66,17 +66,16 @@ VITE_API_MOCK=true npm run dev
 - 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER)
 - 응답은 `src/api/mocks/<도메인>.ts` 에 있고 `handlers.ts` 가 모은다. 같은 분이면 같은 값이 나오도록 정해진 난수로 만들어, 화면끼리 숫자가 맞는다 (서버맵 빨간 점 = 트랜잭션 목록 = 트레이스 상세 예외 = 에러 표 = ERROR 로그).
 - 만들기 · 수정(규칙 · 채널 · 서비스 · 샘플링률 · 덤프)은 메모리에 남고 **새로고침하면 처음으로 돌아간다**.
-- 일부러 넣어 둔 장면: 설정에서 shop-order 샘플링률을 처음 적용하면 "다른 사용자가 먼저 바꾼" 409 충돌 · 인스펙터 `shop-order-7d9f4-z9k1w` 는 덤프가 6초 걸려 timeout 5000 이면 503 · 플랫폼 상태는 매시 54분대 STALE
+- 일부러 넣어 둔 장면: 설정에서 shop-order 샘플링률을 처음 적용하면 "다른 사용자가 먼저 바꾼" 409 충돌 · 인스펙터 `shop-order-7d9f4-z9k1w` 는 덤프가 6초 걸려 timeout 5000 이면 503
 
 브라우저 콘솔에서 흐름을 시험할 수 있다.
 
 | 명령 | 하는 일 |
 |---|---|
 | `__monimoMock.expireAccess()` | access 토큰 만료 → 다음 요청이 401 → 자동 재발급 |
-| `__monimoMock.revokeRefresh()` | refresh 토큰도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
-| `__monimoMock.canaryStale(true)` | 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리 늦음)로. `false` 면 원래대로 |
+| `__monimoMock.revokeRefresh()` | refresh 쿠키도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
 
-⚠️ **제안 문**: 플랫폼 상태가 부르는 `GET /platform/canary` · `/platform/services` · `/platform/canary/events` 는 백엔드 명세(api-spec)에 아직 없다 (api-map.md 하단 제안 #51~#53). 4단계 전에 확정이 필요하다.
+플랫폼 상태 화면이 부르던 제안 문 3개(`GET /platform/canary` · `/platform/services` · `/platform/canary/events`)는 백엔드가 받지 않기로 해 화면과 함께 뺐다(#75). 화면 사용자(쇼핑몰 담당자)의 관심사가 아니고, 파드 상태는 `kubectl`, 끝까지 통하는지는 파수꾼 → Slack 이 본다. 나중에 "데이터가 최신인지" 가 필요하면 수집이 끊겼을 때만 배너로 보여 준다.
 
 ## 테스트
 
@@ -138,7 +137,7 @@ const c = chartColors()
 
 백엔드 명세(monimo-backend `docs/design/web-v2/api-spec.md` §0)를 따른다.
 
-- `/login` 에서 로그인하면 access 토큰은 메모리, refresh 토큰은 localStorage 에 둔다. 모든 요청에 `Authorization: Bearer` 가 붙는다.
+- `/login` 에서 로그인하면 access 토큰은 메모리에 두고, refresh 토큰은 서버가 httpOnly 쿠키(`monimo_refresh`)로 심는다 — 화면은 갖지 않는다. 모든 요청에 `Authorization: Bearer` 가 붙고, 쿠키는 재발급 · 로그아웃에만 붙는다(같은 출처여야 한다. 개발은 vite 프록시).
 - 요청이 401 이면 refresh 로 한 번 재발급하고 다시 보낸다 (동시에 여러 개여도 재발급은 1번). 재발급도 실패하면 로그인 화면으로 가며 "세션 만료" 배너가 뜬다.
 - 로그인하지 않고 화면 주소로 들어오면 `/login?next=<원래 주소>` 로 가고, 로그인 뒤 원래 주소로 돌아온다.
 - 화면에서 역할은 `useAuth()` 의 `isAdmin`, ADMIN 전용 버튼은 `<AdminOnly>` 로 감싼다. **이건 화면을 가리는 편의 기능이고, 실제로 막는 것은 API 서버다.**
@@ -158,7 +157,6 @@ const c = chartColors()
 | `/logs` | 로그 — 레벨 · 로거 · trace_id · 검색어 · 더 보기 | `agent` `level` `logger` `trace_id` `q` | `features/logs` |
 | `/alerts` | 경보 — 이벤트(상세 드로어 · 발송 이력) · 규칙(켜기/끄기 · 만들기/수정) · 채널(테스트 발송) | `tab` `state` `severity` `event` `enabled` `rule` `type` `channel` | `features/alerts` |
 | `/settings` | 설정 — 감시 대상 서비스 · 샘플링률(낙관적 잠금) · 에이전트 부착 · 계정 | `app` | `features/settings` |
-| `/platform` | 플랫폼 상태 — 카나리 신선도 · 우리 서비스 5개 + 파수꾼(Lambda) · 카나리 이벤트 (+ 모든 화면 사이드바 파수꾼 카드) | — | `features/platform` |
 | (모든 화면) | 트레이스 상세 드로어 — 스팬 트리 · 타임라인 · 스팬 상세 · 연결 로그 | `trace` | `features/trace-detail` · `shared/trace` |
 | `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `next` `expired` | `features/login` |
 | `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | — | `app/DesignSystemPreview.tsx` |
@@ -198,3 +196,7 @@ const c = chartColors()
 - `main` · `develop` 직접 push 금지, PR로만 머지. PR 의 base 는 기본값(`develop`) 그대로 두면 된다
 - 브랜치: `feat/<이슈번호>-<설명>` · `fix/<이슈번호>-<설명>` · `chore/<설명>`
 - 커밋: `<타입>(<범위>): <요약>` (타입: feat · fix · docs · chore · refactor · test)
+
+## AI 와 일한 방법 (승조가 만든 부분)
+
+화면 담당은 4명 공동이지만, 지금까지의 코드(`#1` ~ `#66`, 2026-09-22 ~ 10-03)는 승조(`@SeungJo-02`)가 AI(Claude Code)와 함께 만들었다. 규칙은 [`AGENTS.md`](AGENTS.md), 절차 · 역할 분담 · 토큰 기준값 · AI 가 틀린 것과 잡은 방법은 `monimo-backend` 의 [`docs/seungjo/harness.md`](https://github.com/2026-techeer-project-team-b/monimo-backend/blob/HEAD/docs/seungjo/harness.md)(정본, 한 곳에만 둔다), 이 레포에서 무엇을 어떻게 물었는지는 [`docs/prompts/`](docs/prompts/README.md) 에 있다. 다른 팀원이 작업을 시작하면 그 방식은 각자 적는다.

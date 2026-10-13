@@ -45,8 +45,8 @@ export type ApplicationConfig = {
   /** 0.0100 = 100건 중 1건만 트레이스로 남긴다 */
   sampling_rate: number
   version: number
-  /** 마지막으로 고친 사람 메일. 처음 만든 뒤 아무도 안 고쳤으면 null */
-  updated_by: string | null
+  /** 마지막으로 고친 사람. 처음 만든 뒤 아무도 안 고쳤으면 null */
+  updated_by: { user_uuid: string; name: string } | null
   updated_at: string
 }
 
