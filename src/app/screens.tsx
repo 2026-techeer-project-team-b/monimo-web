@@ -6,7 +6,6 @@ import {
   IconError,
   IconInspector,
   IconLogs,
-  IconPlatform,
   IconServerMap,
   IconSettings,
   IconTransactions,
@@ -29,5 +28,4 @@ export const SCREENS: Screen[] = [
   { path: 'logs', title: '로그', icon: <IconLogs />, load: () => import('@/features/logs').then((m) => ({ Component: m.LogsPage })) },
   { path: 'alerts', title: '경보', icon: <IconAlerts />, load: () => import('@/features/alerts').then((m) => ({ Component: m.AlertsPage })) },
   { path: 'settings', title: '설정', icon: <IconSettings />, load: () => import('@/features/settings').then((m) => ({ Component: m.SettingsPage })) },
-  { path: 'platform', title: '플랫폼 상태', icon: <IconPlatform />, load: () => import('@/features/platform').then((m) => ({ Component: m.PlatformPage })) },
 ]

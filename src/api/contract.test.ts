@@ -18,7 +18,6 @@ import {
   getAlertRule,
   getApplication,
   getApplicationConfig,
-  getCanary,
   getErrorTimeline,
   getHeatmap,
   getMetricSeries,
@@ -32,11 +31,9 @@ import {
   listAlertNotifications,
   listAlertRules,
   listApplications,
-  listCanaryEvents,
   listErrors,
   listLogs,
   listMetricNames,
-  listPlatformServices,
   listThreadDumps,
   listTransactions,
   listUrlStats,
@@ -46,7 +43,8 @@ import {
   setAlertRuleEnabled,
   testAlertChannel,
 } from '@/api'
-import { login, logout } from './auth'
+import { login, logout, restoreSession } from './auth'
+import { tokens } from './tokens'
 import { PASSWORD } from './mocks/common'
 import { handlers } from './mocks/handlers'
 
@@ -83,11 +81,22 @@ afterAll(async () => {
 })
 
 describe('인증', () => {
-  it('로그인은 access · refresh 토큰과 사용자를 준다 (POST /auth/login)', async () => {
+  it('로그인은 access 토큰과 사용자를 주고 refresh 는 쿠키로 심는다 (POST /auth/login)', async () => {
     await logout()
     const user = await login('admin@monimo.io', PASSWORD)
     expect(missing(user, ['user_uuid', 'email', 'name', 'role'])).toEqual([])
     expect(user.role).toBe('ADMIN')
+  })
+
+  it('access 가 사라져도 refresh 쿠키로 되살린다 (POST /auth/refresh 본문 없음)', async () => {
+    tokens.setAccess(null)
+    expect(await restoreSession()).toMatchObject({ email: 'admin@monimo.io' })
+  })
+
+  it('로그아웃하면 쿠키가 지워져 되살릴 수 없다', async () => {
+    await logout()
+    expect(await restoreSession()).toBeNull()
+    await login('admin@monimo.io', PASSWORD)
   })
 
   it('틀린 비밀번호는 401 UNAUTHENTICATED', async () => {
@@ -110,6 +119,8 @@ describe('서비스 · 설정', () => {
     const [app] = await listApplications()
     const c = await getApplicationConfig(app.application_uuid)
     expect(missing(c, ['application_config_uuid', 'sampling_rate', 'version', 'updated_by', 'updated_at'])).toEqual([])
+    // updated_by 는 메일이 아니라 { user_uuid, name } 객체이거나 null (backend ApplicationConfigDtos)
+    if (c.updated_by) expect(missing(c.updated_by, ['user_uuid', 'name'])).toEqual([])
     expect(c.sampling_rate).toBeGreaterThanOrEqual(0)
     expect(c.sampling_rate).toBeLessThanOrEqual(1)
   })
@@ -225,8 +236,10 @@ describe('인스펙터 · 스레드 덤프', () => {
     const a = (await listAgents({ serviceName: SERVICE })).items.find((x) => x.agent_key.endsWith('x2k8q'))!
     const d = await requestThreadDump(a.agent_uuid, 10_000)
     expect(missing(d, ['dump_uuid', 'agent_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count', 'dump'])).toEqual([])
-    const page = await listThreadDumps({ serviceName: SERVICE, from })
+    const page = await listThreadDumps({ serviceName: SERVICE, from, to: new Date().toISOString() })
     expect(page.items.some((x) => x.dump_uuid === d.dump_uuid)).toBe(true)
+    // from · to 는 쌍으로만 (backend ThreadDumpController)
+    await expectApiError(listThreadDumps({ serviceName: SERVICE, from }), 400, 'INVALID_REQUEST')
     expect(missing(page.items[0], ['dump_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count'])).toEqual([])
     expect(missing(await getThreadDump(d.dump_uuid), ['dump_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count', 'dump'])).toEqual([])
   })
@@ -258,40 +271,29 @@ describe('경보', () => {
     expect(second.items[0].alert_event_uuid).not.toBe(first.items[0].alert_event_uuid)
   })
 
-  it('GET /alert-rules · 상세 · 켜기/끄기 (목록의 channels[] 는 가정)', async () => {
+  it('GET /alert-rules · 상세 · 켜기/끄기 (channels[] 는 상세에만)', async () => {
     const rule = (await listAlertRules()).items[0]
-    const fields = ['alert_rule_uuid', 'application_uuid', 'service_name', 'name', 'metric_kind', 'operator', 'threshold', 'window_sec', 'severity', 'enabled', 'channels']
+    const fields = ['alert_rule_uuid', 'application_uuid', 'service_name', 'name', 'metric_kind', 'operator', 'threshold', 'window_sec', 'severity', 'enabled']
     expect(missing(rule, fields)).toEqual([])
-    expect(missing(await getAlertRule(rule.alert_rule_uuid), fields)).toEqual([])
+    expect(rule).not.toHaveProperty('channels')
+    expect(missing(await getAlertRule(rule.alert_rule_uuid), [...fields, 'channels'])).toEqual([])
     const r = await setAlertRuleEnabled(rule.alert_rule_uuid, !rule.enabled)
     expect(missing(r, ['alert_rule_uuid', 'enabled', 'updated_at'])).toEqual([])
     expect(r.enabled).toBe(!rule.enabled)
     await setAlertRuleEnabled(rule.alert_rule_uuid, rule.enabled)
   })
 
-  it('GET /alert-channels · 테스트 발송 (목록의 config · last_test 는 가정)', async () => {
+  it('GET /alert-channels · 테스트 발송 (config 는 상세에만, 비밀값은 가려서)', async () => {
     const ch = (await listAlertChannels()).items
-    expect(missing(ch[0], ['alert_channel_uuid', 'name', 'type', 'enabled', 'config'])).toEqual([])
-    // 비밀값은 가려서 온다
+    expect(missing(ch[0], ['alert_channel_uuid', 'name', 'type', 'enabled'])).toEqual([])
+    expect(ch[0]).not.toHaveProperty('config')
     const slack = ch.find((c) => c.type === 'SLACK')!
-    expect(slack.config.webhook_url).toContain('••••')
     expect((await getAlertChannel(slack.alert_channel_uuid)).config.webhook_url).toContain('••••')
     const t = await testAlertChannel(slack.alert_channel_uuid)
     expect(missing(t, ['alert_channel_uuid', 'type', 'result', 'response', 'tested_at'])).toEqual([])
     expect(['SUCCESS', 'FAILED']).toContain(t.result)
     const on = await setAlertChannelEnabled(slack.alert_channel_uuid, slack.enabled)
     expect(missing(on, ['alert_channel_uuid', 'enabled', 'updated_at'])).toEqual([])
-  })
-})
-
-describe('플랫폼 상태 (제안 문 #51~#53 · 명세 미확정)', () => {
-  it('GET /platform/canary · services · canary/events', async () => {
-    expect(missing(await getCanary(), ['service_name', 'last_signal_at', 'age_sec', 'threshold_sec', 'fresh'])).toEqual([])
-    const svc = await listPlatformServices()
-    expect(svc).toHaveLength(5)
-    expect(missing(svc[0], ['service_name', 'ready', 'deps', 'pod_count', 'checked_at'])).toEqual([])
-    const ev = await listCanaryEvents({ from, to })
-    expect(missing(ev.items[0], ['ts', 'kind', 'age_sec', 'threshold_sec', 'action'])).toEqual([])
   })
 })
 

@@ -34,6 +34,7 @@ export {
   type AlertChannel,
   type AlertChannelBody,
   type AlertChannelRef,
+  type AlertChannelSummary,
   type AlertEvent,
   type AlertEventDetail,
   type AlertEventsQuery,
@@ -61,15 +62,6 @@ export {
   type MetricSeriesQuery,
   type MetricSource,
 } from './metrics'
-export {
-  getCanary,
-  listCanaryEvents,
-  listPlatformServices,
-  type CanaryEvent,
-  type CanaryEventKind,
-  type CanaryFreshness,
-  type PlatformService,
-} from './platform'
 export { getThreadDump, listThreadDumps, requestThreadDump, type ThreadDump, type ThreadDumpMeta, type ThreadDumpsQuery } from './threadDumps'
 export {
   getErrorTimeline,
