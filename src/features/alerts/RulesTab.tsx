@@ -175,8 +175,9 @@ export function RulesTab() {
                     <TableCell type="badge">
                       <Badge tone={severityTone(r.severity)}>{r.severity}</Badge>
                     </TableCell>
-                    <TableCell type="number" title={r.channels.map((c) => c.name).join(', ') || '연결된 채널 없음'}>
-                      {r.channels.length ? `${r.channels.length}개` : <span className="al-muted">없음</span>}
+                    {/* 목록 응답에는 channels 가 없다. 상세(모달)에서 본다 */}
+                    <TableCell type="number" title={r.channels ? r.channels.map((c) => c.name).join(', ') || '연결된 채널 없음' : '상세에서 확인'}>
+                      {r.channels ? (r.channels.length ? `${r.channels.length}개` : <span className="al-muted">없음</span>) : <span className="al-muted">—</span>}
                     </TableCell>
                     <TableCell type="mono" className="al-right al-muted">
                       {new Date(r.updated_at).toLocaleDateString('sv-SE')} {formatTime(r.updated_at).slice(0, 8)}

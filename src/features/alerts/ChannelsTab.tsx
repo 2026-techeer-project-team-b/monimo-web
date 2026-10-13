@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ApiError, listAlertChannels, setAlertChannelEnabled, testAlertChannel, type AlertChannel, type ChannelTest } from '@/api'
+import { ApiError, listAlertChannels, setAlertChannelEnabled, testAlertChannel, type AlertChannelSummary, type ChannelTest } from '@/api'
 import { useAuth } from '@/auth'
 import {
   Badge,
@@ -26,9 +26,8 @@ const LIMIT = 50
 type EnabledFilter = 'ALL' | 'on' | 'off'
 type ToastState = { tone: 'ok' | 'crit'; title: string; lines: string[] }
 
-const stamp = (iso: string) => `${new Date(iso).toLocaleDateString('sv-SE')} ${formatTime(iso).slice(0, 8)}`
-
-/** 「채널」 탭 — 필터 · 채널 카드(켜기/끄기 · 테스트 발송 · 수정) · 등록/수정 모달 · 테스트 결과 토스트 */
+/** 「채널」 탭 — 필터 · 채널 카드(켜기/끄기 · 테스트 발송 · 수정) · 등록/수정 모달 · 테스트 결과 토스트.
+ * 목록(42번)에는 설정(config)이 없다 — 설정은 수정 모달(상세, ADMIN)에서 본다 */
 export function ChannelsTab() {
   const { isAdmin } = useAuth()
   const { enabled, channelType, channelId, setEnabled, setChannelType, resetChannelFilters, openChannel } = useAlertParams()
@@ -58,7 +57,7 @@ export function ChannelsTab() {
       ? '관리자(ADMIN)만 채널을 켜고 끌 수 있습니다.'
       : `채널을 ${toggle.variables?.on ? '켜지' : '끄지'} 못했습니다.${toggle.error instanceof ApiError ? ` (${toggle.error.code})` : ''}`
 
-  // 테스트 결과는 몇 초 뒤 사라지는 토스트로. 카드의 「마지막 테스트」 줄은 목록을 다시 받아 바뀐다
+  // 테스트 결과는 몇 초 뒤 사라지는 토스트로
   const [toast, setToast] = useState<ToastState | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const showToast = (t: ToastState) => {
@@ -67,7 +66,7 @@ export function ChannelsTab() {
     timer.current = setTimeout(() => setToast(null), 6000)
   }
   const test = useMutation({
-    mutationFn: (c: AlertChannel) => testAlertChannel(c.alert_channel_uuid),
+    mutationFn: (c: AlertChannelSummary) => testAlertChannel(c.alert_channel_uuid),
     onSuccess: (r: ChannelTest, c) =>
       showToast(
         r.result === 'SUCCESS'
@@ -175,25 +174,7 @@ export function ChannelsTab() {
                     <Switch checked={on} disabled={!isAdmin || toggle.isPending} aria-label={`${c.name} 켜짐`} onChange={(v) => toggle.mutate({ id: c.alert_channel_uuid, on: v })} />
                   </header>
 
-                  <dl className="al-config-list">
-                    {Object.entries(c.config).map(([k, v]) => (
-                      <div key={k}>
-                        <dt className="text-mono-12 al-muted">{k}</dt>
-                        <dd className="text-mono-12">{v}</dd>
-                      </div>
-                    ))}
-                  </dl>
-
-                  <p className="al-last-test text-caption-12">
-                    {c.last_test ? (
-                      <span className={c.last_test.result === 'SUCCESS' ? 'al-ok' : 'al-crit'}>
-                        <span aria-hidden className="al-dot" /> 테스트 {c.last_test.result} ·{' '}
-                        {c.last_test.result === 'SUCCESS' ? stamp(c.last_test.tested_at) : `${c.last_test.response} · ${stamp(c.last_test.tested_at)}`}
-                      </span>
-                    ) : (
-                      <span className="al-muted">아직 테스트하지 않았습니다</span>
-                    )}
-                  </p>
+                  <p className="al-last-test text-caption-12 al-muted">등록 {new Date(c.created_at).toLocaleDateString('sv-SE')} · 설정은 수정에서</p>
 
                   {isAdmin ? (
                     <div className="al-channel-card__actions">

@@ -13,8 +13,8 @@ export type AlertEvent = {
   fingerprint: string
   state: AlertState
   severity: Severity
-  /** 경보가 울릴 때 잰 값. 단위는 규칙의 metric_kind 에 따른다 (이 응답에는 없다) */
-  observed_value: number
+  /** 경보가 울릴 때 잰 값. 단위는 규칙의 metric_kind 에 따른다 (이 응답에는 없다). 잰 값이 없는 사건(AGENT_DOWN 등)은 null */
+  observed_value: number | null
   fired_at: string
   resolved_at: string | null
 }
@@ -63,8 +63,8 @@ export type AlertNotification = {
   result: NotifyResult
   /** 실패 뒤 다시 보낸 횟수 */
   retry_count: number
-  /** 채널이 돌려준 응답 (예: 200 ok · 429 rate_limited) */
-  response: string
+  /** 채널이 돌려준 응답 (예: 200 ok · 429 rate_limited). 응답을 못 받았으면 null */
+  response: string | null
   sent_at: string
 }
 
@@ -88,7 +88,8 @@ export type AlertRule = {
   window_sec: number
   severity: Severity
   enabled: boolean
-  channels: AlertChannelRef[]
+  /** 상세 · 생성 · 수정 응답에만 있다. 목록(GET /alert-rules)에는 없다 */
+  channels?: AlertChannelRef[]
   created_at: string
   updated_at: string
 }
@@ -144,18 +145,20 @@ export type ChannelTest = {
   tested_at: string
 }
 
-export type AlertChannel = AlertChannelRef & {
+/** 목록(42번) 한 줄. 설정(config)은 없다 — 상세(ADMIN)에서만 */
+export type AlertChannelSummary = AlertChannelRef & {
   enabled: boolean
-  /** 종류별 설정(webhook_url · to 등). 비밀값은 서버가 가려서(••••) 준다 */
-  config: Record<string, string>
-  /** 마지막 테스트 발송 결과. 명세 42 번 응답에는 아직 없는 필드라 없을 수 있다 */
-  last_test?: Omit<ChannelTest, 'alert_channel_uuid' | 'type'> | null
   created_at: string
   updated_at: string
 }
 
-export function listAlertChannels(q: { type?: ChannelType; enabled?: boolean; cursor?: string | null; limit?: number } = {}, signal?: AbortSignal): Promise<Page<AlertChannel>> {
-  return api.getPage<AlertChannel>('/alert-channels', { query: q, signal })
+export type AlertChannel = AlertChannelSummary & {
+  /** 종류별 설정(webhook_url · to 등). 비밀값은 서버가 가려서(••••) 준다 */
+  config: Record<string, string>
+}
+
+export function listAlertChannels(q: { type?: ChannelType; enabled?: boolean; cursor?: string | null; limit?: number } = {}, signal?: AbortSignal): Promise<Page<AlertChannelSummary>> {
+  return api.getPage<AlertChannelSummary>('/alert-channels', { query: q, signal })
 }
 
 export function getAlertChannel(uuid: string, signal?: AbortSignal): Promise<AlertChannel> {
