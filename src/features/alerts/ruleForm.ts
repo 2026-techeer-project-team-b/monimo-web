@@ -56,7 +56,7 @@ export function formOf(r: AlertRule): RuleForm {
     window_sec: r.window_sec,
     severity: r.severity,
     enabled: r.enabled,
-    channel_uuids: r.channels.map((c) => c.alert_channel_uuid),
+    channel_uuids: (r.channels ?? []).map((c) => c.alert_channel_uuid),
   }
 }
 
@@ -95,7 +95,7 @@ export function changesOf(before: AlertRule, f: RuleForm) {
   const body = bodyOf(f)
   return {
     rule: (Object.keys(body) as (keyof AlertRuleBody)[]).some((k) => body[k] !== before[k]),
-    channels: !sameSet(before.channels.map((c) => c.alert_channel_uuid), f.channel_uuids),
+    channels: !sameSet((before.channels ?? []).map((c) => c.alert_channel_uuid), f.channel_uuids),
     enabled: before.enabled !== f.enabled,
   }
 }

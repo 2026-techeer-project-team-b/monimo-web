@@ -8,10 +8,11 @@ export type Agent = {
   service_name: string
   /** 파드 이름. 신호 조회의 agent_key 와 같은 글자 */
   agent_key: string
-  hostname: string
-  ip: string
-  jvm_version: string
-  agent_version: string
+  /** 아래 넷은 에이전트가 안 보냈으면 null */
+  hostname: string | null
+  ip: string | null
+  jvm_version: string | null
+  agent_version: string | null
   status: AgentStatus
 }
 
@@ -22,7 +23,7 @@ export function listAgents({ serviceName, status, cursor, limit }: AgentsQuery =
 }
 
 /** 파드 하나의 상세 (27번) — 목록 필드 + 서비스 uuid · 처음 본 시각 · 마지막 갱신 */
-export type AgentDetail = Agent & { application_uuid: string; first_seen_at: string; updated_at: string }
+export type AgentDetail = Agent & { application_uuid: string; first_seen_at: string | null; updated_at: string }
 
 export function getAgent(uuid: string, signal?: AbortSignal): Promise<AgentDetail> {
   return api.get<AgentDetail>(`/agents/${encodeURIComponent(uuid)}`, { signal })

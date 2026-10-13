@@ -36,7 +36,7 @@ export function AlertStrip() {
             <Badge tone={severityTone(e.severity)}>{e.severity}</Badge>
             <span className="text-mono-12">{e.service_name}</span>
             <span className="text-caption-12">
-              {e.rule_name} · 실측 {e.observed_value.toLocaleString('en-US')}
+              {e.rule_name} · 실측 {e.observed_value == null ? '—' : e.observed_value.toLocaleString('en-US')}
             </span>
           </li>
         ))}

@@ -33,12 +33,12 @@ export function PodHeader({ agentId, onRequestDump, onShowDumps }: Props) {
     )
   }
 
-  const fields: [string, string][] = [
+  const fields: [string, string | null][] = [
     ['hostname', a.hostname],
     ['ip', a.ip],
     ['jvm_version', a.jvm_version],
     ['agent_version', a.agent_version],
-    ['first_seen_at', stamp(a.first_seen_at)],
+    ['first_seen_at', a.first_seen_at ? stamp(a.first_seen_at) : null],
     ['updated_at', stamp(a.updated_at)],
   ]
   const t = threads.data
@@ -57,7 +57,7 @@ export function PodHeader({ agentId, onRequestDump, onShowDumps }: Props) {
           {fields.map(([k, v]) => (
             <div key={k}>
               <dt className="text-caption-12-medium">{k}</dt>
-              <dd className="text-mono-12">{v}</dd>
+              <dd className="text-mono-12">{v ?? '—'}</dd>
             </div>
           ))}
         </dl>

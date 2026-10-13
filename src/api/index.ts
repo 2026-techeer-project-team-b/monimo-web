@@ -34,6 +34,7 @@ export {
   type AlertChannel,
   type AlertChannelBody,
   type AlertChannelRef,
+  type AlertChannelSummary,
   type AlertEvent,
   type AlertEventDetail,
   type AlertEventsQuery,

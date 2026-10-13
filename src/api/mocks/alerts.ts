@@ -4,7 +4,7 @@
 // 규칙 · 채널은 메모리 배열이라 고치면 새로고침 전까지 남는다 (경보 상세도 바뀐 규칙 이름 · 조건을 따라간다)
 import { http } from 'msw'
 import { API_BASE } from '../client'
-import type { AlertChannel, AlertChannelBody, AlertChannelRef, AlertEvent, AlertEventDetail, AlertNotification, AlertRule, AlertRuleBody, ChannelTestResult, ChannelType, MetricKind, NotifyResult, Operator, Severity } from '../alerts'
+import type { AlertChannel, AlertChannelBody, AlertChannelRef, AlertChannelSummary, AlertEvent, AlertEventDetail, AlertNotification, AlertRule, AlertRuleBody, ChannelTestResult, ChannelType, MetricKind, NotifyResult, Operator, Severity } from '../alerts'
 import { APPLICATIONS, fail, notAdmin, ok, okPage, unauthenticated } from './common'
 
 const MIN = 60_000
@@ -204,6 +204,8 @@ const channelRefs = (uuids: string[]): AlertChannelRef[] =>
   })
 
 const toRule = (r: MockRule): AlertRule => ({ ...r, channels: channelRefs(r.channels) })
+/** 목록 줄. 백엔드 목록 응답에는 channels 가 없다 */
+const toRuleSummary = ({ channels: _channels, ...r }: MockRule): AlertRule => r
 
 /** 수정 · 생성 본문 검사. 틀리면 400 INVALID_REQUEST 응답, 맞으면 null */
 function invalidBody(b: Partial<AlertRuleBody> | null) {
@@ -241,7 +243,7 @@ export const rulesHandlers = [
         (!q.get('severity') || r.severity === q.get('severity')),
     )
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
-      .map(toRule)
+      .map(toRuleSummary)
     const limit = Math.min(Number(q.get('limit')) || 50, 500)
     const offset = Number(q.get('cursor')) || 0
     return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)
@@ -344,7 +346,7 @@ export const rulesHandlers = [
     if (denied) return denied
     const q = new URL(request.url).searchParams
     const enabled = q.get('enabled')
-    const rows = CHANNELS.filter((c) => (!q.get('type') || c.type === q.get('type')) && (enabled === null || String(c.enabled) === enabled)).map(toChannel)
+    const rows = CHANNELS.filter((c) => (!q.get('type') || c.type === q.get('type')) && (enabled === null || String(c.enabled) === enabled)).map(toChannelSummary)
     const limit = Math.min(Number(q.get('limit')) || 50, 500)
     const offset = Number(q.get('cursor')) || 0
     return okPage(rows.slice(offset, offset + limit), limit, offset + limit < rows.length ? String(offset + limit) : null)
@@ -369,12 +371,14 @@ function mask(v: string) {
   return v.length <= 5 ? '••••' : `${v.slice(0, 3)}••••••••${v.slice(-2)}`
 }
 
-function maskConfig(c: MockChannel): Record<string, string> {
+function maskConfig(c: Pick<MockChannel, 'type' | 'config'>): Record<string, string> {
   const secrets = new Set(CONFIG_KEYS[c.type].filter((k) => k.secret).map((k) => k.key))
   return Object.fromEntries(Object.entries(c.config).map(([k, v]) => [k, secrets.has(k) ? mask(v) : v]))
 }
 
-const toChannel = (c: MockChannel): AlertChannel => ({ ...c, config: maskConfig(c) })
+const toChannel = ({ last_test: _t, ...c }: MockChannel): AlertChannel => ({ ...c, config: maskConfig(c) })
+/** 목록 줄. 백엔드 목록 응답에는 config 가 없고 last_test 는 어디에도 없다 (last_test 는 테스트 발송 응답에만 쓴다) */
+const toChannelSummary = ({ last_test: _t, config: _c, ...c }: MockChannel): AlertChannelSummary => c
 const findChannel = (id: unknown) => CHANNELS.find((c) => c.alert_channel_uuid === id)
 const channelNotFound = () => fail(404, 'NOT_FOUND', '채널을 찾을 수 없습니다.')
 

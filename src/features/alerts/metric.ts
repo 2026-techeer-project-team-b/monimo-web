@@ -14,8 +14,8 @@ export const UNIT: Record<MetricKind, string> = {
 
 export const OPERATOR: Record<Operator, string> = { GT: '>', GTE: '≥', LT: '<', LTE: '≤' }
 
-/** 1,240 · 4.2 (소수는 한 자리까지) */
-export const fmtValue = (v: number) => v.toLocaleString('en-US', { maximumFractionDigits: 1 })
+/** 1,240 · 4.2 (소수는 한 자리까지). 잰 값이 없으면 — */
+export const fmtValue = (v: number | null | undefined) => (v == null ? '—' : v.toLocaleString('en-US', { maximumFractionDigits: 1 }))
 
 /** 경과 시간을 사람 말로: 45초 · 12분 · 1시간 20분 · 2일 3시간 */
 export function fmtDuration(ms: number): string {
