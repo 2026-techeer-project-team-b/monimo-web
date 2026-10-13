@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { login as apiLogin, logout as apiLogout, onSessionExpired, restoreSession, type User } from '@/api'
-import { REFRESH_KEY, tokens } from '@/api/tokens'
+import { SESSION_KEY, tokens } from '@/api/tokens'
 import { AuthContext, type AuthStatus, type AuthValue } from './context'
 
 /** 서버 · 네트워크 일시 오류일 때 세션 복원을 다시 시도하는 간격 (ms). 다 실패하면 로그인 화면 (토큰은 남는다) */
@@ -9,7 +9,7 @@ const RESTORE_RETRY_MS = [1000, 3000]
 
 /**
  * 로그인 상태를 앱 전체에 준다.
- * - 시작할 때 저장된 refresh 로 세션을 되살린다 (일시 오류면 잠시 뒤 다시 시도).
+ * - 시작할 때 refresh 쿠키로 세션을 되살린다 (일시 오류면 잠시 뒤 다시 시도).
  * - API 가 재발급까지 실패하면 익명으로 바꾼다 → 라우트 가드가 로그인 화면으로 보낸다.
  * - 다른 탭에서 로그인 · 로그아웃하면 이 탭도 따라간다 (다른 사람 토큰으로 요청하면서 이전 사람 화면을 보이지 않도록).
  * - 사용자가 바뀌는 모든 순간(로그인 · 로그아웃 · 만료 · 탭 동기화)에 서버 데이터 캐시를 비운다.
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const onStorage = (e: StorageEvent) => {
-      if (e.key !== REFRESH_KEY && e.key !== null) return
+      if (e.key !== SESSION_KEY && e.key !== null) return
       tokens.dropAccess()
       queryClient.clear()
       setUser(null)

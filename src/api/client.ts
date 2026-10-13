@@ -3,6 +3,7 @@
 //   성공(단건) { data }  ·  성공(목록) { data: [...], page: { next_cursor, limit } }  ·  실패 { error: { code, message } }
 //   모든 응답 헤더에 X-Request-Id — 장애 문의 때 쓰도록 ApiError 에 담는다.
 // 인증: access 토큰이 있으면 Authorization: Bearer 를 붙인다. 401 이면 refresh 로 한 번 재발급하고 원 요청을 다시 보낸다.
+// refresh 는 httpOnly 쿠키라 화면이 다루지 않는다. 쿠키가 붙으려면 API 가 같은 출처여야 한다 (개발은 vite 프록시, 운영은 입구 하나).
 import { notifySessionExpired, tokens } from './tokens'
 
 export const API_BASE = (import.meta.env.VITE_API_BASE || '/api/v1').replace(/\/+$/, '')
@@ -81,6 +82,7 @@ async function send(method: string, path: string, body: unknown, options: Reques
   let res: Response
   try {
     res = await fetch(`${API_BASE}${path}${qs ? `?${qs}` : ''}`, {
+      credentials: 'include', // 재발급 · 로그아웃이 쓰는 refresh 쿠키
       ...init,
       method,
       headers: merged,
@@ -115,14 +117,12 @@ function unwrap<T>(body: unknown): T {
 type RefreshOutcome = 'ok' | 'invalid' | 'error'
 let refreshing: Promise<RefreshOutcome> | null = null
 
-/** 저장된 refresh 토큰으로 access 를 다시 받는다. invalid = refresh 가 없거나 거절됨(다시 로그인 필요) */
+/** refresh 쿠키로 access 를 다시 받는다. invalid = 쿠키가 없거나 거절됨(다시 로그인 필요) */
 export function refreshAccessToken(): Promise<RefreshOutcome> {
   refreshing ??= (async (): Promise<RefreshOutcome> => {
-    const refreshToken = tokens.getRefresh()
-    if (!refreshToken) return 'invalid'
     const generation = tokens.generation()
     try {
-      const data = unwrap<{ access_token: string }>(await send('POST', '/auth/refresh', { refresh_token: refreshToken }, { auth: false }))
+      const data = unwrap<{ access_token: string }>(await send('POST', '/auth/refresh', undefined, { auth: false }))
       // 재발급 중에 로그아웃했으면 받은 토큰을 되살리지 않는다
       if (generation !== tokens.generation()) return 'error'
       tokens.setAccess(data.access_token)
