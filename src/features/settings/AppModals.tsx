@@ -53,7 +53,9 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
         <span className="st-modal-title">
           {app ? `서비스 수정 — ${app.name}` : '서비스 등록'}
           <span className="text-caption-12 st-muted">
-            {app ? 'PATCH /applications/{uuid} · name 은 바꿀 수 없습니다' : 'name 은 수집기가 받는 otel.service.name 과 같은 글자여야 합니다'}
+            {app
+              ? 'PATCH /applications/{uuid} · name 은 바꿀 수 없습니다'
+              : 'name 은 수집기가 받는 otel.service.name 과 같은 글자여야 합니다 · 등록 시 샘플링 설정 1줄(1 %, v1) 이 함께 생깁니다'}
           </span>
         </span>
       }
@@ -104,7 +106,7 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
   )
 }
 
-/** 감시 대상에서 제외 확인 모달. 논리 삭제라 규칙 · 파드 · 이력은 남고 목록 · 조회에서만 빠진다 */
+/** 감시 대상에서 제외 확인 모달. 논리 삭제(deleted_at)라 규칙 · 파드 · 이력은 남고 목록 · 조회에서만 빠진다. 같은 name 재등록은 409 */
 export function AppDeleteModal({ app, onClose, onDeleted }: { app: Application; onClose: () => void; onDeleted: () => void }) {
   const qc = useQueryClient()
   const { serviceName, setServiceName } = useFilters()
@@ -137,7 +139,9 @@ export function AppDeleteModal({ app, onClose, onDeleted }: { app: Application; 
         <p className="text-body-13">
           <span className="text-mono-12-strong">{app.name}</span> 을(를) 감시 대상에서 뺍니다. 서비스 목록 · 상단바에서 사라지고, 이미 쌓인 신호는 보관 기간까지 남습니다.
         </p>
-        <p className="text-caption-12 st-muted">딸린 경보 규칙 · 파드 기록 · 설정은 지우지 않고 그대로 둡니다. 같은 이름으로는 다시 등록할 수 없습니다.</p>
+        <p className="text-caption-12 st-muted">
+          deleted_at 만 찍는 논리 삭제라 딸린 경보 규칙 · 파드 기록 · 설정은 그대로 둡니다. 같은 이름으로 다시 등록하면 409 APPLICATION_NAME_TAKEN 입니다.
+        </p>
         {del.isError ? (
           <Banner tone="crit">
             {e?.code === 'FORBIDDEN' ? '관리자(ADMIN)만 제외할 수 있습니다.' : e ? `${e.message} (${e.code})` : '제외하지 못했습니다.'}

@@ -17,7 +17,7 @@ import {
 import { useOpenTrace } from '../trace'
 import './LogTable.css'
 
-const LEVEL_TONE: Record<LogLevel, Tone> = { ERROR: 'crit', WARN: 'warn', INFO: 'accent', DEBUG: 'muted', TRACE: 'muted' }
+const LEVEL_TONE: Record<LogLevel, Tone> = { FATAL: 'crit', ERROR: 'crit', WARN: 'warn', INFO: 'accent', DEBUG: 'muted', TRACE: 'muted' }
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -99,7 +99,10 @@ export function LogTable({ rows, q = '', hideService, hideTrace }: Props) {
                   </span>
                 </TableCell>
                 <TableCell type="badge">
-                  <Badge tone={LEVEL_TONE[l.level] ?? 'muted'} className="text-mono-11">{l.level}</Badge>
+                  {/* 등급 모름('')은 색 없이 — 처럼 보여 준다 (ADR #59) */}
+                  <Badge tone={l.level ? LEVEL_TONE[l.level] ?? 'muted' : 'muted'} className="text-mono-11">
+                    {l.level || '—'}
+                  </Badge>
                 </TableCell>
                 {hideService ? null : <TableCell>{l.service_name}</TableCell>}
                 <TableCell type="mono" className="log-clip" title={l.agent_key}>{l.agent_key}</TableCell>

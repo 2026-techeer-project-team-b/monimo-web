@@ -340,7 +340,7 @@ export function DesignSystemPreview() {
           items={NAV}
           activeKey={active}
           onSelect={setActive}
-          footer={<SidebarStatusCard title="파수꾼 · 카나리" tone="ok" value="12초 전" caption="정상 (기준 60초)" />}
+          footer={<SidebarStatusCard title="파수꾼 · 카나리" tone="ok" value="63초 전" caption="정상 (기준 180초)" />}
         />
         <div style={{ flex: 1, background: 'var(--color-bg-canvas)' }}>
           <Topbar title="서버맵" subtitle="서비스 간 호출 관계와 에러를 한눈에">
