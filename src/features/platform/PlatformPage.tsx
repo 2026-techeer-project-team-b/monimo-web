@@ -159,7 +159,7 @@ export function PlatformPage() {
               </li>
             ))}
             <li key="watchdog-lambda">
-              <Card className="pf-svc pf-svc--watchdog">
+              <Card className="pf-svc">
                 <div className="pf-svc__head">
                   <StatusDot tone="muted" />
                   <span className="text-mono-12-strong">파수꾼 (Lambda)</span>

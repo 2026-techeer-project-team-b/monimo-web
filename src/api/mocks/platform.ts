@@ -1,6 +1,6 @@
 // 플랫폼 상태 가짜 응답 — ⚠️ 제안 문 #51~#53 (명세 미확정, src/api/platform.ts 머리 주석 참고).
 // 파수꾼(Lambda)은 EventBridge 로 1분마다 돈다. 카나리를 쏘고 기다리지 않은 채 직전 주기에 쏜 카나리를 조회하므로
-// 정상일 때 나이는 60~70초, 기준은 180초(MONIMO_CANARY_THRESHOLD_SEC 기본값). 지금 시각으로 신선도를 계산한다.
+// 정상일 때 나이는 60~69초, 기준은 180초(MONIMO_CANARY_THRESHOLD_SEC 기본값). 지금 시각으로 신선도를 계산한다.
 // 매시 54분대 1분은 파이프라인이 밀린 것처럼 STALE(214초), 53분에는 Dead Man's Switch 핑이 한 번 빠진다.
 // 콘솔에서 __monimoMock.canaryStale(true) 로 언제든 STALE 로 바꿀 수 있다
 import { http } from 'msw'

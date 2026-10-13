@@ -45,7 +45,7 @@ function Form({ filters, agents, showAgents, onApply }: Props) {
             <legend className="text-caption-12-medium">level (여러 개 선택, 비우면 전체)</legend>
             <div className="lg-chips">
               {LEVEL_CHIPS.map((lv) => (
-                <Chip key={lv || 'NONE'} tone={lv ? LEVEL_TONE[lv] ?? 'default' : 'default'} selected={d.levels.includes(lv)} onChange={(on) => toggleLevel(lv, on)}>
+                <Chip key={lv || 'NONE'} tone={(lv && LEVEL_TONE[lv]) || 'default'} selected={d.levels.includes(lv)} onChange={(on) => toggleLevel(lv, on)}>
                   {lv || '(없음)'}
                 </Chip>
               ))}
