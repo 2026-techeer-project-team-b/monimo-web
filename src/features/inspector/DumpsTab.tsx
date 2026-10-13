@@ -26,7 +26,8 @@ import { useServiceName } from '@/stores'
 import { blockedSummary, lockOwners, parseDump, stateCounts, THREAD_STATES, type DumpThread, type ThreadState } from './dumpParse'
 import type { DumpPeriod } from './useInspectorParams'
 
-const PERIOD_MS: Record<DumpPeriod, number> = { '24h': 24 * 3_600_000, '7d': 7 * 24 * 3_600_000, '93d': 93 * 24 * 3_600_000 }
+// 93d 는 보관 기간(TTL) 그대로라 기간 필터 없이 전체를 받는다 — backend 범위 상한이 7일(422 TIME_RANGE_TOO_WIDE)
+const PERIOD_MS: Record<DumpPeriod, number | null> = { '24h': 24 * 3_600_000, '7d': 7 * 24 * 3_600_000, '93d': null }
 const LIMIT = 30
 
 const threadTone = (s: string): Tone => (s === 'RUNNABLE' ? 'ok' : s === 'BLOCKED' ? 'crit' : s === 'TIMED_WAITING' ? 'warn' : 'muted')
@@ -46,14 +47,18 @@ type Props = {
 /** 스레드 덤프 탭 (S05) — 왼쪽 덤프 목록, 오른쪽 고른 덤프의 스레드 표 · 스택 */
 export function DumpsTab({ dumpId, dumpAgent, period, onOpen, onAgent, onPeriod, onRequest }: Props) {
   const serviceName = useServiceName()
-  // 기간 시작만 준다(끝 없음 = 지금까지) — 탭을 연 뒤 새로 뜬 덤프도 목록을 다시 받으면 들어온다
-  const [openedAt] = useState(() => Date.now())
-  const from = new Date(openedAt - PERIOD_MS[period]).toISOString()
+  // from · to 는 쌍으로만 받는다(하나만 보내면 400). 끝을 조회 시각으로 매번 새로 찍어 탭을 연 뒤 뜬 덤프도 다시 받으면 들어온다
+  const range = () => {
+    const ms = PERIOD_MS[period]
+    if (ms === null) return {}
+    const to = Date.now()
+    return { from: new Date(to - ms).toISOString(), to: new Date(to).toISOString() }
+  }
 
   const agents = useQuery({ queryKey: ['agents', serviceName], queryFn: ({ signal }) => listAgents({ serviceName, limit: 500 }, signal) })
   const list = useInfiniteQuery({
     queryKey: ['thread-dumps', serviceName, dumpAgent, period],
-    queryFn: ({ pageParam, signal }) => listThreadDumps({ serviceName, agentKey: dumpAgent, from, cursor: pageParam, limit: LIMIT }, signal),
+    queryFn: ({ pageParam, signal }) => listThreadDumps({ serviceName, agentKey: dumpAgent, ...range(), cursor: pageParam, limit: LIMIT }, signal),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor,
     placeholderData: keepPreviousData,
