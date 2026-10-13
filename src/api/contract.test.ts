@@ -236,8 +236,10 @@ describe('인스펙터 · 스레드 덤프', () => {
     const a = (await listAgents({ serviceName: SERVICE })).items.find((x) => x.agent_key.endsWith('x2k8q'))!
     const d = await requestThreadDump(a.agent_uuid, 10_000)
     expect(missing(d, ['dump_uuid', 'agent_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count', 'dump'])).toEqual([])
-    const page = await listThreadDumps({ serviceName: SERVICE, from })
+    const page = await listThreadDumps({ serviceName: SERVICE, from, to: new Date().toISOString() })
     expect(page.items.some((x) => x.dump_uuid === d.dump_uuid)).toBe(true)
+    // from · to 는 쌍으로만 (backend ThreadDumpController)
+    await expectApiError(listThreadDumps({ serviceName: SERVICE, from }), 400, 'INVALID_REQUEST')
     expect(missing(page.items[0], ['dump_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count'])).toEqual([])
     expect(missing(await getThreadDump(d.dump_uuid), ['dump_uuid', 'agent_key', 'service_name', 'requested_by', 'requested_at', 'thread_count', 'dump'])).toEqual([])
   })

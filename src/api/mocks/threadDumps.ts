@@ -155,9 +155,12 @@ export const threadDumpsHandlers = [
     const denied = unauthenticated(request)
     if (denied) return denied
     const q = new URL(request.url).searchParams
+    // backend 와 같다: from · to 는 둘 다 보내거나 둘 다 안 보낸다. 하나만 오면 400, 7일 넘으면 422
+    if ((q.get('from') === null) !== (q.get('to') === null)) return fail(400, 'INVALID_REQUEST', 'from 과 to 는 같이 보내야 합니다.')
     const from = Date.parse(q.get('from') ?? '')
     const to = Date.parse(q.get('to') ?? '')
     if (from >= to) return fail(422, 'UNPROCESSABLE', 'from 은 to 보다 앞이어야 합니다.')
+    if (to - from > 7 * 24 * 3_600_000) return fail(422, 'TIME_RANGE_TOO_WIDE', '시간 범위는 최대 7일입니다.')
     const rows = all()
       .filter(
         (d) =>
