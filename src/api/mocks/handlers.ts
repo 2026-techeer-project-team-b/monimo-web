@@ -10,7 +10,6 @@ import { alertsHandlers, channelsHandlers, rulesHandlers } from './alerts'
 import { errorsHandlers } from './errors'
 import { logsHandlers } from './logs'
 import { metricsHandlers } from './metrics'
-import { platformHandlers, setCanaryStale } from './platform'
 import { threadDumpsHandlers } from './threadDumps'
 import { serverMapHandlers } from './serverMap'
 import { statsHandlers } from './stats'
@@ -47,8 +46,6 @@ export const mockControls = {
     accessTokens.clear()
     refreshTokens.clear()
   },
-  /** 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리가 늦음)로 바꾼다. false 면 원래대로 */
-  canaryStale: (on = true) => setCanaryStale(on),
 }
 
 // 실제 서버의 쿠키 속성과 같다 (backend RefreshCookie). 로컬은 http 라 Secure 를 안 붙인다.
@@ -105,7 +102,6 @@ export const handlers = [
   ...agentsHandlers,
   ...metricsHandlers,
   ...threadDumpsHandlers,
-  ...platformHandlers,
   ...errorsHandlers,
   ...logsHandlers,
 ]

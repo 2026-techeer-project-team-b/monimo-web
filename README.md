@@ -1,9 +1,9 @@
 # monimo-web
 
-모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정 · 플랫폼 상태)
+모니모니터링 화면 (서버맵 · 트랜잭션 · 인스펙터 · 에러 · 로그 · 경보 · 설정)
 
 - 기술: React 19 · TypeScript · Vite · oxlint · React Router · TanStack Query · Zustand · ECharts · React Flow · MSW(가짜 응답)
-- 상태: **3단계 완료** — 화면 8개를 가짜 응답(MSW)으로 모두 만들었다. 다음은 4단계(실서버 연결 · 보안). 플랫폼 상태 화면은 명세에 아직 없는 제안 문 3개에 기댄다 (아래 「가짜 응답」)
+- 상태: **3단계 완료** — 화면 7개를 가짜 응답(MSW)으로 모두 만들었다. 다음은 4단계(실서버 연결 · 보안). 플랫폼 상태 화면(제안 문 3개)은 받지 않기로 해 뺐다 (#75)
 
 ## 폴더 구성
 
@@ -66,7 +66,7 @@ VITE_API_MOCK=true npm run dev
 - 데모 계정 (비밀번호 모두 `monimo2026`): `admin@monimo.io` (ADMIN) · `viewer@monimo.io` (VIEWER)
 - 응답은 `src/api/mocks/<도메인>.ts` 에 있고 `handlers.ts` 가 모은다. 같은 분이면 같은 값이 나오도록 정해진 난수로 만들어, 화면끼리 숫자가 맞는다 (서버맵 빨간 점 = 트랜잭션 목록 = 트레이스 상세 예외 = 에러 표 = ERROR 로그).
 - 만들기 · 수정(규칙 · 채널 · 서비스 · 샘플링률 · 덤프)은 메모리에 남고 **새로고침하면 처음으로 돌아간다**.
-- 일부러 넣어 둔 장면: 설정에서 shop-order 샘플링률을 처음 적용하면 "다른 사용자가 먼저 바꾼" 409 충돌 · 인스펙터 `shop-order-7d9f4-z9k1w` 는 덤프가 6초 걸려 timeout 5000 이면 503 · 플랫폼 상태는 매시 54분대 STALE
+- 일부러 넣어 둔 장면: 설정에서 shop-order 샘플링률을 처음 적용하면 "다른 사용자가 먼저 바꾼" 409 충돌 · 인스펙터 `shop-order-7d9f4-z9k1w` 는 덤프가 6초 걸려 timeout 5000 이면 503
 
 브라우저 콘솔에서 흐름을 시험할 수 있다.
 
@@ -74,9 +74,8 @@ VITE_API_MOCK=true npm run dev
 |---|---|
 | `__monimoMock.expireAccess()` | access 토큰 만료 → 다음 요청이 401 → 자동 재발급 |
 | `__monimoMock.revokeRefresh()` | refresh 쿠키도 무효 → 재발급 실패 → 로그인 화면(세션 만료) |
-| `__monimoMock.canaryStale(true)` | 플랫폼 상태 · 사이드바 파수꾼 카드를 STALE(카나리 늦음)로. `false` 면 원래대로 |
 
-⚠️ **제안 문**: 플랫폼 상태가 부르는 `GET /platform/canary` · `/platform/services` · `/platform/canary/events` 는 백엔드 명세(api-spec)에 아직 없다 (api-map.md 하단 제안 #51~#53). 4단계 전에 확정이 필요하다.
+플랫폼 상태 화면이 부르던 제안 문 3개(`GET /platform/canary` · `/platform/services` · `/platform/canary/events`)는 백엔드가 받지 않기로 해 화면과 함께 뺐다(#75). 화면 사용자(쇼핑몰 담당자)의 관심사가 아니고, 파드 상태는 `kubectl`, 끝까지 통하는지는 파수꾼 → Slack 이 본다. 나중에 "데이터가 최신인지" 가 필요하면 수집이 끊겼을 때만 배너로 보여 준다.
 
 ## 테스트
 
@@ -158,7 +157,6 @@ const c = chartColors()
 | `/logs` | 로그 — 레벨 · 로거 · trace_id · 검색어 · 더 보기 | `agent` `level` `logger` `trace_id` `q` | `features/logs` |
 | `/alerts` | 경보 — 이벤트(상세 드로어 · 발송 이력) · 규칙(켜기/끄기 · 만들기/수정) · 채널(테스트 발송) | `tab` `state` `severity` `event` `enabled` `rule` `type` `channel` | `features/alerts` |
 | `/settings` | 설정 — 감시 대상 서비스 · 샘플링률(낙관적 잠금) · 에이전트 부착 · 계정 | `app` | `features/settings` |
-| `/platform` | 플랫폼 상태 — 카나리 신선도 · 우리 서비스 6개 · 카나리 이벤트 (+ 모든 화면 사이드바 파수꾼 카드) | — | `features/platform` |
 | (모든 화면) | 트레이스 상세 드로어 — 스팬 트리 · 타임라인 · 스팬 상세 · 연결 로그 | `trace` | `features/trace-detail` · `shared/trace` |
 | `/login` | 로그인 (셸 없음, 로그인 없이 들어감) | `next` `expired` | `features/login` |
 | `/design-system` | 디자인 시스템 미리보기 (메뉴에 없음, 로그인 없이 들어감) | — | `app/DesignSystemPreview.tsx` |
