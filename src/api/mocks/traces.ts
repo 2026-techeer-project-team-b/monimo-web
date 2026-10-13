@@ -12,7 +12,7 @@ import { HOUR } from './serverMap'
 
 const MIN = 60_000
 const SPANS: Record<string, string[]> = {
-  'shop-gateway': ['GET /orders/**', 'POST /orders/**', 'GET /users/**'],
+  'shop-gateway': ['GET /orders/**', 'POST /orders/**', 'POST /payments/**'],
   'shop-order': [
     'POST /api/v1/orders/{orderId}/pay',
     'POST /api/v1/orders',
@@ -23,7 +23,6 @@ const SPANS: Record<string, string[]> = {
   ],
   'shop-payment': ['POST /api/v1/payments', 'GET /api/v1/payments/{paymentId}'],
   'shop-inventory': ['GET /api/v1/stock/{sku}', 'POST /api/v1/stock/reserve'],
-  'shop-user': ['GET /api/v1/users/{userId}', 'GET /api/v1/users/me'],
 }
 
 const hex = (r: () => number, len: number) => Array.from({ length: len }, () => Math.floor(r() * 16).toString(16)).join('')

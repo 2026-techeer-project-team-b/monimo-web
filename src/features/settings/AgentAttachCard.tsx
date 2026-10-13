@@ -9,6 +9,7 @@ export function AgentAttachCard({ serviceName }: { serviceName: string }) {
   const cmd = [
     'java -javaagent:opentelemetry-javaagent.jar \\',
     `     -Dotel.service.name=${serviceName} \\`,
+    '     -Dotel.resource.attributes=service.instance.id=$(hostname) \\',
     `     -Dotel.exporter.otlp.endpoint=${COLLECTOR} \\`,
     '     -Dotel.javaagent.extensions=monimo-ext.jar \\',
     '     -jar app.jar',
@@ -47,7 +48,9 @@ export function AgentAttachCard({ serviceName }: { serviceName: string }) {
             복사하지 못했습니다. 명령을 직접 골라 복사하세요.
           </span>
         ) : null}
-        <span className="text-caption-12 st-muted">Java 17 + Spring Boot 3.x · mTLS 인증서 필요</span>
+        <span className="text-caption-12 st-muted">
+          Java 17 + Spring Boot 3.x · service.instance.id = 파드 이름(없으면 재시작마다 UUID) · mTLS 는 COLLECTOR_TLS_CLIENT_AUTH 켠 수집기만
+        </span>
       </div>
     </Card>
   )

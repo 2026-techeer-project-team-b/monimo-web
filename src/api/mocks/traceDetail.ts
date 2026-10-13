@@ -19,7 +19,6 @@ const CALLEE_SPAN: Record<string, [ok: string, bad: string]> = {
   'shop-order': ['GET /api/v1/orders/{orderId}', 'POST /api/v1/orders'],
   'shop-payment': ['GET /api/v1/payments/{paymentId}', 'POST /api/v1/payments'],
   'shop-inventory': ['GET /api/v1/stock/{sku}', 'POST /api/v1/stock/reserve'],
-  'shop-user': ['GET /api/v1/users/{userId}', 'GET /api/v1/users/me'],
 }
 
 const pascal = (service: string) => service.replace(/^shop-/, '').replace(/^./, (c) => c.toUpperCase())

@@ -28,7 +28,7 @@ const MB = 1024 * 1024
 export const DEFAULT_METRICS: MetricUi[] = [
   { metric: 'jvm.cpu.recent_utilization', title: 'CPU 사용률', unit: '%', scale: (v) => v * 100, kind: 'band', digits: 1 },
   { metric: 'jvm.memory.used{heap}', title: '힙 메모리', unit: 'MB', scale: (v) => v / MB, kind: 'maxline', digits: 0 },
-  { metric: 'jvm.gc.duration', title: 'GC 시간', unit: 'ms / 분', scale: (v) => v, kind: 'bars', limit: 80, digits: 0 },
+  { metric: 'jvm.gc.duration.sum', title: 'GC 시간', unit: 'ms / 분', scale: (v) => v, kind: 'bars', limit: 80, digits: 0 },
   { metric: 'jvm.thread.count', title: '스레드 수', unit: '개', scale: (v) => v, kind: 'band', digits: 0 },
 ]
 
