@@ -17,7 +17,7 @@ export function TopbarControls() {
   )
 }
 
-/** 서비스 선택 (GET /applications). 빈 값 = 전체 */
+/** 서비스 선택 (GET /applications). 빈 값 = 전체. system 별로 묶어 보여 준다 (쇼핑몰과 우리 모듈이 한 목록에 섞이지 않게) */
 function ServiceSelect() {
   const id = useId()
   const serviceName = useFilters((s) => s.serviceName)
@@ -29,15 +29,22 @@ function ServiceSelect() {
     if (apps && serviceName && !apps.some((a) => a.name === serviceName)) setServiceName(null)
   }, [apps, serviceName, setServiceName])
 
+  const groups = new Map<string, NonNullable<typeof apps>>()
+  for (const a of apps ?? []) groups.set(a.system, [...(groups.get(a.system) ?? []), a])
+
   return (
     <div className="topbar-controls__service">
       <label htmlFor={id} className="topbar-controls__caption text-caption-12">서비스</label>
       <Select id={id} value={serviceName ?? ''} onChange={(e) => setServiceName(e.target.value || null)} disabled={!apps && !isError}>
         <option value="">전체</option>
-        {apps?.map((a) => (
-          <option key={a.application_uuid} value={a.name}>
-            {a.display_name || a.name}
-          </option>
+        {[...groups].map(([system, list]) => (
+          <optgroup key={system} label={system}>
+            {list.map((a) => (
+              <option key={a.application_uuid} value={a.name}>
+                {a.display_name || a.name}
+              </option>
+            ))}
+          </optgroup>
         ))}
       </Select>
     </div>

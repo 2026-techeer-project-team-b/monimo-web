@@ -5,6 +5,7 @@ import { Banner, Button, Field, Input, Modal, Textarea } from '@/design-system'
 import { useFilters } from '@/stores'
 
 const NAME = /^[a-z][a-z0-9-]{1,98}[a-z0-9]$/
+const DEFAULT_SYSTEM = 'shop'
 
 /** 서비스 목록을 쓰는 곳(상단바 서비스 고르기 · 설정 표 · 트레이스 상세)을 모두 다시 받는다 */
 const invalidateApps = (qc: ReturnType<typeof useQueryClient>) =>
@@ -17,13 +18,14 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
   const [name, setName] = useState(app?.name ?? '')
   const [displayName, setDisplayName] = useState(app?.display_name ?? '')
   const [description, setDescription] = useState(app?.description ?? '')
+  const [system, setSystem] = useState(app?.system ?? DEFAULT_SYSTEM)
   const [showErrors, setShowErrors] = useState(false)
 
   const save = useMutation({
     mutationFn: () =>
       app
-        ? updateApplication(app.application_uuid, { display_name: displayName.trim(), description: description.trim() })
-        : createApplication({ name: name.trim(), display_name: displayName.trim(), description: description.trim() }),
+        ? updateApplication(app.application_uuid, { display_name: displayName.trim(), description: description.trim(), system: system.trim() })
+        : createApplication({ name: name.trim(), display_name: displayName.trim(), description: description.trim(), system: system.trim() }),
     onSuccess: async (a) => {
       await invalidateApps(qc)
       onSaved(a)
@@ -38,11 +40,13 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
       : showErrors && !NAME.test(name.trim())
         ? '영문 소문자로 시작하고 소문자 · 숫자 · - 만 써서 3~100자로 적으세요.'
         : null
+  const systemOk = system.trim().length >= 1 && system.trim().length <= 50
+  const systemError = showErrors && !systemOk ? '1~50자로 적으세요. 비워 둘 수 없습니다.' : null
   const otherError = save.isError && !taken ? (save.error instanceof ApiError ? (save.error.code === 'FORBIDDEN' ? '관리자(ADMIN)만 바꿀 수 있습니다.' : `${save.error.message} (${save.error.code})`) : '저장하지 못했습니다.') : null
 
   const submit = () => {
     setShowErrors(true)
-    if (app || NAME.test(name.trim())) save.mutate()
+    if ((app || NAME.test(name.trim())) && systemOk) save.mutate()
   }
 
   return (
@@ -96,6 +100,9 @@ export function AppFormModal({ app, onClose, onSaved }: { app: Application | nul
           </Field>
           <Field label="display_name" htmlFor={`${id}-display`}>
             <Input id={`${id}-display`} value={displayName} maxLength={200} placeholder="주문" onChange={(e) => setDisplayName(e.target.value)} />
+          </Field>
+          <Field label="system" htmlFor={`${id}-system`} error={systemError} help="같은 system 끼리 샘플링 비율의 최댓값을 묶습니다. 쇼핑몰은 shop, 모니모 자기 감시는 monimo">
+            <Input id={`${id}-system`} className="text-mono-12" value={system} maxLength={50} placeholder={DEFAULT_SYSTEM} aria-invalid={!!systemError} onChange={(e) => setSystem(e.target.value)} />
           </Field>
           <Field label="description" htmlFor={`${id}-desc`}>
             <Textarea id={`${id}-desc`} rows={4} value={description} placeholder="이 서비스가 하는 일" onChange={(e) => setDescription(e.target.value)} />

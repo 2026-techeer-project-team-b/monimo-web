@@ -10,6 +10,7 @@ import {
   ApiError,
   createAlertRule,
   createApplication,
+  updateApplication,
   deleteApplication,
   getActiveThreads,
   getAgent,
@@ -109,7 +110,7 @@ describe('서비스 · 설정', () => {
   it('GET /applications 목록과 상세 (파드 수는 상세에만)', async () => {
     const apps = await listApplications()
     expect(apps.length).toBeGreaterThan(0)
-    const fields = ['application_uuid', 'name', 'display_name', 'description', 'created_at', 'updated_at']
+    const fields = ['application_uuid', 'name', 'display_name', 'description', 'system', 'created_at', 'updated_at']
     expect(missing(apps[0], fields)).toEqual([])
     expect(apps[0]).not.toHaveProperty('agent_count')
     expect(missing(await getApplication(apps[0].application_uuid), [...fields, 'agent_count'])).toEqual([])
@@ -140,8 +141,18 @@ describe('서비스 · 설정', () => {
     expect(a.name).toBe('contract-test-svc')
     // 빈 표시명은 null 로 저장된다
     expect(a.display_name).toBeNull()
+    // system 을 안 보내면 shop (backend #205)
+    expect(a.system).toBe('shop')
     const c = await getApplicationConfig(a.application_uuid)
     expect({ rate: c.sampling_rate, version: c.version }).toEqual({ rate: 0.01, version: 1 })
+    await deleteApplication(a.application_uuid)
+  })
+
+  it('system 은 보내면 그 값, 수정으로 바뀌고, 빈칸이면 400 (backend #205)', async () => {
+    const a = await createApplication({ name: 'contract-test-sys', display_name: '', description: '', system: 'monimo' })
+    expect(a.system).toBe('monimo')
+    expect((await updateApplication(a.application_uuid, { display_name: '', description: '', system: 'shop' })).system).toBe('shop')
+    await expectApiError(updateApplication(a.application_uuid, { display_name: '', description: '', system: '  ' }), 400, 'INVALID_REQUEST')
     await deleteApplication(a.application_uuid)
   })
 
