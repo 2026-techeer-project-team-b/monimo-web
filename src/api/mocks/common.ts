@@ -13,7 +13,7 @@ export const USERS = [
 ] as const
 
 /** 감시 대상 서비스 4개 (GET /applications). 쇼핑몰(monimo-shop)은 게이트웨이 · 주문 · 결제 · 재고 4개뿐이다. 경보 규칙이 application_uuid 로 가리킨다. 등록 · 제외는 이 배열을 고친다 */
-export const APPLICATIONS: { application_uuid: string; name: string; display_name: string; description: string; created_at: string; updated_at: string }[] = (
+export const APPLICATIONS: { application_uuid: string; name: string; display_name: string; description: string; system: string; created_at: string; updated_at: string }[] = (
   [
     ['shop-gateway', '게이트웨이', '외부 요청을 받아 각 서비스로 나눠 보내는 입구.', '2026-09-18T00:22:10Z'],
     ['shop-order', '주문', '주문 접수 · 결제 요청 · 재고 차감을 묶어 처리하는 핵심 서비스. 카나리 주문이 통과하는 경로.', '2026-09-21T04:40:05Z'],
@@ -25,6 +25,7 @@ export const APPLICATIONS: { application_uuid: string; name: string; display_nam
   name,
   display_name,
   description,
+  system: 'shop',
   created_at: '2026-08-02T01:14:22Z',
   updated_at,
 }))

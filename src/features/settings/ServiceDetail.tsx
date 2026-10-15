@@ -9,7 +9,7 @@ const stamp = (iso?: string) => (iso ? `${new Date(iso).toLocaleDateString('sv-S
 
 type Props = { appId: string; onEdit: () => void; onDelete: () => void }
 
-/** 서비스 상세 (6번) — 이름(불변) · 표시명 · 파드 수 · 설명, 수정 · 감시 대상에서 제외 */
+/** 서비스 상세 (6번) — 이름(불변) · 표시명 · system · 파드 수 · 설명, 수정 · 감시 대상에서 제외 */
 export function ServiceDetail({ appId, onEdit, onDelete }: Props) {
   const href = useFilterHref()
   const q = useQuery({ queryKey: ['application', appId], queryFn: ({ signal }) => getApplication(appId, signal) })
@@ -58,6 +58,13 @@ export function ServiceDetail({ appId, onEdit, onDelete }: Props) {
         <div>
           <dt className="text-caption-12-medium">display_name</dt>
           <dd className="text-body-13">{a.display_name || <span className="st-muted">—</span>}</dd>
+        </div>
+        <div>
+          <dt className="text-caption-12-medium">system</dt>
+          <dd className="text-body-13">
+            <span className="text-mono-12-strong">{a.system}</span>
+            <span className="text-caption-12 st-muted">같은 system 끼리 샘플링 비율의 최댓값을 묶음</span>
+          </dd>
         </div>
         <div>
           <dt className="text-caption-12-medium">agent_count</dt>

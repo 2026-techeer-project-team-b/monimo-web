@@ -29,6 +29,13 @@ let raced = false
 const DELETED = new Map<string, string>()
 const live = () => APPLICATIONS.filter((a) => !DELETED.has(a.application_uuid))
 const nullIfEmpty = (v: string) => v || null
+/** system 은 보냈으면 1~50자. 안 보냈으면(undefined) 부르는 쪽이 가른다. 빈칸 · 50자 초과는 null → 400 */
+const systemOf = (v: unknown): string | null | undefined => {
+  if (v === undefined) return undefined
+  const t = typeof v === 'string' ? v.trim() : ''
+  return t && t.length <= 50 ? t : null
+}
+const badSystem = () => fail(400, 'INVALID_REQUEST', 'system 은 1자 이상 50자 이하여야 합니다.')
 
 /** 목록 한 줄 — agent_count 없음 */
 const toListItem = (a: (typeof APPLICATIONS)[number]): Application => ({ ...a, display_name: nullIfEmpty(a.display_name), description: nullIfEmpty(a.description) })
@@ -54,10 +61,12 @@ export const applicationsHandlers = [
   http.post(`${API_BASE}/applications`, async ({ request }) => {
     const denied = notAdmin(request)
     if (denied) return denied
-    const b = (await request.json().catch(() => null)) as { name?: unknown; display_name?: unknown; description?: unknown } | null
+    const b = (await request.json().catch(() => null)) as { name?: unknown; display_name?: unknown; description?: unknown; system?: unknown } | null
     const name = typeof b?.name === 'string' ? b.name.trim() : ''
     // 백엔드 구현(#36)은 글자 수만 본다. 형식(영문 소문자 · 숫자 · -)은 화면(AppModals)이 먼저 막는다
     if (!name || name.length > 100) return fail(400, 'INVALID_REQUEST', 'name 은 1자 이상 100자 이하여야 합니다.')
+    const system = systemOf(b?.system)
+    if (system === null) return badSystem()
     const existing = APPLICATIONS.find((a) => a.name === name)
     if (existing) return fail(409, 'APPLICATION_NAME_TAKEN', DELETED.has(existing.application_uuid) ? '감시 대상에서 제외된 서비스 이름입니다.' : '이미 사용 중인 이름입니다.')
     const now = new Date().toISOString()
@@ -66,6 +75,7 @@ export const applicationsHandlers = [
       name,
       display_name: typeof b?.display_name === 'string' ? b.display_name.trim() : '',
       description: typeof b?.description === 'string' ? b.description.trim() : '',
+      system: system ?? 'shop',
       created_at: now,
       updated_at: now,
     }
@@ -80,9 +90,12 @@ export const applicationsHandlers = [
     if (denied) return denied
     const a = find(params.uuid)
     if (!a) return notFound()
-    const b = (await request.json().catch(() => null)) as { display_name?: unknown; description?: unknown } | null
+    const b = (await request.json().catch(() => null)) as { display_name?: unknown; description?: unknown; system?: unknown } | null
+    const system = systemOf(b?.system)
+    if (system === null) return badSystem()
     if (typeof b?.display_name === 'string') a.display_name = b.display_name.trim()
     if (typeof b?.description === 'string') a.description = b.description.trim()
+    if (system) a.system = system
     a.updated_at = new Date().toISOString()
     return ok(toApp(a))
   }),

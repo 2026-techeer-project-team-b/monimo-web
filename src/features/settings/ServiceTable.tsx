@@ -42,6 +42,7 @@ export function ServiceTable({ apps, isError, selectedId, onSelect, onCreate }: 
             <TableRow>
               <TableHeaderCell>name</TableHeaderCell>
               <TableHeaderCell>표시명</TableHeaderCell>
+              <TableHeaderCell>system</TableHeaderCell>
               <TableHeaderCell align="right">수정</TableHeaderCell>
             </TableRow>
           </TableHead>
@@ -50,6 +51,7 @@ export function ServiceTable({ apps, isError, selectedId, onSelect, onCreate }: 
               <TableRow key={a.application_uuid} onClick={() => onSelect(a.application_uuid)} selected={a.application_uuid === selectedId} aria-label={`${a.name} 설정 보기`}>
                 <TableCell type="mono">{a.name}</TableCell>
                 <TableCell>{a.display_name || <span className="st-muted">—</span>}</TableCell>
+                <TableCell type="mono">{a.system}</TableCell>
                 <TableCell type="mono" className="st-right st-muted">
                   {short(a.updated_at)}
                 </TableCell>
