@@ -24,6 +24,8 @@ export function BrushChart({ option, range, onRange, color, height, 'aria-label'
   const withBrush = useMemo<ChartOption>(
     () => ({
       ...option,
+      // brush 는 toolbox 에 자기 버튼 4개를 자동으로 넣는다. 드래그는 아래 takeGlobalCursor 로 늘 켜 두므로 버튼은 숨긴다
+      toolbox: { show: false },
       brush: {
         xAxisIndex: 0,
         yAxisIndex: 0,
