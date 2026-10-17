@@ -1,7 +1,8 @@
 // 경로 정의. 화면 목록은 screens.tsx 에서 가져온다.
-import { Navigate, type RouteObject } from 'react-router'
+import { type RouteObject } from 'react-router'
 import { RequireAuth } from '@/auth'
 import { AppLayout } from './AppLayout'
+import { indexLoader } from './indexLoader'
 import { NotFound, RouteError } from './RouteError'
 import { SCREENS, type ScreenMeta } from './screens'
 
@@ -16,7 +17,7 @@ export const routes: RouteObject[] = [
     ),
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <Navigate to="/server-map" replace /> },
+      { index: true, loader: indexLoader },
       ...SCREENS.map((s) => ({ path: s.path, handle: { title: s.title, subtitle: s.subtitle } satisfies ScreenMeta, lazy: s.load })),
       { path: '*', handle: { title: '페이지 없음' } satisfies ScreenMeta, element: <NotFound /> },
     ],
