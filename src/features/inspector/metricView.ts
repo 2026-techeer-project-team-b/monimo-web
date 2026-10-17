@@ -10,7 +10,14 @@ export type ChartKind =
   | 'bars'
 
 export type MetricUi = {
+  /** 카드 키. 제목 옆 표기 · 주소의 지표 목록과 맞춘다 */
   metric: string
+  /** 조회에 묻는 지표 이름. 없으면 metric 그대로. 힙처럼 꼬리표로 골라 그리는 카드만 다르다 */
+  query?: string
+  /** 이 꼬리표를 전부 가진 줄만 그린다. 줄 이름에서는 이 키를 뺀다 */
+  match?: Record<string, string>
+  /** 「현재」를 줄 합으로 — 풀별 줄을 합쳐야 전체가 되는 지표 */
+  total?: boolean
   title: string
   unit: string
   /** 서버 값(OTel 원래 단위) → 화면 단위 */
@@ -27,7 +34,8 @@ const MB = 1024 * 1024
 /** 시안의 기본 차트 4장 */
 export const DEFAULT_METRICS: MetricUi[] = [
   { metric: 'jvm.cpu.recent_utilization', title: 'CPU 사용률', unit: '%', scale: (v) => v * 100, kind: 'band', digits: 1 },
-  { metric: 'jvm.memory.used{heap}', title: '힙 메모리', unit: 'MB', scale: (v) => v / MB, kind: 'maxline', digits: 0 },
+  // 힙은 이름이 아니라 꼬리표로 구분된다 : jvm.memory.used 의 jvm.memory.type=heap 줄(풀마다 한 줄). {heap} 은 시안의 표기
+  { metric: 'jvm.memory.used{heap}', query: 'jvm.memory.used', match: { 'jvm.memory.type': 'heap' }, total: true, title: '힙 메모리', unit: 'MB', scale: (v) => v / MB, kind: 'maxline', digits: 0 },
   { metric: 'jvm.gc.duration.sum', title: 'GC 시간', unit: 'ms / 분', scale: (v) => v, kind: 'bars', limit: 80, digits: 0 },
   { metric: 'jvm.thread.count', title: '스레드 수', unit: '개', scale: (v) => v, kind: 'band', digits: 0 },
 ]
@@ -58,8 +66,18 @@ export function toView(s: MetricSeries, ui: MetricUi): ViewLine[] {
     max: ui.scale(p.max_v),
     last: ui.scale(p.last_v),
   })
-  return s.series.map((l) => ({ name: lineName(l.attributes) || l.agent_key, points: l.points.map(conv) }))
+  const match = ui.match ?? {}
+  const keys = Object.keys(match)
+  const lines = s.series
+    .filter((l) => keys.every((k) => l.attributes[k] === match[k]))
+    .map((l) => ({ name: lineName(Object.fromEntries(Object.entries(l.attributes).filter(([k]) => !keys.includes(k)))) || l.agent_key, points: l.points.map(conv) }))
+  // 고른 줄은 응답 순서가 들쭉날쭉해서 이름순으로 고정한다. 안 고르면 응답 순서 그대로
+  return keys.length ? lines.sort((a, b) => a.name.localeCompare(b.name)) : lines
 }
 
-/** 오른쪽 「현재」 값 — 첫 줄 마지막 점의 last_v. 신호가 없으면 null */
-export const currentOf = (lines: ViewLine[]) => lines[0]?.points.at(-1)?.last ?? null
+/** 오른쪽 「현재」 값 — 첫 줄 마지막 점의 last_v. total 이면 줄마다 마지막 점을 더한다. 신호가 없으면 null */
+export function currentOf(lines: ViewLine[], total = false): number | null {
+  if (!total) return lines[0]?.points.at(-1)?.last ?? null
+  const lasts = lines.map((l) => l.points.at(-1)?.last).filter((v): v is number => v !== undefined)
+  return lasts.length ? lasts.reduce((a, b) => a + b, 0) : null
+}

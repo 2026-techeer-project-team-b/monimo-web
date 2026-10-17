@@ -17,9 +17,10 @@ type Props = {
 
 /** 지표 한 장 — GET /metrics/series 를 그 파드로 좁혀 그리고, 오른쪽에 현재값 · 범례 */
 export function MetricChartCard({ ui, serviceName, agentKey, from, to, onRemove }: Props) {
+  const metricName = ui.query ?? ui.metric
   const q = useQuery({
-    queryKey: ['metric-series', serviceName, agentKey, ui.metric, from, to],
-    queryFn: ({ signal }) => getMetricSeries({ serviceName, agentKey, metricName: ui.metric, from, to }, signal),
+    queryKey: ['metric-series', serviceName, agentKey, metricName, from, to],
+    queryFn: ({ signal }) => getMetricSeries({ serviceName, agentKey, metricName, from, to }, signal),
     placeholderData: keepPreviousData,
   })
   // 파드를 바꾼 직후 이전 파드의 값이 잠깐 남아 보이지 않게, 같은 파드 응답일 때만 쓴다.
@@ -28,7 +29,7 @@ export function MetricChartCard({ ui, serviceName, agentKey, from, to, onRemove 
   const data = samePod ? q.data : undefined
   const lines = useMemo(() => (data ? toView(data, ui) : []), [data, ui])
   const option = useMemo(() => (lines.length ? optionOf(lines, ui, Date.parse(from), Date.parse(to)) : null), [lines, ui, from, to])
-  const current = currentOf(lines)
+  const current = currentOf(lines, ui.total)
   const over = ui.limit !== undefined && current !== null && current > ui.limit
   // 마지막 점이 시간 창 끝보다 두 칸 넘게 앞이면(끊긴 파드) "현재" 가 아니라 그 시각의 값이다
   const lastT = lines[0]?.points.at(-1)?.t

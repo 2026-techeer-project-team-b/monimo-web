@@ -34,4 +34,28 @@ describe('지표 단위', () => {
     expect(currentOf(lines)).toBe(9)
     expect(currentOf([])).toBeNull()
   })
+
+  it('힙 카드는 jvm.memory.used 를 묻고 type=heap 줄만 풀 이름으로 그리며 "현재" 는 풀 합', () => {
+    const heap = DEFAULT_METRICS.find((m) => m.metric === 'jvm.memory.used{heap}')!
+    expect(heap.query).toBe('jvm.memory.used')
+    const MB = 1024 * 1024
+    const pt = (last: number) => [{ ts_min: '2026-10-17T00:00:00Z', avg_v: last * MB, min_v: last * MB, max_v: last * MB, last_v: last * MB }]
+    const lines = toView(
+      {
+        metric_name: 'jvm.memory.used',
+        source_table: 'metrics_1m',
+        step: 60,
+        series: [
+          { agent_key: 'a', attributes: { 'jvm.memory.pool.name': 'Metaspace', 'jvm.memory.type': 'non_heap' }, points: pt(90) },
+          { agent_key: 'a', attributes: { 'jvm.memory.pool.name': 'G1 Old Gen', 'jvm.memory.type': 'heap' }, points: pt(48) },
+          { agent_key: 'a', attributes: { 'jvm.memory.pool.name': 'G1 Eden Space', 'jvm.memory.type': 'heap' }, points: pt(32) },
+          { agent_key: 'a', attributes: { 'jvm.memory.pool.name': 'G1 Survivor Space', 'jvm.memory.type': 'heap' }, points: [] },
+        ],
+      },
+      heap,
+    )
+    expect(lines.map((l) => l.name)).toEqual(['G1 Eden Space', 'G1 Old Gen', 'G1 Survivor Space'])
+    expect(currentOf(lines, heap.total)).toBe(80)
+    expect(currentOf([], true)).toBeNull()
+  })
 })
